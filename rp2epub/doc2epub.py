@@ -129,8 +129,8 @@ class DocToEpub:
 			self.book.writestr('META-INF/container.xml', meta_inf)
 
 			# Add the book.css with the right value set for the background image
-			if self.document_wrapper.doc_type in _CSS_LOGOS:
-				uri, local = _CSS_LOGOS[self.document_wrapper.doc_type]
+			if self.document_wrapper.doc_type in CSS_LOGOS:
+				uri, local = CSS_LOGOS[self.document_wrapper.doc_type]
 				self.book.writestr('Assets/book.css', BOOK_CSS % local[7:])
 				_To_transfer.append((uri, local))
 
