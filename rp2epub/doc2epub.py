@@ -35,7 +35,7 @@ from .utils import HttpSession, et_to_book
 # These are the items that have to be added to each file and package, no matter what: (id,file,media-type,properties)
 # noinspection PyPep8
 #: Items that have to be added to the book's manifest, no matter; tuples of the form (id,file,media-type,properties)
-_DEFAULT_FILES = [
+DEFAULT_FILES = [
 		("nav.xhtml", "application/xhtml+xml", "nav", "nav"),
 		("toc.ncx", "application/x-dtbncx+xml", "ncx", ""),
 		("cover.xhtml", "application/xhtml+xml", "cover", ""),
@@ -51,7 +51,7 @@ _To_transfer = [
 ]
 
 # noinspection PyPep8
-_CSS_LOGOS = {
+CSS_LOGOS = {
 	"REC"  : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-REC.png"),
 	"NOTE" : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-NOTE.png"),
 	"PR"   : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-PR.png"),

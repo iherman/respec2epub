@@ -26,6 +26,85 @@ meta_inf = """<?xml version="1.0" encoding="UTF-8"?>
 </container>
 """
 
+NAV = """<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+    <head>
+        <title>
+            Contents
+        </title>
+        <meta name="date" />
+        <link rel="stylesheet" type="text/css" href="StyleSheets/TR/base.css" />
+        <meta content="application/xhtml+xml; charset=utf-8" http-equiv="content-type" />
+        <style>
+            ol {
+                counter-reset: section;
+                list-style-type: none;
+            }
+            li:before {
+                counter-increment: section;
+                content: counters(section, ".") " ";
+            }
+        </style>
+    </head>
+    <body>
+        <nav epub:type="toc" id="toc">
+        </nav>
+        <nav epub:type="landmarks" id="landmarks">
+          <ol epub:type="list">
+            <li epub:type="bodymatter" href="cover.xhtml">Begin reading</li>
+            <li epub:type="toc" href="toc.xhtml">Table of Contents</li>
+          </ol>
+        </nav>
+    </body>
+</html>
+"""
+
+TOC = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+	<head>
+    <meta name="dtb:depth" content="2"/>
+    <meta name="dtb:totalPageCount" content="0"/>
+    <meta name="dtb:maxPageNumber" content="0"/>
+		<meta name="dtb:uid" />
+	</head>
+	<docTitle></docTitle>
+  <docAuthor></docAuthor>
+  <navMap>
+    <navPoint class="h1" id="cover" playOrder="1">
+      <navLabel><text>Cover</text></navLabel>
+      <content src="cover.xhtml"/>
+    </navPoint>
+    <navPoint class="h1" id="toc" playOrder="2">
+      <navLabel><text>Table of Contents</text></navLabel>
+      <content src="toc.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>
+"""
+
+PACKAGE = """<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="en" unique-identifier="pub-id" prefix="cc: http://creativecommons.org/ns#">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title id="title" />
+    <meta refines="#title" property="title-type">main</meta>
+    <dc:creator id="creator"></dc:creator>
+    <dc:identifier id="pub-id" />
+    <dc:language>en-US</dc:language>
+    <meta property="dcterms:modified" />
+    <dc:publisher>World Wide Web Consortium</dc:publisher>
+    <meta property="dcterms:date" />
+    <dc:rights>http://www.w3.org/Consortium/Legal/2002/ipr-notice-20021231#Copyright</dc:rights>
+    <link rel="cc:license" href="http://www.w3.org/Consortium/Legal/2002/ipr-notice-20021231#Copyright"/>
+    <meta property="cc:attributionURL">http://www.w3.org</meta>
+  </metadata>
+  <manifest>
+  </manifest>
+  <spine  toc="ncx">
+        <itemref idref="cover"/>
+        <itemref idref="toc" />
+  </spine>
+</package>
+"""
 
 COVER = """<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>

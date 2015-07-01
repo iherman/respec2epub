@@ -2,7 +2,7 @@ from urlparse import urlparse, urljoin
 from xml.etree.ElementTree import SubElement
 
 from .utils import HttpSession
-from ..utils import get_document_properties, create_shortname, retrieve_date, extract_editors, extract_toc, set_html_meta
+from .utils import get_document_properties, create_shortname, retrieve_date, extract_editors, extract_toc, set_html_meta
 
 # suffixes and media types for resources that are recognized by EPUB
 # noinspection PyPep8,PyPep8

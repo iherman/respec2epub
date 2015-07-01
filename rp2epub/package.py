@@ -3,8 +3,7 @@
 # noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
-from ..templates import PACKAGE, TOC, NAV
-from .templates import COVER
+from .templates import PACKAGE, TOC, NAV, COVER
 from .utils import et_to_book
 
 
@@ -42,7 +41,7 @@ class Package:
 		Create the manifest file. Includes the list of resources, book metadata, and the spine. The manifest
 		file is added to the book as ``package.opf``
 		"""
-		from .doc2epub import _DEFAULT_FILES, _CSS_LOGOS
+		from .doc2epub import DEFAULT_FILES, CSS_LOGOS
 		# Last step: the manifest file must be created
 		# Parse the raw manifest file
 		ET.register_namespace('', "http://www.idpf.org/2007/opf")
@@ -52,7 +51,7 @@ class Package:
 		manifest = opf.findall(".//{http://www.idpf.org/2007/opf}manifest")[0]
 
 		# Get the default resources first
-		for (href, media_type, item_id, prop) in _DEFAULT_FILES:
+		for (href, media_type, item_id, prop) in DEFAULT_FILES:
 			# These resources should be added to the zip file
 			# Images should not be compressed, just stored
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
@@ -64,10 +63,10 @@ class Package:
 			item.tail = "\n    "
 
 		# Add the type-specific logo
-		if self.document_wrapper.doc_type in _CSS_LOGOS:
+		if self.document_wrapper.doc_type in CSS_LOGOS:
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
 			item.set("id", "css-logo")
-			item.set("href", _CSS_LOGOS[self.document_wrapper.doc_type][1])
+			item.set("href", CSS_LOGOS[self.document_wrapper.doc_type][1])
 			item.set("media-type", "image/png")
 			item.tail = "\n    "
 
