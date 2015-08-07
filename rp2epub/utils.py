@@ -324,7 +324,7 @@ class HttpSession:
 	:param str url: the URL to be retrieved
 	:param array accepted_media_type: and array of media type strings giving a list of those that should be added to the book
 	:param boolean raise_exception: whether an exception should be raised if the document cannot be retrieved (either because the HTTP return is not 200, or not of an acceptable media type)
-	:raises Exception: in case the file is not an HTML file, or the HTTP return is not 200
+	:raises Exception: in case the file is not an of an acceptable media type, or the HTTP return is not 200
 	"""
 	# noinspection PyPep8,PyPep8
 	def __init__(self, url, accepted_media_types=None, raise_exception=False):
@@ -341,7 +341,7 @@ class HttpSession:
 		self._media_type = self._data.info().gettype()
 		if accepted_media_types is not None and self._media_type not in accepted_media_types:
 			if raise_exception:
-				raise Exception("Received a '%s' file, not HTML" % self._media_type)
+				raise Exception("Received a file of type '%s', which was not listed as acceptable" % self._media_type)
 			return
 		self._success = True
 
