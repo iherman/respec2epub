@@ -59,6 +59,7 @@ CSS_LOGOS = {
 
 
 ###################################################################################
+# noinspection PyPep8
 class DocToEpub:
 	"""
 	Top level entry to the program; receives the URI to be retrieved
@@ -66,11 +67,12 @@ class DocToEpub:
 	:param str top_uri: the URI that was used to invoke the package, ie, the location of the document source
 	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
 	"""
+	# noinspection PyPep8
 	def __init__(self, top_uri, is_respec=True):
 		self._document_wrapper = None
-		self._top_uri = top_uri
-		self._book    = None
-		self._domain  = urlparse(top_uri).netloc
+		self._top_uri          = top_uri
+		self._book             = None
+		self._domain           = urlparse(top_uri).netloc
 
 		spec = GenerateSpec(top_uri, is_respec)
 		self._document = spec.document
@@ -151,8 +153,18 @@ class DocToEpub:
 	# 		Package(self).process()
 
 
-class GenerateSpec :
-	def __init__(self, url, is_respec = True):
+class GenerateSpec:
+	"""
+	Create, if necessary, the final html document (ie, run the respec source through the spec generator); parse
+	the final document to be used by the rest of the processing.
+
+	(In other words, any reference to respec is hidden here; the rest of the modules and classes see only the
+	final document to be put, eventually, into the Overview.xhtml file.)
+
+	:param str top_uri: the URI that was used to invoke the package, ie, the location of the document source
+	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
+	"""
+	def __init__(self, url, is_respec=True):
 		# Construct the base URL; the query parameter and, possibly, the last portion of the path should be removed
 		url_tuples = urlparse(url)
 		base_path  = url_tuples.path if url_tuples.path[-1] == '/' else url_tuples.path.rsplit('/', 1)[0] + '/'
@@ -163,14 +175,17 @@ class GenerateSpec :
 
 	@property
 	def base(self):
+		"""Base URL of the source; used to download other resources, if any, to be added to the book"""
 		return self._base
 
 	@property
 	def document(self):
+		""" Top level document DOM for the parsed input; an :py:class:`xml.etree.ElementTree.Element` instance"""
 		return self._document
 
 	@property
 	def html(self):
+		"""HTML element as parsed; :py:class:`xml.etree.ElementTree.ElementTree` instance"""
 		return self._html
 
 	def _get_document(self, url):

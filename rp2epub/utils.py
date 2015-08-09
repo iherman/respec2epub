@@ -96,7 +96,7 @@ def extract_editors(html, editors, short_name):
 
 	def editors_respec():
 		"""
-		Extract the editors following the respec conventions (@class=p-author for <dd> inluding <a> or <span> with @class=p-name)
+		Extract the editors following the respec conventions (@class=p-author for <dd> including <a> or <span> with @class=p-name)
 
 		The same structure also works for the CSS document series.
 		"""
@@ -116,37 +116,7 @@ def extract_editors(html, editors, short_name):
 						break
 		return retval
 
-	# noinspection PyBroadException
-	def editors_xmlspec():
-		"""
-		Extract the editors following the xmlspec conventions: <div> element with @class=head with a <dd>,
-		that has <dt> for the term 'Editor' and the corresponding <dd> providing the name of the
-		editors.
-		"""
-		retval = False
-		# sigh, this is probably an xmlspec document, that part is much
-		# messier:-(
-		start = False
-		for dl in html.findall(".//div[@class='head']/dl"):
-			# there should be only one, in fact
-			for el in dl:
-				if el.tag == 'dt':
-					start = el.text.find("Editor") != -1
-				if start and el.tag == 'dd':
-					# bingo, this is a genuine editor...
-					# get all the text, it may be in subelements...
-					retval = True
-					name = ""
-					for t in el.itertext():
-						name += t
-					# There are cases when the 'editor' is set to a whole working group; that should be removed
-					try:
-						editors.add(name.split(',')[0].strip())
-					except:
-						pass
-		return retval
-
-	if editors_respec() or editors_xmlspec():
+	if editors_respec():
 		# we are fine, found whatever is needed
 		return
 	else:

@@ -7,12 +7,24 @@ from .utils import get_document_properties, create_shortname, retrieve_date, ext
 # suffixes and media types for resources that are recognized by EPUB
 # noinspection PyPep8,PyPep8
 extra_media_types = {
-	"text/css"               : "css",
-	"image/svg+xml"          : "svg",
-	"image/png"              : "png",
-	"image/jpeg"             : "jpg",
-	"image/gif"              : "gif",
-	"application/javascript" : "js"
+	"text/css"                    : "css",
+	"image/svg+xml"               : "svg",
+	"image/png"                   : "png",
+	"image/jpeg"                  : "jpg",
+	"image/gif"                   : "gif",
+	"application/javascript"      : "js",
+	"text/csv"                    : "csv",
+	"text/turtle"                 : "ttl",
+	"application/json"            : "json",
+	"application/ld+json"         : "jsonld",
+	"application/xml"             : "xml",
+	"application/font-woff"       : "woff",
+	"application/vnd.ms-opentype" : "opf",
+	"audio/mpeg"                  : "mp3",
+	"video/mp4"                   : "mp4",
+	"video/webm"                  : "webm",
+	"video/ogg"                   : "ogg"
+	""
 }
 
 
