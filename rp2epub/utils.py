@@ -8,6 +8,7 @@ from xml.etree.ElementTree import SubElement
 # noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
 import zipfile
+from .templates import meta_inf, BOOK_CSS
 
 # These media should be added to the zip file uncompressed
 _NO_COMPRESS = ["image/png", "image/jpeg", "image/jpeg", "image/gif"]
@@ -344,33 +345,75 @@ class HttpSession:
 		"""
 		return self._media_type
 
-	def store_in_book(self, book, target):
+#####################################################################################
+
+class Book(object):
+	"""Abstraction for a book; in real usage, it just encapsulates a zip file but, for debugging purposes,
+		it just a wrapper around equivalent file output in the current directory.
+	"""
+	def __init__(self, name, debug=False):
 		"""
-		Store the content in a book.
+		:param name: name of the book (without the '.epub' extension)
+		:param debug: whether a real zip file should be created or just the directory content
+		:return:
+		"""
+		self._debug = debug
+		if debug:
+			with open("name.epub") as f:
+				f.write("DEBUG CONTENT")
+		else :
+			self.zip = zipfile.ZipFile(name + '.epub', 'w', zipfile.ZIP_DEFLATED)
+			self.writestr('mimetype', 'application/epub+zip', zipfile.ZIP_STORED)
+			self.writestr('META-INF/container.xml', meta_inf)
 
-		:param zipfile.ZipFile book: the book itself
-		:param str target: the name of the content within the book
+	def writestr(self, target, content, compress=zipfile.ZIP_DEFLATED):
+		"""
+		Write the content of a strong onto a file in the book.
+		:param target: path for the target file
+		:param content: string/bytes to be written on the file
+		:param compress: either zipfile.ZIP_DEFLATED or zipfile.ZIP_STORED, whether the content should be compressed, resp. not compressed
+		"""
+		if debug:
+			with open(target,"w") as f:
+				f.write(content)
+		else :
+			self.zip.writestr(target, content, compress)
 
+	def write_element(self, target, element):
+		"""
+		An ElementTree object added to the book.
+
+		:param str target: path for the target file
+		:param ElementTree.ElementTree element: the XML tree to be stored
+		:type element: :py:class:`xml.etree.ElementTree.Element`
+		"""
+		content = StringIO()
+		element.write(content, encoding="utf-8", xml_declaration=True, method="xml")
+		self.writestr(target, content.getvalue())
+		content.close()
+
+	def write_session(self, target, session):
+		"""
+		Return content of an HTTP session added to the book.
+
+		:param str target: path for the target file
+		:param HttpSession session: session whose data should be written onto the book
+		:return:
 		"""
 		# Copy the content into the final book.
 		# Note that some of the media types are not to be compressed
-		compress = zipfile.ZIP_STORED if self.media_type in _NO_COMPRESS else zipfile.ZIP_DEFLATED
-		book.writestr(target, self.data.read(), compress)
+		self.writestr(target, session.data.read(), zipfile.ZIP_STORED if session.media_type in _NO_COMPRESS else zipfile.ZIP_DEFLATED)
 
+	def __enter__(self):
+		return self
 
-def et_to_book(xml_doc, doc_name, epub_file):
-	"""
-	An ElementTree object added to the book. ``xml_doc`` is the ElementTree, the ``doc_name`` is the
-	name to be used within the book, and ``epub_file`` is the book itself (ie, an open ``zipfile`` instance).
+	def close(self):
+		"""
+		Closing the archive.
+		:return:
+		"""
+		if not self._debug:
+			self.zip.close()
 
-	:param ElementTree.ElementTree xml_doc: the full XML tree to be stored
-	:type xml_doc: :py:class:`xml.etree.ElementTree.Element`
-	:param str doc_name: the name of the content within the book
-	:param epub_file: the book itself
-	:type epub_file: :py:class:`zipfile.ZipFile`
-	"""
-	target = StringIO()
-	xml_doc.write(target, encoding="utf-8", xml_declaration=True, method="xml")
-	epub_file.writestr(doc_name, target.getvalue())
-	target.close()
-
+	def __exit__(self):
+		self.close()

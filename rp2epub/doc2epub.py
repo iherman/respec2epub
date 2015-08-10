@@ -139,9 +139,6 @@ class DocToEpub:
 	# 	# The extra css file must be added to the book; the content is actually dependent on the type of the
 	# 	# document
 	# 	with zipfile.ZipFile(self.document_wrapper.short_name + '.epub', 'w', zipfile.ZIP_DEFLATED) as self._book:
-	# 		# Initialize the book
-	# 		self.book.writestr('mimetype', 'application/epub+zip', zipfile.ZIP_STORED)
-	# 		self.book.writestr('META-INF/container.xml', meta_inf)
 	#
 	# 		# Add the book.css with the right value set for the background image
 	# 		if self.document_wrapper.doc_type in CSS_LOGOS:
@@ -151,14 +148,13 @@ class DocToEpub:
 	#
 	# 		# Some resources should be added to the book once and for all
 	# 		for uri, local in _To_transfer:
-	# 			local_session = HttpSession(uri)
-	# 			local_session.store_in_book(self.book, local)
+	#			self.book.write_session(local, HttpSession(uri))
 	#
 	# 		# Massage the document by extracting extra resources, set the right CSS, etc
 	# 		self.document_wrapper.process()
 	#
 	# 		# The main content should be stored in the target book
-	# 		et_to_book(self.document, 'Overview.xhtml', self.book)
+	#		self.book.write_element('Overview.xhtml', self.document)
 	#
 	# 		Package(self).process()
 

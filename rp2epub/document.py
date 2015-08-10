@@ -1,6 +1,5 @@
 from urlparse import urlparse, urljoin
 from xml.etree.ElementTree import SubElement
-
 from .utils import HttpSession, Utils
 
 # suffixes and media types for resources that are recognized by EPUB
@@ -153,7 +152,7 @@ class DocumentWrapper:
 			# We can now copy the content into the final book.
 			# Note that some of the media types are not to be compressed
 			# TODO: This has to be finalized, skipping the copy for now
-			#session.store_in_book(self.driver.book, target)
+			self.driver.book.write_session(target, session)
 
 			# Add information about the new entry; this has to be added to the manifest file
 			self._additional_resources.append((target, session.media_type))

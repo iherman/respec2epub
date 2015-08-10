@@ -4,8 +4,6 @@
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
 from .templates import PACKAGE, TOC, NAV, COVER
-from .utils import et_to_book
-
 
 class Package:
 	"""
@@ -17,12 +15,18 @@ class Package:
 	"""
 	def __init__(self, driver):
 		self._driver = driver
+		self._book   = self.driver.book
 		pass
 
 	@property
 	def driver(self):
 		"""The main driver class; a :py:class:`.DocToEpub` instance"""
 		return self._driver
+
+	@property
+	def book(self):
+		"""The target book; a :py:class:`.Book` instance"""
+		return self._book
 
 	@property
 	def document_wrapper(self):
@@ -109,7 +113,7 @@ class Package:
 
 		# Push the manifest file into the book, too
 		# The main content should be stored in the target book
-		et_to_book(opf, 'package.opf', self.driver.book)
+		self.book.write_element('package.opf', opf)
 
 	#===================================================
 	# Generate the old style table of content (ncx file)
@@ -164,7 +168,7 @@ class Package:
 			set_nav_point(navMap, toc_entry.href, toc_entry.label, index)
 			index += 1
 
-		et_to_book(ncx, 'toc.ncx', self.driver.book)
+		self.book.write_element('toc.ncx', ncx)
 	# end _create_ncx
 
 	#===================================================
@@ -216,7 +220,7 @@ class Package:
 			a.text = toc_entry.short_label
 			a.set("class", "toc")
 
-		et_to_book(nav, 'nav.xhtml', self.driver.book)
+		self.book.write_element('nav.xhtml', nav)
 	# end _create_nav
 
 	#========================
@@ -260,7 +264,7 @@ class Package:
 		span      = cover.findall(".//{http://www.w3.org/1999/xhtml}span[@id='cpdate']")[0]
 		span.text = self.document_wrapper.date.strftime("%Y")
 
-		et_to_book(cover, 'cover.xhtml', self.driver.book)
+		self.book.write_element('cover.xhtml', cover)
 
 
 
