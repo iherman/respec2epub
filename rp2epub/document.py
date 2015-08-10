@@ -1,8 +1,7 @@
 from urlparse import urlparse, urljoin
 from xml.etree.ElementTree import SubElement
 
-from .utils import HttpSession
-from .utils import get_document_properties, create_shortname, retrieve_date, extract_editors, extract_toc, set_html_meta
+from .utils import HttpSession, Utils
 
 # suffixes and media types for resources that are recognized by EPUB
 # noinspection PyPep8,PyPep8
@@ -24,7 +23,6 @@ extra_media_types = {
 	"video/mp4"                   : "mp4",
 	"video/webm"                  : "webm",
 	"video/ogg"                   : "ogg"
-	""
 }
 
 
@@ -81,6 +79,12 @@ class DocumentWrapper:
 		# Set the xhtml namespace on the top, this is required by epub readers
 		self.html.set("xmlns", "http://www.w3.org/1999/xhtml")
 
+		# The script element should not be self-closed, but with a separate </script> instead. Just adding
+		# an extra space to a possible link does the trick.
+		for script in self.html.findall(".//script[@src]"):
+			if script.text is None:
+				script.text = " "
+
 		# Change the value of @about to the dated URI, which is what counts...
 		self.html.set("about", self.dated_uri)
 
@@ -88,19 +92,19 @@ class DocumentWrapper:
 		for lnk in self.html.findall(".//link[@rel='stylesheet']"):
 			ref_details = urlparse(lnk.get("href"))
 			if ref_details.netloc == "www.w3.org" and ref_details.path.startswith("/StyleSheets"):
-				# This is the local style sheet. Two actions:
-				# 1. set the reference to base.css
-				# 2. add an inline style sheet that includes a background setting to the appropriate image.
-				# 3. While at it, add the book specific extra CSS settings.
+				# This is the local, W3C, style sheet. Two actions:
+				# 1. This is exchanged against the general 'base.css'
+				# 2. Below, after all the stylesheets are handled, the reference to a separate 'book.css' is added
+				# 3. The final book.css is finalized later (through a template), adding a reference to the background
+				# image that corresponds to the documents status
 				lnk.set("href", "Assets/base.css")
-				# Add the extra, book specific stylesheet
 			else:
 				self._handle_one_reference(lnk, 'href')
 
-		head    = self.html.findall(".//head")[0]
-		bookcss = SubElement(head, "link")
-		bookcss.set("rel", "stylesheet")
-		bookcss.set("href", "Assets/book.css")
+		head     = self.html.findall(".//head")[0]
+		book_css = SubElement(head, "link")
+		book_css.set("rel", "stylesheet")
+		book_css.set("href", "Assets/book.css")
 
 		# This is an ugly issue which comes up very very rarely: the base element screws up things if any
 		for element in self.html.findall(".//base"):
@@ -109,7 +113,7 @@ class DocumentWrapper:
 		# Change the HTTP equivalent value
 		#
 		#
-		set_html_meta(self.html, head)
+		Utils.set_html_meta(self.html, head)
 
 		# The easy case: look at generic external references, possibly copy the content
 		for (element, attr) in [("img", "src"), ("script", "src"), ("object", "data")]:
@@ -144,11 +148,12 @@ class DocumentWrapper:
 				target = 'Assets/extras/data%s.%s' % (self._index, extra_media_types[session.media_type])
 				self._index += 1
 			else:
-				target = 'Assets/%s' % path.split('/')[-1]
+				target = '%s' % path.split('/')[-1]
 
 			# We can now copy the content into the final book.
 			# Note that some of the media types are not to be compressed
-			session.store_in_book(self.driver.book, target)
+			# TODO: This has to be finalized, skipping the copy for now
+			#session.store_in_book(self.driver.book, target)
 
 			# Add information about the new entry; this has to be added to the manifest file
 			self._additional_resources.append((target, session.media_type))
@@ -218,7 +223,7 @@ class DocumentWrapper:
 		# Properties, to be added to the manifest
 		props = set()
 		props.add("remote-resources")
-		get_document_properties(self.html, props)
+		Utils.get_document_properties(self.html, props)
 		if len(props) > 0:
 			self._properties = reduce(lambda x, y: x + ' ' + y, props)
 
@@ -227,15 +232,15 @@ class DocumentWrapper:
 		for aref in self.html.findall(".//a[@class='u-url']"):
 			self._dated_uri = aref.get('href')
 			dated_name = self._dated_uri[:-1] if self._dated_uri[-1] == '/' else self._dated_uri
-			self._doc_type, self._short_name = create_shortname(dated_name.split('/')[-1])
+			self._doc_type, self._short_name = Utils.create_shortname(dated_name.split('/')[-1])
 			break
 
 		# Date of the document, to be reused in the metadata
-		self._date = retrieve_date(self.dated_uri)
+		self._date = Utils.retrieve_date(self.dated_uri)
 
 		# Extract the editors
 		editor_array = set()
-		extract_editors(self.html, editor_array, self.short_name)
+		Utils.extract_editors(self.html, editor_array, self.short_name)
 		if len(editor_array) == 0:
 			self._editors = []
 		elif len(editor_array) == 1:
@@ -244,7 +249,7 @@ class DocumentWrapper:
 			self._editors = reduce(lambda x, y: x + ', ' + y, editor_array) + ", (eds.)"
 
 		# Extract the table of content
-		extract_toc(self.html, self._toc, self.short_name)
+		Utils.extract_toc(self.html, self._toc, self.short_name)
 
 		# Add the right subtitle to the cover page
 		for issued in self.html.findall(".//h2[@property='dcterms:issued']"):

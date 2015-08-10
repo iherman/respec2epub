@@ -2,10 +2,21 @@
 
 ## Current code
 
-* The dated URI should be extracted from the document, rather than from the URI
-* Remove the usage of ASSETS for resources retrieved from the document; instead, mirror the structure
-* (Maybe) change the term ASSETS to something else (W3C_ASSETS?)
-* Add video media types to document.py
+### Questions
+
+#### html vs. document
+
+* `DocToEpub.html` : output of html5parse
+* `DocToEpub.document` : element tree of html.
+
+Is there a need for `document`?
+
+
+### The dated URI should be extracted from the document, rather than from the URI
+
+### Remove the usage of ASSETS for resources retrieved from the document; instead, mirror the structure
+
+### (Maybe) change the term ASSETS to something else (W3C_ASSETS?)
 
 ## Additional 
 

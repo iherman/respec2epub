@@ -68,16 +68,23 @@ class DocToEpub:
 	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
 	"""
 	# noinspection PyPep8
-	def __init__(self, top_uri, is_respec=True):
+	def __init__(self, url, is_respec=False):
 		self._document_wrapper = None
-		self._top_uri          = top_uri
+		self._top_uri          = url
 		self._book             = None
-		self._domain           = urlparse(top_uri).netloc
+		self._domain           = urlparse(url).netloc
 
-		spec = GenerateSpec(top_uri, is_respec)
-		self._document = spec.document
-		self._html     = spec.html
-		self._base     = spec.base
+		# Get the base URL, ie, remove the possible query parameter and the last portion of the path name
+		url_tuples = urlparse(url)
+		base_path  = url_tuples.path if url_tuples.path[-1] == '/' else url_tuples.path.rsplit('/', 1)[0] + '/'
+		self._base = urlunparse((url_tuples.scheme, url_tuples.netloc, base_path, "", "", ""))
+
+		# Get the data, possibly converting from respec on the fly
+		session = HttpSession(CONVERTER + url if is_respec else url, raise_exception=True)
+
+		# Parse the generated document
+		self._html     = html5lib.parse(session.data, namespaceHTMLElements=False)
+		self._document = ElementTree(self._html)
 
 	@property
 	def base(self):
@@ -118,13 +125,16 @@ class DocToEpub:
 		"""
 		Process the book, ie, extract whatever has to be extracted and produce the epub file
 		"""
-		pass
 
 		# Create the wrapper around the parsed version. Initialization will also
 		# retrieve the various 'meta' data from the document, like title, editors, document type, etc.
 		# It is important to get these metadata before the real processing because, for example, the
 		# 'short name' will also be used for the name of the final book
-		#self._document_wrapper = DocumentWrapper(self)
+		self._document_wrapper = DocumentWrapper(self).process()
+		# TODO: for debug: see the transformed XHTML file
+		self.document.write("Overview.xhtml", encoding="utf-8", xml_declaration=True, method="xml")
+		#
+		pass
 	#
 	# 	# The extra css file must be added to the book; the content is actually dependent on the type of the
 	# 	# document
@@ -151,55 +161,4 @@ class DocToEpub:
 	# 		et_to_book(self.document, 'Overview.xhtml', self.book)
 	#
 	# 		Package(self).process()
-
-
-class GenerateSpec:
-	"""
-	Create, if necessary, the final html document (ie, run the respec source through the spec generator); parse
-	the final document to be used by the rest of the processing.
-
-	(In other words, any reference to respec is hidden here; the rest of the modules and classes see only the
-	final document to be put, eventually, into the Overview.xhtml file.)
-
-	:param str top_uri: the URI that was used to invoke the package, ie, the location of the document source
-	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
-	"""
-	def __init__(self, url, is_respec=True):
-		# Construct the base URL; the query parameter and, possibly, the last portion of the path should be removed
-		url_tuples = urlparse(url)
-		base_path  = url_tuples.path if url_tuples.path[-1] == '/' else url_tuples.path.rsplit('/', 1)[0] + '/'
-		self._base = urlunparse((url_tuples.scheme, url_tuples.netloc, base_path, "", "", ""))
-
-		# Parse the document, possibly converting from respec on the fly
-		self._get_document(CONVERTER + url if is_respec else url)
-
-	@property
-	def base(self):
-		"""Base URL of the source; used to download other resources, if any, to be added to the book"""
-		return self._base
-
-	@property
-	def document(self):
-		""" Top level document DOM for the parsed input; an :py:class:`xml.etree.ElementTree.Element` instance"""
-		return self._document
-
-	@property
-	def html(self):
-		"""HTML element as parsed; :py:class:`xml.etree.ElementTree.ElementTree` instance"""
-		return self._html
-
-	def _get_document(self, url):
-		def massage_html(html):
-			# ugly hack: a space character is added to a <script> element with an external reference
-			# this forces to generate a separate closing element rather than a self-closing one
-			# this is needed for proper html interpretation
-			for script in html.findall(".//script[@src]"):
-				if script.text is None:
-					script.text = " "
-
-		session = HttpSession(url, raise_exception=True)
-		# Parse the generated document
-		self._html = html = html5lib.parse(session.data, namespaceHTMLElements=False)
-		massage_html(html)
-		self._document = ElementTree(html)
 
