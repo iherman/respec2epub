@@ -2,7 +2,8 @@
 
 ## Current code
 
-The file storage should be made in a subdirectory named by the short name
+* The file storage should be made in a subdirectory named by the short name
+* Add longdesc to the img as a possible transferable file. Better moving the list into a constant at the top
 
 ## Additional 
 
