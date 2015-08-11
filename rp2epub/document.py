@@ -24,6 +24,8 @@ extra_media_types = {
 	"video/ogg"                   : "ogg"
 }
 
+#: Pairs of element names and attributes for content that should be downloaded and referred to
+external_references = [("img", "src"), ("img", "longdesc"), ("script", "src"), ("object", "data")]
 
 # Massage the core document
 class DocumentWrapper:
@@ -115,7 +117,7 @@ class DocumentWrapper:
 		Utils.set_html_meta(self.html, head)
 
 		# The easy case: look at generic external references, possibly copy the content
-		for (element, attr) in [("img", "src"), ("script", "src"), ("object", "data")]:
+		for (element, attr) in external_references:
 			for el in self.html.findall(".//%s" % element):
 				self._handle_one_reference(el, attr)
 
