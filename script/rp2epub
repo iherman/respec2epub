@@ -1,48 +1,22 @@
 #!/usr/bin/env python
 import argparse
 
-# For debug
-genR = "http://w3c.github.io/csvw/csv2rdf/?publishDate=2015-07-16;specStatus=CR"
-genD = "http://localhost:8001/LocalData/github/csvw/publishing-snapshots/CR-metadata/Overview.html"
-#####
-
 description = "Generate EPUB3 for a single W3C TR document, either in respec format (default) or generated from respec."
-
-
 # noinspection PyPep8
 def process():
 	"""
 	Main entry point for command line usage.
 	"""
 	parser = argparse.ArgumentParser(description=description)
-	parser.add_argument("URI",
-						help="URI of the input; if this is in respec, it will passed on to the spec generator verbatim ")
-	parser.add_argument("-r", "--respec",
-						help="The source is a respec file, transform it before processing",
-						action='store_true')
-	parser.add_argument("-p", "--package",
-						help="Create an EPUB3 package",
-						action="store_true")
-	parser.add_argument("-f", "--folder",
-						help="Create a folder with the book content",
-						action="store_true")
-	parser.add_argument("-d", "--debug",
-						help="Debug with fixed document URI-s",
-						action='store_true')
+	parser.add_argument("url",
+						help="URL of the input; if this is in respec, it will passed on to the spec generator verbatim ")
+	parser.add_argument("-r", "--respec", action='store_true', help="The source is a respec file, transform it before processing")
+	parser.add_argument("-b", "--book", action='store_true', help="Create an EPUB3 package")
+	parser.add_argument("-f", "--folder", action='store_true', help="Create a folder with the book content")
 
 	args = parser.parse_args()
-
 	from rp2epub import DocToEpub
-
-	# The debug branch does different things...
-	if args.debug:
-		uri = genR if args.respec else genD
-		args.folder = True
-		args.package = True
-	else :
-		uri = args.URI
-
-	DocToEpub(uri, is_respec=args.respec, package=args.package, folder=args.folder).process()
+	DocToEpub(args.url, is_respec=args.respec, package=args.book, folder=args.folder).process()
 
 if __name__ == '__main__':
 	process()

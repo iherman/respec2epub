@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
+  <head>
+    <meta name="dtb:uid" content="unknown"/>
+    <meta name="dtb:depth" content="2"/>
+    <meta name="dtb:totalPageCount" content="0"/>
+    <meta name="dtb:maxPageNumber" content="0"/>
+  </head>
+  <docTitle>
+    <text>Respec to EPUB</text>
+  </docTitle>
+  <navMap>
+    <navPoint id="navPoint1" playOrder="1">
+      <navLabel>
+        <text>Welcome to Respec to EPUB&#39;s documentation!</text>
+      </navLabel>
+      <content src="index.html" />
+    </navPoint>
+    <navPoint id="navPoint2" playOrder="2">
+      <navLabel>
+        <text>Command line tool manual</text>
+      </navLabel>
+      <content src="manual.html" />
+    </navPoint>
+    <navPoint id="navPoint3" playOrder="3">
+      <navLabel>
+        <text>rp2epub package</text>
+      </navLabel>
+      <content src="rp2epub.html" />
+      <navPoint id="navPoint4" playOrder="3">
+        <navLabel>
+          <text>rp2epub package</text>
+        </navLabel>
+        <content src="rp2epub.html" />
+      </navPoint>
+      <navPoint id="navPoint5" playOrder="4">
+        <navLabel>
+          <text>Top level entry</text>
+        </navLabel>
+        <content src="rp2epub.html#module-rp2epub" />
+      </navPoint>
+      <navPoint id="navPoint6" playOrder="5">
+        <navLabel>
+          <text>The driver</text>
+        </navLabel>
+        <content src="rp2epub.html#module-rp2epub.doc2epub" />
+      </navPoint>
+      <navPoint id="navPoint7" playOrder="6">
+        <navLabel>
+          <text>Wrapper around the document</text>
+        </navLabel>
+        <content src="rp2epub.html#module-rp2epub.document" />
+      </navPoint>
+      <navPoint id="navPoint8" playOrder="7">
+        <navLabel>
+          <text>Package processing</text>
+        </navLabel>
+        <content src="rp2epub.html#module-rp2epub.package" />
+      </navPoint>
+      <navPoint id="navPoint9" playOrder="8">
+        <navLabel>
+          <text>Common Utilities</text>
+        </navLabel>
+        <content src="rp2epub.html#module-rp2epub.utils" />
+      </navPoint>
+      <navPoint id="navPoint10" playOrder="9">
+        <navLabel>
+          <text>Templates</text>
+        </navLabel>
+        <content src="rp2epub.html#module-rp2epub.templates" />
+      </navPoint>
+    </navPoint>
+  </navMap>
+</ncx>

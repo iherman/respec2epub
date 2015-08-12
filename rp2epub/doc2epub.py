@@ -12,7 +12,6 @@ The result is an EPUB3 in the same folder, whose name is the last part of the UR
 
 The program depends on the html5lib library for HTML parsing.
 
-.. autodata::
 """
 # TODO: handle the possible css references to other css files or to images
 

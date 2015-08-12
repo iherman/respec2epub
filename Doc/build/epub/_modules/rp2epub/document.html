@@ -1,0 +1,319 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rp2epub.document</title>
+    
+    <link rel="stylesheet" href="../../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Respec to EPUB 8 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <h1>Source code for rp2epub.document</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">urljoin</span>
+<span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">SubElement</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Utils</span>
+
+<span class="c"># suffixes and media types for resources that are recognized by EPUB</span>
+<span class="c"># noinspection PyPep8,PyPep8</span>
+<span class="n">extra_media_types</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="s">&quot;text/html&quot;</span>                   <span class="p">:</span> <span class="s">&quot;html&quot;</span><span class="p">,</span>
+	<span class="s">&quot;text/css&quot;</span>                    <span class="p">:</span> <span class="s">&quot;css&quot;</span><span class="p">,</span>
+	<span class="s">&quot;image/svg+xml&quot;</span>               <span class="p">:</span> <span class="s">&quot;svg&quot;</span><span class="p">,</span>
+	<span class="s">&quot;image/png&quot;</span>                   <span class="p">:</span> <span class="s">&quot;png&quot;</span><span class="p">,</span>
+	<span class="s">&quot;image/jpeg&quot;</span>                  <span class="p">:</span> <span class="s">&quot;jpg&quot;</span><span class="p">,</span>
+	<span class="s">&quot;image/gif&quot;</span>                   <span class="p">:</span> <span class="s">&quot;gif&quot;</span><span class="p">,</span>
+	<span class="s">&quot;application/javascript&quot;</span>      <span class="p">:</span> <span class="s">&quot;js&quot;</span><span class="p">,</span>
+	<span class="s">&quot;text/csv&quot;</span>                    <span class="p">:</span> <span class="s">&quot;csv&quot;</span><span class="p">,</span>
+	<span class="s">&quot;text/turtle&quot;</span>                 <span class="p">:</span> <span class="s">&quot;ttl&quot;</span><span class="p">,</span>
+	<span class="s">&quot;application/json&quot;</span>            <span class="p">:</span> <span class="s">&quot;json&quot;</span><span class="p">,</span>
+	<span class="s">&quot;application/ld+json&quot;</span>         <span class="p">:</span> <span class="s">&quot;jsonld&quot;</span><span class="p">,</span>
+	<span class="s">&quot;application/xml&quot;</span>             <span class="p">:</span> <span class="s">&quot;xml&quot;</span><span class="p">,</span>
+	<span class="s">&quot;application/font-woff&quot;</span>       <span class="p">:</span> <span class="s">&quot;woff&quot;</span><span class="p">,</span>
+	<span class="s">&quot;application/vnd.ms-opentype&quot;</span> <span class="p">:</span> <span class="s">&quot;opf&quot;</span><span class="p">,</span>
+	<span class="s">&quot;audio/mpeg&quot;</span>                  <span class="p">:</span> <span class="s">&quot;mp3&quot;</span><span class="p">,</span>
+	<span class="s">&quot;video/mp4&quot;</span>                   <span class="p">:</span> <span class="s">&quot;mp4&quot;</span><span class="p">,</span>
+	<span class="s">&quot;video/webm&quot;</span>                  <span class="p">:</span> <span class="s">&quot;webm&quot;</span><span class="p">,</span>
+	<span class="s">&quot;video/ogg&quot;</span>                   <span class="p">:</span> <span class="s">&quot;ogg&quot;</span>
+<span class="p">}</span>
+
+<span class="c">#: Pairs of element names and attributes for content that should be downloaded and referred to</span>
+<span class="c"># noinspection PyPep8</span>
+<span class="n">external_references</span> <span class="o">=</span> <span class="p">[</span>
+	<span class="p">(</span><span class="s">&quot;img&quot;</span><span class="p">,</span> <span class="s">&quot;src&quot;</span><span class="p">),</span>
+	<span class="p">(</span><span class="s">&quot;img&quot;</span><span class="p">,</span> <span class="s">&quot;longdesc&quot;</span><span class="p">),</span>
+	<span class="p">(</span><span class="s">&quot;script&quot;</span><span class="p">,</span> <span class="s">&quot;src&quot;</span><span class="p">),</span>
+	<span class="p">(</span><span class="s">&quot;object&quot;</span><span class="p">,</span> <span class="s">&quot;data&quot;</span><span class="p">)</span>
+<span class="p">]</span>
+
+
+<span class="c"># Massage the core document</span>
+<div class="viewcode-block" id="Document"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document">[docs]</a><span class="k">class</span> <span class="nc">Document</span><span class="p">:</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Wrapper around the top level document, ie, looking at its content and retrieve the necessary references like images</span>
+<span class="sd">	or style files, possibly modifying the document on the fly.</span>
+
+<span class="sd">	:param driver: the caller instance</span>
+<span class="sd">	:type driver: :py:class:`.DocToEpub`</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="c"># noinspection PyPep8,PyPep8</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_index</span>                <span class="o">=</span> <span class="mi">0</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_driver</span>               <span class="o">=</span> <span class="n">driver</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span>      <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">_title</span>      <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_properties</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>   <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>  <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_date</span>       <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>    <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_toc</span>		 <span class="o">=</span> <span class="p">[]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_issued_as</span>  <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_get_document_metadata</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_massage_html</span><span class="p">()</span>
+
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="Document.driver"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.driver">[docs]</a>	<span class="k">def</span> <span class="nf">driver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;The caller: a :class:`.DocToEpub` instance.&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span>
+</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="Document.html"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.html">[docs]</a>	<span class="k">def</span> <span class="nf">html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;HTML element as parsed; an :py:class:`xml.etree.ElementTree.Element` instance  &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">html</span>
+</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="Document.additional_resources"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.additional_resources">[docs]</a>	<span class="k">def</span> <span class="nf">additional_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;List of additional resources that have been added to the book. A list of tuples, containing the internal</span>
+<span class="sd">		reference to the resource and the media type. Built up during processing, it is used in when creating the manifest</span>
+<span class="sd">		file of the book</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span>
+
+	<span class="c"># noinspection PyPep8</span></div>
+<div class="viewcode-block" id="Document.extract_external_references"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.extract_external_references">[docs]</a>	<span class="k">def</span> <span class="nf">extract_external_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Handle the external references (images, etc) in the core file, and copy them to the book.</span>
+
+<span class="sd">		If the file referred to is</span>
+
+<span class="sd">		- on the same domain as the original file</span>
+<span class="sd">		- is one of the &#39;accepted&#39; media types for epub</span>
+
+<span class="sd">		then the file is copied and stored in the book, the reference is changed in the document,</span>
+<span class="sd">		and the resource is marked to be added to the manifest file</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c"># Retrieve the value of the reference. By making a urljoin, relative URI-s are also turned into absolute one;</span>
+		<span class="c"># this simplifies the issue</span>
+		<span class="c"># Look at generic external references like images, and, possibly copy the content</span>
+		<span class="k">for</span> <span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="n">ref</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">))</span>
+				<span class="k">if</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">domain</span><span class="p">:</span>
+					<span class="n">session</span> <span class="o">=</span> <span class="n">HttpSession</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">accepted_media_types</span><span class="o">=</span><span class="n">extra_media_types</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+					<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+						<span class="c"># Find the right name for the target document</span>
+						<span class="n">path</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
+						<span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span><span class="p">:</span>
+							<span class="n">target</span> <span class="o">=</span> <span class="s">&#39;Assets/extras/data</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">,</span> <span class="n">extra_media_types</span><span class="p">[</span><span class="n">session</span><span class="o">.</span><span class="n">media_type</span><span class="p">])</span>
+							<span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">+=</span> <span class="mi">1</span>
+						<span class="k">else</span><span class="p">:</span>
+							<span class="n">target</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+						<span class="c"># yet another complication: if the target is an html file, it will have to become xhtml :-(</span>
+						<span class="c"># this means that the target and the media types should receive a local name, to</span>
+						<span class="c"># be stored and used below</span>
+						<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="s">&#39;text/html&#39;</span><span class="p">:</span>
+							<span class="n">final_media_type</span> <span class="o">=</span> <span class="s">&#39;application/xhtml+xml&#39;</span>
+							<span class="n">final_target</span>     <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.html&#39;</span><span class="p">,</span> <span class="s">&#39;.xhtml&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+						<span class="k">else</span> <span class="p">:</span>
+							<span class="n">final_media_type</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span>
+							<span class="n">final_target</span>     <span class="o">=</span> <span class="n">target</span>
+
+						<span class="c"># We can now copy the content into the final book.</span>
+						<span class="c"># Note that some of the media types are not to be compressed; this is taken care in the</span>
+						<span class="c"># &quot;Book&quot; instance</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_session</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+
+						<span class="c"># Add information about the new entry; this has to be added to the manifest file</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">final_target</span><span class="p">,</span> <span class="n">final_media_type</span><span class="p">))</span>
+
+						<span class="c"># Change the original reference</span>
+						<span class="n">element</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">final_target</span><span class="p">)</span>
+
+	<span class="c">###################################################################################################</span>
+	<span class="c"># noinspection PyPep8</span></div>
+<div class="viewcode-block" id="Document._massage_html"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document._massage_html">[docs]</a>	<span class="k">def</span> <span class="nf">_massage_html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Process a document looking for (and possibly copying) external references and making some modifications on the fly</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c"># Do the necessary massaging on the DOM tree to make the XHTML output o.k.</span>
+		<span class="n">Utils</span><span class="o">.</span><span class="n">html_to_xhtml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
+
+		<span class="c"># Change the value of @about to the dated URI, which is what counts...</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;about&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dated_uri</span><span class="p">)</span>
+
+		<span class="c"># handle stylesheet references</span>
+		<span class="k">for</span> <span class="n">lnk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//link[@rel=&#39;stylesheet&#39;]&quot;</span><span class="p">):</span>
+			<span class="n">ref_details</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">lnk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">))</span>
+			<span class="k">if</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span> <span class="ow">and</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;/StyleSheets&quot;</span><span class="p">):</span>
+				<span class="c"># This is the local, W3C, style sheet. Actions to be taken:</span>
+				<span class="c"># 1. This is exchanged against the general &#39;base.css&#39;</span>
+				<span class="c"># 2. Below, after all the stylesheets are handled, the reference to a separate &#39;book.css&#39; is added</span>
+				<span class="c"># 3. The final book.css is finalized later (through a template and in the &quot;driver&quot;), adding a reference</span>
+				<span class="c"># to the background image that corresponds to the documents status</span>
+				<span class="n">lnk</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/base.css&quot;</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lnk</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">))</span>
+
+		<span class="n">head</span>     <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//head&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">book_css</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="s">&quot;link&quot;</span><span class="p">)</span>
+		<span class="n">book_css</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;rel&quot;</span><span class="p">,</span> <span class="s">&quot;stylesheet&quot;</span><span class="p">)</span>
+		<span class="n">book_css</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/book.css&quot;</span><span class="p">)</span>
+
+		<span class="c"># This is an ugly issue which comes up very very rarely: the base element screws up things</span>
+		<span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//base&quot;</span><span class="p">):</span>
+			<span class="n">head</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+
+		<span class="c"># Change the HTTP equivalent value</span>
+		<span class="n">Utils</span><span class="o">.</span><span class="n">set_html_meta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">,</span> <span class="n">head</span><span class="p">)</span>
+
+		<span class="c"># Collect the additional download targets</span>
+		<span class="k">for</span> <span class="p">(</span><span class="n">tag_name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="ow">in</span> <span class="n">external_references</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">tag_name</span><span class="p">):</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">element</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+
+		<span class="c"># Extra care should be taken with &lt;a&gt; elements to exclude self references (ie, fragment id-s)</span>
+		<span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//a[@href]&quot;</span><span class="p">):</span>
+			<span class="n">ref</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">ref</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;#&#39;</span> <span class="ow">and</span> <span class="n">ref</span> <span class="o">!=</span> <span class="s">&quot;.&quot;</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">element</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">))</span>
+
+	<span class="c">###################################################################################################</span>
+	<span class="c"># Metadata; all these are filled with value through the _get_document_metadata method, called at</span>
+	<span class="c"># initialization time</span></div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="Document.title"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.title">[docs]</a>	<span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;The ``title`` element content.&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span>
+</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="Document.properties"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.properties">[docs]</a>	<span class="k">def</span> <span class="nf">properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;The properties of the document, to be added to the manifest entry&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span>
+</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="Document.short_name"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.short_name">[docs]</a>	<span class="k">def</span> <span class="nf">short_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;&#39;Short Name&#39;, in the W3C jargon&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span>
+</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="Document.dated_uri"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.dated_uri">[docs]</a>	<span class="k">def</span> <span class="nf">dated_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;&#39;Dated URI&#39;, in the W3C jargon&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>
+</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="Document.doc_type"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.doc_type">[docs]</a>	<span class="k">def</span> <span class="nf">doc_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>
+</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="Document.date"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.date">[docs]</a>	<span class="k">def</span> <span class="nf">date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Date of publication&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date</span>
+</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="Document.editors"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.editors">[docs]</a>	<span class="k">def</span> <span class="nf">editors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;List of editors (as a string)&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>
+</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="Document.toc"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.toc">[docs]</a>	<span class="k">def</span> <span class="nf">toc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Table of content, an array of ``TOC_Item`` objects&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toc</span>
+</div>
+	<span class="nd">@property</span>
+<div class="viewcode-block" id="Document.issued_as"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.issued_as">[docs]</a>	<span class="k">def</span> <span class="nf">issued_as</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; &quot;W3C Note/Recommendation/Draft/ etc.&quot;: the text to be reused as a subtitle on the cover page. &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issued_as</span>
+</div>
+<div class="viewcode-block" id="Document._get_document_metadata"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document._get_document_metadata">[docs]</a>	<span class="k">def</span> <span class="nf">_get_document_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="c"># Get the title of the document</span>
+		<span class="k">for</span> <span class="n">title_element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//title&quot;</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+			<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">title_element</span><span class="o">.</span><span class="n">itertext</span><span class="p">():</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">+=</span> <span class="n">t</span>
+			<span class="k">break</span>
+
+		<span class="c"># Properties, to be added to the manifest</span>
+		<span class="n">props</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">get_document_properties</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
+		<span class="n">props</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;remote-resources&quot;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">props</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_properties</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="n">props</span><span class="p">)</span>
+
+		<span class="c"># Short name of the document</span>
+		<span class="c"># Find the official short name of the document</span>
+		<span class="k">for</span> <span class="n">aref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//a[@class=&#39;u-url&#39;]&quot;</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span> <span class="o">=</span> <span class="n">aref</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;href&#39;</span><span class="p">)</span>
+			<span class="n">dated_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">create_shortname</span><span class="p">(</span><span class="n">dated_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+			<span class="k">break</span>
+
+		<span class="c"># Date of the document, to be reused in the metadata</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_date</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">retrieve_date</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dated_uri</span><span class="p">)</span>
+
+		<span class="c"># Extract the editors</span>
+		<span class="n">editor_set</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">extract_editors</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">editor_set</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">editor_set</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">editor_set</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;, (ed.)&quot;</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="s">&#39;, &#39;</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="n">editor_set</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;, (eds.)&quot;</span>
+
+		<span class="c"># Extract the table of content</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_toc</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">extract_toc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_name</span><span class="p">)</span>
+
+		<span class="c"># Add the right subtitle to the cover page</span>
+		<span class="k">for</span> <span class="n">issued</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//h2[@property=&#39;dcterms:issued&#39;]&quot;</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_issued_as</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+			<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">issued</span><span class="o">.</span><span class="n">itertext</span><span class="p">():</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_issued_as</span> <span class="o">+=</span> <span class="n">t</span>
+</pre></div></div></div>
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2015, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

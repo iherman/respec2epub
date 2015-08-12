@@ -326,7 +326,9 @@ class HttpSession:
 		try:
 			self._data = urlopen(url)
 		except HTTPError:
-			raise Exception("%s cannot be reached!" % url)
+			if raise_exception:
+				raise Exception("%s cannot be reached!" % url)
+			return
 
 		if self._data.getcode() != '200' and self._data.getcode() != 200:
 			if raise_exception:

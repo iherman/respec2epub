@@ -9,4 +9,4 @@ Note that the goal is:
 - a wrapper around the tool to provide a web service
 - extension of respec to call out to that service, installed at a stable space (probably on lab.w3.org)
 
-T.B.D.
+
