@@ -144,6 +144,11 @@ class Document:
 		# Change the value of @about to the dated URI, which is what counts...
 		self.html.set("about", self.dated_uri)
 
+		# The reference to the W3C logo should be localized
+		for img in self.html.findall(".//img[@alt='W3C']"):
+			img.set('src','Assets/w3c_home.png')
+			break
+
 		# handle stylesheet references
 		for lnk in self.html.findall(".//link[@rel='stylesheet']"):
 			ref_details = urlparse(lnk.get("href"))

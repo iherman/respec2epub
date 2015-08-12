@@ -68,6 +68,7 @@ class DocToEpub:
 	# This is expanded run-time.
 	To_transfer = [
 		("http://www.w3.org/Icons/w3c_main.png", "Assets/w3c_main.png"),
+		("http://www.w3.org/Icons/w3c_home.png", "Assets/w3c_home.png"),
 		("http://www.w3.org/StyleSheets/TR/base.css", "Assets/base.css"),
 	]
 
