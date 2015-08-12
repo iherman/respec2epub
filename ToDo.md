@@ -2,7 +2,6 @@
 
 ## Current code
 
-* The file storage should be made in a subdirectory named by the short name
 
 ## Additional 
 

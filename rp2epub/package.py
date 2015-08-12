@@ -5,6 +5,15 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
 from .templates import PACKAGE, TOC, NAV, COVER
 
+SUBTITLE = {
+	'REC'  : "W3C Recommendation",
+	'NOTE' : "W3C Note",
+	"PR"   : "W3C Proposed Recommendation",
+	"PER"  : "W3C Proposed Edited Recommendation",
+	"CR"   : "W3C Candidate Recommendation",
+	"WD"   : "W3C Working Draft"
+}
+
 
 class Package:
 	"""
@@ -17,9 +26,6 @@ class Package:
 	def __init__(self, driver):
 		self._book     = driver.book
 		self._document = driver.document
-		pass
-
-	@property
 
 	@property
 	def book(self):
@@ -244,6 +250,10 @@ class Package:
 		# Set the title in the text
 		title      = cover.findall(".//{http://www.w3.org/1999/xhtml}h1[@id='btitle']")[0]
 		title.text = self.document.title
+
+		# Set the subtitle in the text
+		subtitle      = cover.findall(".//{http://www.w3.org/1999/xhtml}h2[@id='subtitle']")[0]
+		subtitle.text = SUBTITLE[self.document.doc_type]
 
 		# Set the editors
 		editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='editors']")[0]

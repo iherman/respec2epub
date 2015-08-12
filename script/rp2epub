@@ -36,7 +36,7 @@ def process():
 	if args.debug:
 		uri = genR if args.respec else genD
 		args.folder = True
-		args.package = False
+		args.package = True
 	else :
 		uri = args.URI
 

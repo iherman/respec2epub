@@ -5,6 +5,8 @@ from datetime import date
 import re
 import warnings
 import os
+import os.path
+import shutil
 from xml.etree.ElementTree import SubElement
 # noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
@@ -360,18 +362,21 @@ class Book(object):
 		:param folder: whether the directory structure should be created separately or not
 		:return:
 		"""
-		self._package     = package
-		self._folder      = folder
-		self._name_prefix = ""
-		self._zip         = None
+		self._package = package
+		self._folder  = folder
+		self._name    = name
+		self._zip     = None
 
 		if self.folder:
-			self._name_prefix = name + "/"
+			# To be sure, the previous folder, if it exists, should be removed
+			if os.path.exists(name) :
+				shutil.rmtree(name, ignore_errors=True)
 			os.mkdir(name)
 		if self.package:
 			self._zip = zipfile.ZipFile(name + '.epub', 'w', zipfile.ZIP_DEFLATED)
-			self.writestr('mimetype', 'application/epub+zip', zipfile.ZIP_STORED)
-			self.writestr('META-INF/container.xml', meta_inf)
+
+		self.writestr('mimetype', 'application/epub+zip', zipfile.ZIP_STORED)
+		self.writestr('META-INF/container.xml', meta_inf)
 
 	@property
 	def package(self):
@@ -384,9 +389,9 @@ class Book(object):
 		return self._folder
 
 	@property
-	def name_prefix(self):
+	def name(self):
 		"""Prefix that should be added to all names when storing a folder (set to the short name of the document)"""
-		return self._name_prefix
+		return self._name
 
 	@property
 	def zip(self):
@@ -401,7 +406,7 @@ class Book(object):
 		:param compress: either zipfile.ZIP_DEFLATED or zipfile.ZIP_STORED, whether the content should be compressed, resp. not compressed
 		"""
 		if self.folder:
-			with open(self.name_prefix + target,"w") as f:
+			with open(self._path(target), "w") as f:
 				f.write(content)
 		if self.package:
 			self.zip.writestr(target, content, compress)
@@ -443,6 +448,19 @@ class Book(object):
 		# Note that some of the media types are not to be compressed
 		self.write_session(target, HttpSession(url))
 
+	def _path(self, path):
+		"""
+		Expand the path with the name of the package, check if the resulting path (filename) includes intermediate
+		directories and create those on the fly
+		:param path: path to be checked
+		:return: expanded, full path
+		"""
+		full_path = os.path.join(self.name,path)
+		(dirs, name) = os.path.split(full_path)
+		if dirs != '' and not os.path.exists(dirs):
+			os.makedirs(dirs)
+		return full_path
+
 	def close(self):
 		"""
 		Closing the archive.
@@ -455,5 +473,5 @@ class Book(object):
 	def __enter__(self):
 		return self
 
-	def __exit__(self):
+	def __exit__(self, exc_type, exc_value, traceback):
 		self.close()
