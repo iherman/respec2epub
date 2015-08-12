@@ -4,6 +4,7 @@ from StringIO import StringIO
 from datetime import date
 import re
 import warnings
+import os
 from xml.etree.ElementTree import SubElement
 # noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
@@ -347,24 +348,50 @@ class HttpSession:
 
 #####################################################################################
 
+
 class Book(object):
 	"""Abstraction for a book; in real usage, it just encapsulates a zip file but, for debugging purposes,
 		it just a wrapper around equivalent file output in the current directory.
 	"""
-	def __init__(self, name, debug=False):
+	def __init__(self, name, package=True, folder=False):
 		"""
 		:param name: name of the book (without the '.epub' extension)
-		:param debug: whether a real zip file should be created or just the directory content
+		:param package: whether a real zip file should be created or not
+		:param folder: whether the directory structure should be created separately or not
 		:return:
 		"""
-		self._debug = debug
-		if debug:
-			with open("name.epub") as f:
-				f.write("DEBUG CONTENT")
-		else :
-			self.zip = zipfile.ZipFile(name + '.epub', 'w', zipfile.ZIP_DEFLATED)
+		self._package     = package
+		self._folder      = folder
+		self._name_prefix = ""
+		self._zip         = None
+
+		if self.folder:
+			self._name_prefix = name + "/"
+			os.mkdir(name)
+		if self.package:
+			self._zip = zipfile.ZipFile(name + '.epub', 'w', zipfile.ZIP_DEFLATED)
 			self.writestr('mimetype', 'application/epub+zip', zipfile.ZIP_STORED)
 			self.writestr('META-INF/container.xml', meta_inf)
+
+	@property
+	def package(self):
+		"""Flag whether an EPUB package should be generated or not"""
+		return self._package
+
+	@property
+	def folder(self):
+		"""Flag whether a folder should be generated or not"""
+		return self._folder
+
+	@property
+	def name_prefix(self):
+		"""Prefix that should be added to all names when storing a folder (set to the short name of the document)"""
+		return self._name_prefix
+
+	@property
+	def zip(self):
+		"""The package files itself"""
+		return self._zip
 
 	def writestr(self, target, content, compress=zipfile.ZIP_DEFLATED):
 		"""
@@ -373,10 +400,10 @@ class Book(object):
 		:param content: string/bytes to be written on the file
 		:param compress: either zipfile.ZIP_DEFLATED or zipfile.ZIP_STORED, whether the content should be compressed, resp. not compressed
 		"""
-		if debug:
-			with open(target,"w") as f:
+		if self.folder:
+			with open(self.name_prefix + target,"w") as f:
 				f.write(content)
-		else :
+		if self.package:
 			self.zip.writestr(target, content, compress)
 
 	def write_element(self, target, element):
@@ -397,23 +424,36 @@ class Book(object):
 		Return content of an HTTP session added to the book.
 
 		:param str target: path for the target file
-		:param HttpSession session: session whose data should be written onto the book
+		:param HttpSession session: session whose data must retrieved to be written into the book
 		:return:
 		"""
 		# Copy the content into the final book.
 		# Note that some of the media types are not to be compressed
 		self.writestr(target, session.data.read(), zipfile.ZIP_STORED if session.media_type in _NO_COMPRESS else zipfile.ZIP_DEFLATED)
 
-	def __enter__(self):
-		return self
+	def write_HTTP(self, target, url):
+		"""
+		Return content of an HTTP session added to the book.
+
+		:param str target: path for the target file
+		:param url: URL that has to be retrieved to be written into the book
+		:return:
+		"""
+		# Copy the content into the final book.
+		# Note that some of the media types are not to be compressed
+		self.write_session(target, HttpSession(url))
 
 	def close(self):
 		"""
 		Closing the archive.
 		:return:
 		"""
-		if not self._debug:
+		if self.package:
 			self.zip.close()
+
+	# The properties below are necessary to use the class in a "with ... as" python structure
+	def __enter__(self):
+		return self
 
 	def __exit__(self):
 		self.close()

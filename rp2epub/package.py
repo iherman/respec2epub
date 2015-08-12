@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
 from .templates import PACKAGE, TOC, NAV, COVER
 
+
 class Package:
 	"""
 	Methods to generate the manifest, TOC, and cover pages
@@ -14,14 +15,11 @@ class Package:
 
 	"""
 	def __init__(self, driver):
-		self._driver = driver
-		self._book   = self.driver.book
+		self._book     = driver.book
+		self._document = driver.document
 		pass
 
 	@property
-	def driver(self):
-		"""The main driver class; a :py:class:`.DocToEpub` instance"""
-		return self._driver
 
 	@property
 	def book(self):
@@ -29,9 +27,9 @@ class Package:
 		return self._book
 
 	@property
-	def document_wrapper(self):
-		"""Wrapper around a document; a :py:class:`.DocumentWrapper` instance"""
-		return self._driver.document_wrapper
+	def document(self):
+		"""Wrapper around a document; a :py:class:`.Document` instance"""
+		return self._document
 
 	def process(self):
 		"""Top level entry to execute the various internal methods"""
@@ -67,10 +65,10 @@ class Package:
 			item.tail = "\n    "
 
 		# Add the type-specific logo
-		if self.document_wrapper.doc_type in CSS_LOGOS:
+		if self.document.doc_type in CSS_LOGOS:
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
 			item.set("id", "css-logo")
-			item.set("href", CSS_LOGOS[self.document_wrapper.doc_type][1])
+			item.set("href", CSS_LOGOS[self.document.doc_type][1])
 			item.set("media-type", "image/png")
 			item.tail = "\n    "
 
@@ -78,12 +76,12 @@ class Package:
 		item.set("id", "main")
 		item.set("href", "Overview.xhtml")
 		item.set("media-type", "application/xhtml+xml")
-		if self.document_wrapper.properties is not None:
-			item.set("properties", self.document_wrapper.properties)
+		if self.document.properties is not None:
+			item.set("properties", self.document.properties)
 		item.tail = "\n    "
 
 		# Add the additional resources
-		for resource_target, media_type in self.document_wrapper.additional_resources:
+		for resource_target, media_type in self.document.additional_resources:
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
 			item.set("href", resource_target)
 			item.set("media-type", media_type)
@@ -101,15 +99,15 @@ class Package:
 
 		# Manifest metadata
 		title = opf.findall(".//{http://purl.org/dc/elements/1.1/}title")[0]
-		title.text = self.document_wrapper.title
+		title.text = self.document.title
 		identifier = opf.findall(".//{http://purl.org/dc/elements/1.1/}identifier")[0]
-		identifier.text = self.document_wrapper.dated_uri
+		identifier.text = self.document.dated_uri
 		date = opf.findall(".//{http://www.idpf.org/2007/opf}meta[@property='dcterms:modified']")[0]
-		date.text = self.document_wrapper.date.strftime("%Y-%m-%dT%M:%S:00Z")
+		date.text = self.document.date.strftime("%Y-%m-%dT%M:%S:00Z")
 		date = opf.findall(".//{http://www.idpf.org/2007/opf}meta[@property='dcterms:date']")[0]
-		date.text = self.document_wrapper.date.strftime("%Y-%m-%dT%M:%S:00Z")
+		date.text = self.document.date.strftime("%Y-%m-%dT%M:%S:00Z")
 		creator = opf.findall(".//{http://purl.org/dc/elements/1.1/}creator")[0]
-		creator.text = self.document_wrapper.editors
+		creator.text = self.document.editors
 
 		# Push the manifest file into the book, too
 		# The main content should be stored in the target book
@@ -146,16 +144,16 @@ class Package:
 		# Set the title
 		title    = ncx.findall(".//{http://www.daisy.org/z3986/2005/ncx/}docTitle")[0]
 		txt      = SubElement(title, "{http://www.daisy.org/z3986/2005/ncx/}text")
-		txt.text = self.document_wrapper.title
+		txt.text = self.document.title
 
 		# Set the authors
 		authors    = ncx.findall(".//{http://www.daisy.org/z3986/2005/ncx/}docAuthor")[0]
 		txt        = SubElement(authors, "{http://www.daisy.org/z3986/2005/ncx/}text")
-		txt.text   = self.document_wrapper.editors
+		txt.text   = self.document.editors
 
 		# Set the book ID
 		meta_id = ncx.findall(".//{http://www.daisy.org/z3986/2005/ncx/}meta[@name='dtb:uid']")[0]
-		meta_id.set('content', self.document_wrapper.dated_uri)
+		meta_id.set('content', self.document.dated_uri)
 
 		navMap = ncx.findall(".//{http://www.daisy.org/z3986/2005/ncx/}navMap")[0]
 
@@ -164,7 +162,7 @@ class Package:
 		navMap.remove(to_remove)
 
 		index = 2
-		for toc_entry in self.document_wrapper.toc:
+		for toc_entry in self.document.toc:
 			set_nav_point(navMap, toc_entry.href, toc_entry.label, index)
 			index += 1
 
@@ -191,11 +189,11 @@ class Package:
 
 		# Set the title
 		title = nav.findall(".//{http://www.w3.org/1999/xhtml}title")[0]
-		title.text = self.document_wrapper.title + " - Table of Contents"
+		title.text = self.document.title + " - Table of Contents"
 
 		# Set the date
 		date = nav.findall(".//{http://www.w3.org/1999/xhtml}meta[@name='date']")[0]
-		date.set("content", self.document_wrapper.date.strftime("%Y-%m-%dT%M:%S:00Z"))
+		date.set("content", self.document.date.strftime("%Y-%m-%dT%M:%S:00Z"))
 
 		# The landmark part of the nav file has to be changed; there is no explicit cover page
 		li_landmark = nav.findall(".//{http://www.w3.org/1999/xhtml}li[@href='cover.xhtml']")[0]
@@ -213,7 +211,7 @@ class Package:
 		a.text = "Cover"
 		a.set("class", "toc")
 
-		for toc_entry in self.document_wrapper.toc:
+		for toc_entry in self.document.toc:
 			li = SubElement(ol, "{http://www.w3.org/1999/xhtml}li")
 			a = SubElement(li, "{http://www.w3.org/1999/xhtml}a")
 			a.set("href", toc_entry.href)
@@ -237,32 +235,32 @@ class Package:
 
 		# Set the title
 		title      = cover.findall(".//{http://www.w3.org/1999/xhtml}title")[0]
-		title.text = self.document_wrapper.title
+		title.text = self.document.title
 
 		# Set the authors in the meta
 		editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}meta[@name='author']")[0]
-		editors.set("content", self.document_wrapper.editors)
+		editors.set("content", self.document.editors)
 
 		# Set the title in the text
 		title      = cover.findall(".//{http://www.w3.org/1999/xhtml}h1[@id='btitle']")[0]
-		title.text = self.document_wrapper.title
+		title.text = self.document.title
 
 		# Set the editors
 		editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='editors']")[0]
-		editors.text = self.document_wrapper.editors
+		editors.text = self.document.editors
 
 		# Set a pointer to the original
 		orig      = cover.findall(".//{http://www.w3.org/1999/xhtml}a[@id='ref_original']")[0]
-		orig.set("href", self.document_wrapper.dated_uri)
+		orig.set("href", self.document.dated_uri)
 
 		# Set the subtitle
-		if self.document_wrapper.issued_as is not None:
+		if self.document.issued_as is not None:
 			subtitle = cover.findall(".//{http://www.w3.org/1999/xhtml}h2[@id='subtitle']")[0]
-			subtitle.text = self.document_wrapper.issued_as
+			subtitle.text = self.document.issued_as
 
 		# Set the correct copyright date
 		span      = cover.findall(".//{http://www.w3.org/1999/xhtml}span[@id='cpdate']")[0]
-		span.text = self.document_wrapper.date.strftime("%Y")
+		span.text = self.document.date.strftime("%Y")
 
 		self.book.write_element('cover.xhtml', cover)
 

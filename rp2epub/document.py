@@ -25,10 +25,15 @@ extra_media_types = {
 }
 
 #: Pairs of element names and attributes for content that should be downloaded and referred to
-external_references = [("img", "src"), ("img", "longdesc"), ("script", "src"), ("object", "data")]
+external_references = [
+	("img", "src"),
+	("img", "longdesc"),
+	("script", "src"),
+	("object", "data")
+]
 
 # Massage the core document
-class DocumentWrapper:
+class Document:
 	"""
 	Manage the top level document, ie, looking at its content and retrieve the necessary references like images
 	or style files, possibly modifying the document on the fly.
@@ -36,11 +41,15 @@ class DocumentWrapper:
 	:param driver: the caller instance
 	:type driver: :py:class:`.DocToEpub`
 	"""
+
+
+
 	# noinspection PyPep8,PyPep8
 	def __init__(self, driver):
 		self._additional_resources = []
-		self._index = 0
-		self._driver = driver
+		self._index                = 0
+		self._driver               = driver
+		self.download_targets      = []
 
 		self._title      = None
 		self._properties = None
@@ -52,6 +61,7 @@ class DocumentWrapper:
 		self._toc		 = []
 		self._issued_as  = None
 		self._get_document_metadata()
+		self._massage_html()
 
 	@property
 	def driver(self):
@@ -66,21 +76,60 @@ class DocumentWrapper:
 	@property
 	def additional_resources(self):
 		"""List of additional resources that have been added to the book. A list of tuples, containing the internal
-		reference to the resource and the media type. Built up during processing, it is used in the manifest
+		reference to the resource and the media type. Built up during processing, it is used in when creating the manifest
 		file of the book
 		"""
 		return self._additional_resources
 
+	def extract_external_references(self):
+		"""Handle the external references (images, etc) in the core file, and copy them to the book.
+
+		If the file referred to is
+
+		- on the same domain as the original file
+		- is one of the 'accepted' media types for epub
+
+		then the file is copied and stored in the book, the reference is changed in the document,
+		and the resource is marked to be added to the manifest file
+		"""
+		# Retrieve the value of the reference. By making a urljoin, relative URI-s are also turned into absolute one;
+		# this simplifies the issue
+		# Look at generic external references like images, and, possibly copy the content
+		for (element, attr) in self.download_targets:
+			ref = urljoin(self.driver.top_uri, element.get(attr))
+			if urlparse(ref).netloc == self.driver.domain:
+				session = HttpSession(ref, accepted_media_types=extra_media_types.keys())
+				if session.success :
+					### TODO: this must be changed to keep the original structure for references!
+					# Find the right name for the target document
+					path = urlparse(ref).path
+					if path[-1] == '/':
+						target = 'Assets/extras/data%s.%s' % (self._index, extra_media_types[session.media_type])
+						self._index += 1
+					else:
+						target = '%s' % path.split('/')[-1]
+
+					# We can now copy the content into the final book.
+					# Note that some of the media types are not to be compressed; this is taken care in the
+					# "Book" instance
+					self.driver.book.write_session(target, session)
+
+					# Add information about the new entry; this has to be added to the manifest file
+					self._additional_resources.append((target, session.media_type))
+
+					# Change the original reference
+					element.set(attr, target)
+
 	###################################################################################################
 	# noinspection PyPep8
-	def process(self):
+	def _massage_html(self):
 		"""
 		Process a document looking for (and possibly copying) external references and making some modifications on the fly
 		"""
 		# Set the xhtml namespace on the top, this is required by epub readers
 		self.html.set("xmlns", "http://www.w3.org/1999/xhtml")
 
-		# The script element should not be self-closed, but with a separate </script> instead. Just adding
+		# The script reference element should not be self-closed, but with a separate </script> instead. Just adding
 		# an extra space to a possible link does the trick.
 		for script in self.html.findall(".//script[@src]"):
 			if script.text is None:
@@ -93,77 +142,31 @@ class DocumentWrapper:
 		for lnk in self.html.findall(".//link[@rel='stylesheet']"):
 			ref_details = urlparse(lnk.get("href"))
 			if ref_details.netloc == "www.w3.org" and ref_details.path.startswith("/StyleSheets"):
-				# This is the local, W3C, style sheet. Two actions:
+				# This is the local, W3C, style sheet. Actions to be taken:
 				# 1. This is exchanged against the general 'base.css'
 				# 2. Below, after all the stylesheets are handled, the reference to a separate 'book.css' is added
-				# 3. The final book.css is finalized later (through a template), adding a reference to the background
-				# image that corresponds to the documents status
+				# 3. The final book.css is finalized later (through a template and in the "driver"), adding a reference
+				# to the background image that corresponds to the documents status
 				lnk.set("href", "Assets/base.css")
 			else:
-				self._handle_one_reference(lnk, 'href')
+				self.download_targets.append((lnk, 'href'))
 
 		head     = self.html.findall(".//head")[0]
 		book_css = SubElement(head, "link")
 		book_css.set("rel", "stylesheet")
 		book_css.set("href", "Assets/book.css")
 
-		# This is an ugly issue which comes up very very rarely: the base element screws up things if any
+		# This is an ugly issue which comes up very very rarely: the base element screws up things
 		for element in self.html.findall(".//base"):
 			head.remove(element)
 
 		# Change the HTTP equivalent value
-		#
-		#
 		Utils.set_html_meta(self.html, head)
 
-		# The easy case: look at generic external references, possibly copy the content
-		for (element, attr) in external_references:
-			for el in self.html.findall(".//%s" % element):
-				self._handle_one_reference(el, attr)
-
-	# noinspection PyPep8
-	def _handle_one_reference(self, element, attr):
-		"""Handle one reference in the core HTML file.
-		If the file referred to is
-		- on the same domain as the original file
-		- is one of the 'accepted' media types for epub
-		Then the file is copied and stored in the book, the reference is changed in the document,
-		and the resource is marked to be added to the manifest file
-
-		:param element: the (XML) element that holds the reference in an attribute
-		:type element: :py:class:`xml.etree.ElementTree.Element`
-		:param str attr: the attribute name that holds the reference
-		"""
-		# Retrieve the value of the reference. By making a urljoin, relative URI-s are also turned into absolute one;
-		# this simplifies the issue
-		ref = urljoin(self.driver.top_uri, element.get(attr))
-
-		if urlparse(ref).netloc == self.driver.domain:
-			session = HttpSession(ref, accepted_media_types=extra_media_types.keys())
-			if not session.success:
-				return
-
-			# Find the right name for the target document
-			path = urlparse(ref).path
-			if path[-1] == '/':
-				target = 'Assets/extras/data%s.%s' % (self._index, extra_media_types[session.media_type])
-				self._index += 1
-			else:
-				target = '%s' % path.split('/')[-1]
-
-			# We can now copy the content into the final book.
-			# Note that some of the media types are not to be compressed
-			# TODO: This has to be finalized, skipping the copy for now
-			self.driver.book.write_session(target, session)
-
-			# Add information about the new entry; this has to be added to the manifest file
-			self._additional_resources.append((target, session.media_type))
-
-			# Change the original reference
-			element.set(attr, target)
-		else:
-			# return unchanged
-			return
+		# Collect the additional download targets
+		for (tag_name, attr) in external_references:
+			for element in self.html.findall(".//%s" % tag_name):
+				self.download_targets.append((element, attr))
 
 	###################################################################################################
 	# Metadata; all these are filled with value through the _get_document_metadata method, called at

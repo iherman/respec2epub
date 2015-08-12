@@ -23,10 +23,10 @@ from xml.etree.ElementTree import ElementTree
 from urlparse import urlparse, urlunparse
 
 from .templates import meta_inf, BOOK_CSS
-from .document import DocumentWrapper
+from .document import Document
 from .package import Package
 
-from .utils import HttpSession, et_to_book
+from .utils import HttpSession, Book
 
 CONVERTER = "https://labs.w3.org/spec-generator/?type=respec&url="
 
@@ -42,11 +42,6 @@ DEFAULT_FILES = [
 		("Assets/book.css", "text/css", "StyleSheets-book", "")
 ]
 
-# noinspection PyPep8,PyPep8,PyPep8
-_To_transfer = [
-	("http://www.w3.org/Icons/w3c_main.png", "Assets/w3c_main.png"),
-	("http://www.w3.org/StyleSheets/TR/base.css", "Assets/base.css"),
-]
 
 # noinspection PyPep8
 CSS_LOGOS = {
@@ -61,18 +56,29 @@ CSS_LOGOS = {
 ###################################################################################
 # noinspection PyPep8
 class DocToEpub:
+
+	# noinspection PyPep8
+	To_transfer = [
+		("http://www.w3.org/Icons/w3c_main.png", "Assets/w3c_main.png"),
+		("http://www.w3.org/StyleSheets/TR/base.css", "Assets/base.css"),
+	]
+
 	"""
 	Top level entry to the program; receives the URI to be retrieved
 
 	:param str top_uri: the URI that was used to invoke the package, ie, the location of the document source
 	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
+	:param package: whether a real zip file should be created or not
+	:param folder: whether the directory structure should be created separately or not
 	"""
 	# noinspection PyPep8
-	def __init__(self, url, is_respec=False):
-		self._document_wrapper = None
-		self._top_uri          = url
-		self._book             = None
-		self._domain           = urlparse(url).netloc
+	def __init__(self, url, is_respec=False, package=True, folder=False):
+		self._html_document = None
+		self._top_uri       = url
+		self._book          = None
+		self._domain        = urlparse(url).netloc
+		self._package       = package
+		self._folder        = folder
 
 		# Get the base URL, ie, remove the possible query parameter and the last portion of the path name
 		url_tuples = urlparse(url)
@@ -83,8 +89,18 @@ class DocToEpub:
 		session = HttpSession(CONVERTER + url if is_respec else url, raise_exception=True)
 
 		# Parse the generated document
-		self._html     = html5lib.parse(session.data, namespaceHTMLElements=False)
-		self._document = ElementTree(self._html)
+		self._html          = html5lib.parse(session.data, namespaceHTMLElements=False)
+		self._html_document = ElementTree(self._html)
+
+	@property
+	def package(self):
+		"""Flag whether an epub package is created"""
+		return self._package
+
+	@property
+	def folder(self):
+		"""Flag whether a folder, containing the package content, is created"""
+		return self._folder
 
 	@property
 	def base(self):
@@ -97,14 +113,14 @@ class DocToEpub:
 		return self._domain
 
 	@property
-	def document(self):
+	def html_document(self):
 		"""Document, as parsed; an :py:class:`xml.etree.ElementTree.Element` instance"""
-		return self._document
+		return self._html_document
 
 	@property
-	def document_wrapper(self):
+	def document(self):
 		"""Wrapper around the document, containing extra meta information for packaging"""
-		return self._document_wrapper
+		return self._document
 
 	@property
 	def html(self):
@@ -126,35 +142,51 @@ class DocToEpub:
 		Process the book, ie, extract whatever has to be extracted and produce the epub file
 		"""
 
-		# Create the wrapper around the parsed version. Initialization will also
+		# Create the wrapper around the parsed version. This will also
 		# retrieve the various 'meta' data from the document, like title, editors, document type, etc.
 		# It is important to get these metadata before the real processing because, for example, the
 		# 'short name' will also be used for the name of the final book
-		self._document_wrapper = DocumentWrapper(self).process()
-		# TODO: for debug: see the transformed XHTML file
-		self.document.write("Overview.xhtml", encoding="utf-8", xml_declaration=True, method="xml")
-		#
-		pass
-	#
-	# 	# The extra css file must be added to the book; the content is actually dependent on the type of the
-	# 	# document
-	# 	with zipfile.ZipFile(self.document_wrapper.short_name + '.epub', 'w', zipfile.ZIP_DEFLATED) as self._book:
-	#
-	# 		# Add the book.css with the right value set for the background image
-	# 		if self.document_wrapper.doc_type in CSS_LOGOS:
-	# 			uri, local = CSS_LOGOS[self.document_wrapper.doc_type]
-	# 			self.book.writestr('Assets/book.css', BOOK_CSS % local[7:])
-	# 			_To_transfer.append((uri, local))
-	#
-	# 		# Some resources should be added to the book once and for all
-	# 		for uri, local in _To_transfer:
-	#			self.book.write_session(local, HttpSession(uri))
-	#
-	# 		# Massage the document by extracting extra resources, set the right CSS, etc
-	# 		self.document_wrapper.process()
-	#
-	# 		# The main content should be stored in the target book
-	#		self.book.write_element('Overview.xhtml', self.document)
-	#
-	# 		Package(self).process()
+		self._document = Document(self)
 
+		# with Book(self.document.short_name, self.package, self.folder) as self._book:
+		# 	# Add the book.css with the right value set for the background image
+		# 	if self.document.doc_type in CSS_LOGOS:
+		# 		uri, local = CSS_LOGOS[self.document.doc_type]
+		# 		self.book.writestr('Assets/book.css', BOOK_CSS % local[7:])
+		# 		self.To_transfer.append((uri, local))
+		#
+		# 	# Some resources should be added to the book once and for all
+		# 	for uri, local in self.To_transfer:
+		# 		self.book.write_HTTP(local, uri)
+		#
+		# 	# Add the additional resources that are referred to from the document itself
+		# 	self.document.extract_external_references()
+		#
+		# 	# The various package files to be added to the final output
+		# 	Package(self).process()
+		#
+		# 	# The main content should be stored in the target book
+		# 	self.book.write_element('Overview.xhtml', self.html_document)
+
+		self._book = Book(self.document.short_name, self.package, self.folder)
+
+		# Add the book.css with the right value set for the background image
+		if self.document.doc_type in CSS_LOGOS:
+			uri, local = CSS_LOGOS[self.document.doc_type]
+			self.book.writestr('Assets/book.css', BOOK_CSS % local[7:])
+			self.To_transfer.append((uri, local))
+
+		# Some resources should be added to the book once and for all
+		for uri, local in self.To_transfer:
+			self.book.write_HTTP(local, uri)
+
+		# Add the additional resources that are referred to from the document itself
+		self.document.extract_external_references()
+
+		# The various package files to be added to the final output
+		Package(self).process()
+
+		# The main content should be stored in the target book
+		self.book.write_element('Overview.xhtml', self.html_document)
+
+		self.book.close()

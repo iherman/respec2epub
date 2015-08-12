@@ -16,26 +16,31 @@ def process():
 	parser = argparse.ArgumentParser(description=description)
 	parser.add_argument("URI", help="URI of the input; if this is in respec, it will passed on to the spec generator verbatim ")
 	parser.add_argument("-r", "--respec",
-						help="The source is not a respec file (but a final HTML), do not transform it",
+						help="The source is a respec file, transform it before processing",
 						action='store_true')
+	parser.add_argument("-p", "--package",
+						help="Create an EPUB3 package",
+						action="store_true")
+	parser.add_argument("-f", "--folder",
+						help="Create a folder with the book content",
+						action="store_true")
 	parser.add_argument("-d", "--debug",
 						help="Debug with fixed document URI-s",
 						action='store_true')
+
 	args = parser.parse_args()
 
 	from rp2epub import DocToEpub
 
-	# TODO: Remove the Debug flag and branch!!!
-	args.debug  = True
-	args.respec = False
-
 	# The debug branch does different things...
 	if args.debug:
 		uri = genR if args.respec else genD
+		args.folder = True
+		args.package = False
 	else :
 		uri = args.URI
 
-	DocToEpub(uri, args.respec).process()
+	DocToEpub(uri, is_respec=args.respec, package=args.package, folder=args.folder).process()
 
 if __name__ == '__main__':
 	process()
