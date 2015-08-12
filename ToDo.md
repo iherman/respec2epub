@@ -2,6 +2,7 @@
 
 ## Current code
 
+* if so, it should be turned into XHTML:-(
 
 ## Additional 
 
@@ -13,4 +14,3 @@ These are mainly for the service part:
 
 # Quality todo-s
 
-* Try to make it more functional, maybe (like editors should be returned from the function rather than added directly like now)

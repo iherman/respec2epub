@@ -5,6 +5,7 @@ from .utils import HttpSession, Utils
 # suffixes and media types for resources that are recognized by EPUB
 # noinspection PyPep8,PyPep8
 extra_media_types = {
+	"text/html"                   : "html",
 	"text/css"                    : "css",
 	"image/svg+xml"               : "svg",
 	"image/png"                   : "png",
@@ -25,6 +26,7 @@ extra_media_types = {
 }
 
 #: Pairs of element names and attributes for content that should be downloaded and referred to
+# noinspection PyPep8
 external_references = [
 	("img", "src"),
 	("img", "longdesc"),
@@ -32,17 +34,16 @@ external_references = [
 	("object", "data")
 ]
 
+
 # Massage the core document
 class Document:
 	"""
-	Manage the top level document, ie, looking at its content and retrieve the necessary references like images
+	Wrapper around the top level document, ie, looking at its content and retrieve the necessary references like images
 	or style files, possibly modifying the document on the fly.
 
 	:param driver: the caller instance
 	:type driver: :py:class:`.DocToEpub`
 	"""
-
-
 
 	# noinspection PyPep8,PyPep8
 	def __init__(self, driver):
@@ -65,7 +66,7 @@ class Document:
 
 	@property
 	def driver(self):
-		"""The caller: a :class:`.DocToEpub` instance.  """
+		"""The caller: a :class:`.DocToEpub` instance."""
 		return self._driver
 
 	@property
@@ -81,6 +82,7 @@ class Document:
 		"""
 		return self._additional_resources
 
+	# noinspection PyPep8
 	def extract_external_references(self):
 		"""Handle the external references (images, etc) in the core file, and copy them to the book.
 
@@ -96,29 +98,39 @@ class Document:
 		# this simplifies the issue
 		# Look at generic external references like images, and, possibly copy the content
 		for (element, attr) in self.download_targets:
-			ref = urljoin(self.driver.top_uri, element.get(attr))
-			if urlparse(ref).netloc == self.driver.domain:
-				session = HttpSession(ref, accepted_media_types=extra_media_types.keys())
-				if session.success :
-					### TODO: this must be changed to keep the original structure for references!
-					# Find the right name for the target document
-					path = urlparse(ref).path
-					if path[-1] == '/':
-						target = 'Assets/extras/data%s.%s' % (self._index, extra_media_types[session.media_type])
-						self._index += 1
-					else:
-						target = '%s' % path.split('/')[-1]
+			if element.get(attr) is not None:
+				ref = urljoin(self.driver.base, element.get(attr))
+				if urlparse(ref).netloc == self.driver.domain:
+					session = HttpSession(ref, accepted_media_types=extra_media_types.keys())
+					if session.success:
+						# Find the right name for the target document
+						path = urlparse(ref).path
+						if path[-1] == '/':
+							target = 'Assets/extras/data%s.%s' % (self._index, extra_media_types[session.media_type])
+							self._index += 1
+						else:
+							target = '%s' % path.split('/')[-1]
 
-					# We can now copy the content into the final book.
-					# Note that some of the media types are not to be compressed; this is taken care in the
-					# "Book" instance
-					self.driver.book.write_session(target, session)
+						# yet another complication: if the target is an html file, it will have to become xhtml :-(
+						# this means that the target and the media types should receive a local name, to
+						# be stored and used below
+						if session.media_type == 'text/html':
+							final_media_type = 'application/xhtml+xml'
+							final_target     = target.replace('.html', '.xhtml', 1)
+						else :
+							final_media_type = session.media_type
+							final_target     = target
 
-					# Add information about the new entry; this has to be added to the manifest file
-					self._additional_resources.append((target, session.media_type))
+						# We can now copy the content into the final book.
+						# Note that some of the media types are not to be compressed; this is taken care in the
+						# "Book" instance
+						self.driver.book.write_session(target, session)
 
-					# Change the original reference
-					element.set(attr, target)
+						# Add information about the new entry; this has to be added to the manifest file
+						self._additional_resources.append((final_target, final_media_type))
+
+						# Change the original reference
+						element.set(attr, final_target)
 
 	###################################################################################################
 	# noinspection PyPep8
@@ -126,14 +138,8 @@ class Document:
 		"""
 		Process a document looking for (and possibly copying) external references and making some modifications on the fly
 		"""
-		# Set the xhtml namespace on the top, this is required by epub readers
-		self.html.set("xmlns", "http://www.w3.org/1999/xhtml")
-
-		# The script reference element should not be self-closed, but with a separate </script> instead. Just adding
-		# an extra space to a possible link does the trick.
-		for script in self.html.findall(".//script[@src]"):
-			if script.text is None:
-				script.text = " "
+		# Do the necessary massaging on the DOM tree to make the XHTML output o.k.
+		Utils.html_to_xhtml(self.html)
 
 		# Change the value of @about to the dated URI, which is what counts...
 		self.html.set("about", self.dated_uri)
@@ -167,6 +173,12 @@ class Document:
 		for (tag_name, attr) in external_references:
 			for element in self.html.findall(".//%s" % tag_name):
 				self.download_targets.append((element, attr))
+
+		# Extra care should be taken with <a> elements to exclude self references (ie, fragment id-s)
+		for element in self.html.findall(".//a[@href]"):
+			ref = element.get("href")
+			if ref[0] != '#' and ref != ".":
+				self.download_targets.append((element, 'href'))
 
 	###################################################################################################
 	# Metadata; all these are filled with value through the _get_document_metadata method, called at
@@ -225,9 +237,8 @@ class Document:
 			break
 
 		# Properties, to be added to the manifest
-		props = set()
+		props = Utils.get_document_properties(self.html)
 		props.add("remote-resources")
-		Utils.get_document_properties(self.html, props)
 		if len(props) > 0:
 			self._properties = reduce(lambda x, y: x + ' ' + y, props)
 
@@ -243,17 +254,16 @@ class Document:
 		self._date = Utils.retrieve_date(self.dated_uri)
 
 		# Extract the editors
-		editor_array = set()
-		Utils.extract_editors(self.html, editor_array, self.short_name)
-		if len(editor_array) == 0:
+		editor_set = Utils.extract_editors(self.html)
+		if len(editor_set) == 0:
 			self._editors = []
-		elif len(editor_array) == 1:
-			self._editors = list(editor_array)[0] + ", (ed.)"
+		elif len(editor_set) == 1:
+			self._editors = list(editor_set)[0] + ", (ed.)"
 		else:
-			self._editors = reduce(lambda x, y: x + ', ' + y, editor_array) + ", (eds.)"
+			self._editors = reduce(lambda x, y: x + ', ' + y, editor_set) + ", (eds.)"
 
 		# Extract the table of content
-		Utils.extract_toc(self.html, self._toc, self.short_name)
+		self._toc = Utils.extract_toc(self.html, self.short_name)
 
 		# Add the right subtitle to the cover page
 		for issued in self.html.findall(".//h2[@property='dcterms:issued']"):

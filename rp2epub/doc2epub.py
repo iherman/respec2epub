@@ -17,12 +17,11 @@ The program depends on the html5lib library for HTML parsing.
 # TODO: handle the possible css references to other css files or to images
 
 # noinspection PyPep8Naming
-import zipfile
 import html5lib
 from xml.etree.ElementTree import ElementTree
 from urlparse import urlparse, urlunparse
 
-from .templates import meta_inf, BOOK_CSS
+from .templates import BOOK_CSS
 from .document import Document
 from .package import Package
 
@@ -42,7 +41,6 @@ DEFAULT_FILES = [
 		("Assets/book.css", "text/css", "StyleSheets-book", "")
 ]
 
-
 # noinspection PyPep8
 CSS_LOGOS = {
 	"REC"  : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-REC.png"),
@@ -56,21 +54,24 @@ CSS_LOGOS = {
 ###################################################################################
 # noinspection PyPep8
 class DocToEpub:
+	"""
+	Top level entry class; receives the URI to be retrieved and generates the folders and packages (as required)
+	in the current directory.
+
+	:param str url: the URI that was used to invoke the package, ie, the location of the document source
+	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
+	:param boolean package: whether a real zip file should be created or not
+	:param boolean folder: whether the directory structure should be created separately or not
+	"""
 
 	# noinspection PyPep8
+	#: array of (url,local_name) pairs of resources that must be transferred and added to the output.
+	# This is expanded run-time.
 	To_transfer = [
 		("http://www.w3.org/Icons/w3c_main.png", "Assets/w3c_main.png"),
 		("http://www.w3.org/StyleSheets/TR/base.css", "Assets/base.css"),
 	]
 
-	"""
-	Top level entry to the program; receives the URI to be retrieved
-
-	:param str top_uri: the URI that was used to invoke the package, ie, the location of the document source
-	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
-	:param package: whether a real zip file should be created or not
-	:param folder: whether the directory structure should be created separately or not
-	"""
 	# noinspection PyPep8
 	def __init__(self, url, is_respec=False, package=True, folder=False):
 		self._html_document = None
@@ -91,6 +92,9 @@ class DocToEpub:
 		# Parse the generated document
 		self._html          = html5lib.parse(session.data, namespaceHTMLElements=False)
 		self._html_document = ElementTree(self._html)
+
+		# representation of the whole document, with the various metadata, etc.
+		self._document = Document(self)
 
 	@property
 	def package(self):
@@ -141,52 +145,26 @@ class DocToEpub:
 		"""
 		Process the book, ie, extract whatever has to be extracted and produce the epub file
 		"""
-
 		# Create the wrapper around the parsed version. This will also
 		# retrieve the various 'meta' data from the document, like title, editors, document type, etc.
 		# It is important to get these metadata before the real processing because, for example, the
 		# 'short name' will also be used for the name of the final book
-		self._document = Document(self)
+		with Book(self.document.short_name, self.package, self.folder) as self._book:
+			# Add the book.css with the right value set for the background image
+			if self.document.doc_type in CSS_LOGOS:
+				uri, local = CSS_LOGOS[self.document.doc_type]
+				self.book.writestr('Assets/book.css', BOOK_CSS % local[7:])
+				self.To_transfer.append((uri, local))
 
-		# with Book(self.document.short_name, self.package, self.folder) as self._book:
-		# 	# Add the book.css with the right value set for the background image
-		# 	if self.document.doc_type in CSS_LOGOS:
-		# 		uri, local = CSS_LOGOS[self.document.doc_type]
-		# 		self.book.writestr('Assets/book.css', BOOK_CSS % local[7:])
-		# 		self.To_transfer.append((uri, local))
-		#
-		# 	# Some resources should be added to the book once and for all
-		# 	for uri, local in self.To_transfer:
-		# 		self.book.write_HTTP(local, uri)
-		#
-		# 	# Add the additional resources that are referred to from the document itself
-		# 	self.document.extract_external_references()
-		#
-		# 	# The various package files to be added to the final output
-		# 	Package(self).process()
-		#
-		# 	# The main content should be stored in the target book
-		# 	self.book.write_element('Overview.xhtml', self.html_document)
+			# Some resources should be added to the book once and for all
+			for uri, local in self.To_transfer:
+				self.book.write_HTTP(local, uri)
 
-		self._book = Book(self.document.short_name, self.package, self.folder)
+			# Add the additional resources that are referred to from the document itself
+			self.document.extract_external_references()
 
-		# Add the book.css with the right value set for the background image
-		if self.document.doc_type in CSS_LOGOS:
-			uri, local = CSS_LOGOS[self.document.doc_type]
-			self.book.writestr('Assets/book.css', BOOK_CSS % local[7:])
-			self.To_transfer.append((uri, local))
+			# The various package files to be added to the final output
+			Package(self).process()
 
-		# Some resources should be added to the book once and for all
-		for uri, local in self.To_transfer:
-			self.book.write_HTTP(local, uri)
-
-		# Add the additional resources that are referred to from the document itself
-		self.document.extract_external_references()
-
-		# The various package files to be added to the final output
-		Package(self).process()
-
-		# The main content should be stored in the target book
-		self.book.write_element('Overview.xhtml', self.html_document)
-
-		self.book.close()
+			# The main content should be stored in the target book
+			self.book.write_element('Overview.xhtml', self.html_document)

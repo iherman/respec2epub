@@ -3,18 +3,20 @@ import argparse
 
 # For debug
 genR = "http://w3c.github.io/csvw/csv2rdf/?publishDate=2015-07-16;specStatus=CR"
-genD = "http://localhost:8001/LocalData/github/csvw/publishing-snapshots/CR-csv2json/Overview.html"
+genD = "http://localhost:8001/LocalData/github/csvw/publishing-snapshots/CR-metadata/Overview.html"
 #####
 
 description = "Generate EPUB3 for a single W3C TR document, either in respec format (default) or generated from respec."
 
 
+# noinspection PyPep8
 def process():
 	"""
 	Main entry point for command line usage.
 	"""
 	parser = argparse.ArgumentParser(description=description)
-	parser.add_argument("URI", help="URI of the input; if this is in respec, it will passed on to the spec generator verbatim ")
+	parser.add_argument("URI",
+						help="URI of the input; if this is in respec, it will passed on to the spec generator verbatim ")
 	parser.add_argument("-r", "--respec",
 						help="The source is a respec file, transform it before processing",
 						action='store_true')

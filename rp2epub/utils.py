@@ -7,15 +7,21 @@ import warnings
 import os
 import os.path
 import shutil
-from xml.etree.ElementTree import SubElement
-# noinspection PyPep8Naming
-import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import SubElement, ElementTree
 import zipfile
-from .templates import meta_inf, BOOK_CSS
+import html5lib
+from .templates import meta_inf
 
-# These media should be added to the zip file uncompressed
-_NO_COMPRESS = ["image/png", "image/jpeg", "image/jpeg", "image/gif"]
-
+# These media types should be added to the zip file uncompressed
+# noinspection PyPep8
+_NO_COMPRESS = ["image/png",
+				"image/jpeg",
+				"image/jpeg",
+				"image/gif",
+				"audio/mpeg",
+				"video/mp4",
+				"video/webm",
+				"video/ogg"]
 
 ########################################## Table of content extraction ########################################
 short_label_pattern = re.compile("^[1-9][0-9]*\. .*$")
@@ -70,7 +76,7 @@ class Utils(object):
 
 	# noinspection PyUnusedLocal,PyPep8
 	@staticmethod
-	def get_document_properties(html, target):
+	def get_document_properties(html):
 		"""
 			Find the extra manifest properties that must be added to the HTML resource in the opf file.
 
@@ -78,36 +84,40 @@ class Utils(object):
 
 			:param html: the object for the whole document
 			:type html: :py:class:`xml.etree.ElementTree.ElementTree`
-			:param set target: set collecting all possible property values
+			:return: set collecting all possible property values
+			:rtype: set
 
 		"""
+		retval = set()
 		# If <script> is used for Javascript, the 'scripted' property should be set
 		for scr in html.findall(".//script"):
-			if "type" not in scr.keys() or scr.get("type") == "application/javascript":
+			if "type" not in scr.keys() or scr.get("type") == "application/javascript" or scr.get("type") == "text/javascript":
 				# The script element is really used for scripting
-				target.add("scripted")
+				retval.add("scripted")
 				# No reason to look further
 				break
 
 		# If an interactive form is used, the 'scripted' property should be set
 		for f in html.findall(".//form"):
-			target.add("scripted")
+			retval.add("scripted")
 			# one is enough:-)
 			break
 
 		# Inline SVG
 		for f in html.findall(".//{http://www.w3.org/2000/svg}svg"):
-			target.add("svg")
+			retval.add("svg")
 			# one is enough:-)
 			break
 
 		# Inline MathML
 		for f in html.findall(".//{http://www.w3.org/1998/Math/MathML}math"):
-			target.add("mathml")
+			retval.add("mathml")
 			# one is enough:-)
 			break
+		return retval
 	# end _get_extra_properties
 
+	# noinspection PyPep8
 	@staticmethod
 	def create_shortname(name):
 		"""
@@ -115,9 +125,8 @@ class Utils(object):
 		publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, or ``PER``), and the short name itself.
 
 		:param str name: dated name
-		:return: tuble of with the category of the publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, or ``PER``), and the short name itself.
+		:return: tuple of with the category of the publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, or ``PER``), and the short name itself.
 		:rtype: tuple
-
 		"""
 		# This is very W3C specific...
 		for cat in ["REC", "NOTE", "PR", "WD", "CR", "PER"]:
@@ -144,47 +153,28 @@ class Utils(object):
 
 	@staticmethod
 	# noinspection PyBroadException
-	def extract_editors(html, editors, short_name):
-		"""Extract the editors' names from a document.
+	def extract_editors(html):
+		"""Extract the editors' names from a document, following the respec conventions
+		(@class=p-author for <dd> including <a> or <span> with @class=p-name)
 
 		:param html: the object for the whole document
 		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
-		:param set editors: A set to which new editors (strings) should be added
-		:param str short_name: short name of the original document
+		:return: set of editors
 		"""
+		retval = set()
+		for dd in html.findall(".//dd[@class]"):
+			if dd.get('class').find('p-author') != -1:
+				for a in dd.findall(".//a[@class]"):
+					if a.get('class').find('p-name') != -1:
+						retval.add(a.text)
+						break
+				for span in dd.findall(".//span[@class]"):
+					if span.get('class').find('p-name') != -1:
+						retval.add(span.text)
+						break
+		return retval
 
-		def editors_respec():
-			"""
-			Extract the editors following the respec conventions (@class=p-author for <dd> including <a> or <span> with @class=p-name)
-
-			The same structure also works for the CSS document series.
-			"""
-			# respec version
-			retval = False
-			for dd in html.findall(".//dd[@class]"):
-				if dd.get('class').find('p-author') != -1:
-					for a in dd.findall(".//a[@class]"):
-						if a.get('class').find('p-name') != -1:
-							editors.add(a.text)
-							retval = True
-							break
-					for span in dd.findall(".//span[@class]"):
-						if span.get('class').find('p-name') != -1:
-							editors.add(span.text)
-							retval = True
-							break
-			return retval
-
-		if editors_respec():
-			# we are fine, found whatever is needed
-			return
-		else:
-			# if we got here, something is wrong...
-			warnings.warn("Could not extract an editors' list from '%s'" % short_name)
-
-		# end _extract_editors
-
-	# noinspection PyPep8
+	# noinspection PyPep8,PyBroadException
 	@staticmethod
 	def set_html_meta(html, head):
 		"""
@@ -207,11 +197,30 @@ class Utils(object):
 				head.remove(meta)
 			except:
 				pass
-
 		SubElement(head, "meta", charset="utf-8")
 
 	@staticmethod
-	def extract_toc(html, toc_tuples, short_name):
+	def html_to_xhtml(html):
+		"""
+		Make the minimum changes necessary in the DOM tree so that the XHTML output is valid and accepted
+		by epub readers
+		:param html: the object for the whole document
+		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
+		:return: the input object
+		"""
+		# Set the xhtml namespace on the top, this is required by epub readers
+		# noinspection PyUnresolvedReferences
+		html.set("xmlns", "http://www.w3.org/1999/xhtml")
+
+		# The script reference element should not be self-closed, but with a separate </script> instead. Just adding
+		# an extra space to a possible link does the trick.
+		for script in html.findall(".//script[@src]"):
+			if script.text is None:
+				script.text = " "
+		return html
+
+	@staticmethod
+	def extract_toc(html, short_name):
 		"""
 		Extract the table of content from the document. ``html`` is the Element object for the full document. ``toc_tuples``
 		is an array of ``TOC_Item`` objects where the items should be put, ``short_name`` is the short name for the
@@ -219,10 +228,11 @@ class Utils(object):
 
 		:param html: the object for the whole document
 		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
-		:param array toc_tuples: array of :py:class:`.TOC_Item` instances
 		:param str short_name: short name of the document as a whole (used in possible warning)
-
+		:return: array of :py:class:`.TOC_Item` instances
 		"""
+		retval = []
+
 		def extract_toc_entry(parent, explicit_num=None):
 			"""
 			Extract the TOC entry and create a URI with the 'Overview' file. This does not work well if the
@@ -248,7 +258,7 @@ class Utils(object):
 			if short_label_pattern.match(short_label) is not None:
 				short_label = " ".join(short_label.split(" ")[1:]).strip()
 
-			toc_tuples.append(TOC_Item(ref, label, short_label))
+			retval.append(TOC_Item(ref, label, short_label))
 		# end extract_toc_entry
 
 		def toc_respec():
@@ -290,24 +300,26 @@ class Utils(object):
 		# Execute the various versions in order
 		if toc_respec() or toc_xml_css(".//ul[@class='toc']", "li") or toc_xml_css(".//p[@class='toc']", "b"):
 			# we are fine, found what is needed
-			return
+			return retval
 		else:
 			# if we got here, something is wrong...
 			warnings.warn("Could not extract a table of content from '%s'" % short_name)
+			return []
 	# end _extract_toc
 
 
 ###################################################################################
 class HttpSession:
+	# noinspection PyPep8
 	"""
-	Wrapper around an HTTP session; the returned media type is compared against accepted media
-	types.
+		Wrapper around an HTTP session; the returned media type is compared against accepted media
+		types.
 
-	:param str url: the URL to be retrieved
-	:param array accepted_media_type: and array of media type strings giving a list of those that should be added to the book
-	:param boolean raise_exception: whether an exception should be raised if the document cannot be retrieved (either because the HTTP return is not 200, or not of an acceptable media type)
-	:raises Exception: in case the file is not an of an acceptable media type, or the HTTP return is not 200
-	"""
+		:param str url: the URL to be retrieved
+		:param list accepted_media_types: and array of media type strings giving a list of those that should be added to the book
+		:param boolean raise_exception: whether an exception should be raised if the document cannot be retrieved (either because the HTTP return is not 200, or not of an acceptable media type)
+		:raises Exception: in case the file is not an of an acceptable media type, or the HTTP return is not 200
+		"""
 	# noinspection PyPep8,PyPep8
 	def __init__(self, url, accepted_media_types=None, raise_exception=False):
 		self._success = False
@@ -351,6 +363,7 @@ class HttpSession:
 #####################################################################################
 
 
+# noinspection PyPep8
 class Book(object):
 	"""Abstraction for a book; in real usage, it just encapsulates a zip file but, for debugging purposes,
 		it just a wrapper around equivalent file output in the current directory.
@@ -362,10 +375,11 @@ class Book(object):
 		:param folder: whether the directory structure should be created separately or not
 		:return:
 		"""
-		self._package = package
-		self._folder  = folder
-		self._name    = name
-		self._zip     = None
+		self._package       = package
+		self._folder        = folder
+		self._name          = name
+		self._zip           = None
+		self.already_stored = []
 
 		if self.folder:
 			# To be sure, the previous folder, if it exists, should be removed
@@ -405,25 +419,31 @@ class Book(object):
 		:param content: string/bytes to be written on the file
 		:param compress: either zipfile.ZIP_DEFLATED or zipfile.ZIP_STORED, whether the content should be compressed, resp. not compressed
 		"""
+		if target in self.already_stored:
+			return
+		else:
+			self.already_stored.append(target)
 		if self.folder:
 			with open(self._path(target), "w") as f:
 				f.write(content)
 		if self.package:
 			self.zip.writestr(target, content, compress)
 
+	# noinspection PyUnresolvedReferences
 	def write_element(self, target, element):
 		"""
 		An ElementTree object added to the book.
 
 		:param str target: path for the target file
-		:param ElementTree.ElementTree element: the XML tree to be stored
-		:type element: :py:class:`xml.etree.ElementTree.Element`
+		:param element: the XML tree to be stored
+		:type element: :py:class:`xml.etree.ElementTree`
 		"""
 		content = StringIO()
 		element.write(content, encoding="utf-8", xml_declaration=True, method="xml")
 		self.writestr(target, content.getvalue())
 		content.close()
 
+	# noinspection PyTypeChecker
 	def write_session(self, target, session):
 		"""
 		Return content of an HTTP session added to the book.
@@ -432,10 +452,21 @@ class Book(object):
 		:param HttpSession session: session whose data must retrieved to be written into the book
 		:return:
 		"""
-		# Copy the content into the final book.
-		# Note that some of the media types are not to be compressed
-		self.writestr(target, session.data.read(), zipfile.ZIP_STORED if session.media_type in _NO_COMPRESS else zipfile.ZIP_DEFLATED)
+		# Copy the content into the final book
+		# Special care should be taken with html files. Those are supposed to become XHTML:-(
+		if session.media_type == 'text/html':
+			# We have to
+			# 1. parse the source with the html5 parser
+			# 2. add the xhtml namespace to the top and take care of the stupid script issue (no self-closing scripts!)
+			# 3. write the result as xhtml through the write_element method
+			html = html5lib.parse(session.data, namespaceHTMLElements=False)
+			Utils.html_to_xhtml(html)
+			self.write_element(target.replace('.html', '.xhtml', 1), ElementTree(html))
+		else:
+			# Note that some of the media types are not to be compressed
+			self.writestr(target, session.data.read(), zipfile.ZIP_STORED if session.media_type in _NO_COMPRESS else zipfile.ZIP_DEFLATED)
 
+	# noinspection PyPep8Naming
 	def write_HTTP(self, target, url):
 		"""
 		Return content of an HTTP session added to the book.
@@ -464,7 +495,6 @@ class Book(object):
 	def close(self):
 		"""
 		Closing the archive.
-		:return:
 		"""
 		if self.package:
 			self.zip.close()
@@ -473,5 +503,6 @@ class Book(object):
 	def __enter__(self):
 		return self
 
+	# noinspection PyUnusedLocal
 	def __exit__(self, exc_type, exc_value, traceback):
 		self.close()

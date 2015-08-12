@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
 from .templates import PACKAGE, TOC, NAV, COVER
 
+# noinspection PyPep8
 SUBTITLE = {
 	'REC'  : "W3C Recommendation",
 	'NOTE' : "W3C Note",
@@ -15,13 +16,13 @@ SUBTITLE = {
 }
 
 
+# noinspection PyPep8
 class Package:
 	"""
 	Methods to generate the manifest, TOC, and cover pages
 
 	:param driver: the caller
 	:type driver: :py:class:`.DocToEpub`
-
 	"""
 	def __init__(self, driver):
 		self._book     = driver.book
@@ -99,7 +100,7 @@ class Package:
 		item = SubElement(spine, "{http://www.idpf.org/2007/opf}itemref")
 		item.set("idref", "main")
 
-		# Remove the unnecessary item in spite (from the general template)
+		# Remove the unnecessary item in spine (from the general template)
 		to_remove = opf.findall(".//{http://www.idpf.org/2007/opf}itemref[@idref='toc']")[0]
 		spine.remove(to_remove)
 
@@ -116,7 +117,6 @@ class Package:
 		creator.text = self.document.editors
 
 		# Push the manifest file into the book, too
-		# The main content should be stored in the target book
 		self.book.write_element('package.opf', opf)
 
 	#===================================================
