@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os, os.path
 import urllib
+import shutil
 import tempfile
 import zipfile
 import datetime
@@ -53,7 +54,6 @@ def getargs():
 			retval['url'] = urllib.unquote(args['uri'])
 	return retval
 
-
 def respond(file_name, modified):
 	"""
 	Generate the full HTTP response
@@ -71,7 +71,6 @@ def respond(file_name, modified):
 			print book.read()
 	else:
 		print file_name
-
 
 def generate_ebook(args):
 	"""
