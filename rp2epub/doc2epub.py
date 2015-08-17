@@ -19,6 +19,7 @@ The program depends on the html5lib library for HTML parsing.
 import html5lib
 from xml.etree.ElementTree import ElementTree
 from urlparse import urlparse, urlunparse
+import tempfile
 
 from .templates import BOOK_CSS
 from .document import Document
@@ -61,6 +62,7 @@ class DocToEpub:
 	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
 	:param boolean package: whether a real zip file should be created or not
 	:param boolean folder: whether the directory structure should be created separately or not
+	:param boolean tempfile: whether the zipped EPUB file should be put into a temporary filesystem location (important for Web Services)
 	"""
 
 	# noinspection PyPep8
@@ -73,13 +75,14 @@ class DocToEpub:
 	]
 
 	# noinspection PyPep8
-	def __init__(self, url, is_respec=False, package=True, folder=False):
+	def __init__(self, url, is_respec=False, package=True, folder=False, tempfile=False):
 		self._html_document = None
 		self._top_uri       = url
 		self._book          = None
 		self._domain        = urlparse(url).netloc
 		self._package       = package
 		self._folder        = folder
+		self._tempfile      = tempfile
 
 		# Get the base URL, ie, remove the possible query parameter and the last portion of the path name
 		url_tuples = urlparse(url)
@@ -105,6 +108,12 @@ class DocToEpub:
 	def folder(self):
 		"""Flag whether a folder, containing the package content, is created"""
 		return self._folder
+
+	@property
+	def tempfile(self):
+		"""Flag whether the EPUB file should be created in temporary file created by the system"""
+		return self._tempfile
+
 
 	@property
 	def base(self):
@@ -144,12 +153,19 @@ class DocToEpub:
 	def process(self):
 		"""
 		Process the book, ie, extract whatever has to be extracted and produce the epub file
+		:return: full file name of the generated EPUB file
 		"""
 		# Create the wrapper around the parsed version. This will also
 		# retrieve the various 'meta' data from the document, like title, editors, document type, etc.
 		# It is important to get these metadata before the real processing because, for example, the
 		# 'short name' will also be used for the name of the final book
-		with Book(self.document.short_name, self.package, self.folder) as self._book:
+
+		if self.tempfile :
+			book_fname = (tempfile.mkstemp(suffix='_' + self.document.short_name + '.epub'))[1]
+		else:
+			book_fname = self.document.short_name + ".epub"
+
+		with Book(book_fname, self.document.short_name, self.package, self.folder) as self._book:
 			# Add the book.css with the right value set for the background image
 			if self.document.doc_type in CSS_LOGOS:
 				uri, local = CSS_LOGOS[self.document.doc_type]
@@ -168,3 +184,5 @@ class DocToEpub:
 
 			# The main content should be stored in the target book
 			self.book.write_element('Overview.xhtml', self.html_document)
+
+		return book_fname

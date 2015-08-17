@@ -13,10 +13,11 @@ def process():
 	parser.add_argument("-r", "--respec", action='store_true', help="The source is a respec file, transform it before processing")
 	parser.add_argument("-b", "--book", action='store_true', help="Create an EPUB3 package")
 	parser.add_argument("-f", "--folder", action='store_true', help="Create a folder with the book content")
+	parser.add_argument("-t", "--tempfile", action="store_true", help="Create a one-time, temporary name for the EPUB3 file")
 
 	args = parser.parse_args()
 	from rp2epub import DocToEpub
-	DocToEpub(args.url, is_respec=args.respec, package=args.book, folder=args.folder).process()
+	fname = DocToEpub(args.url, is_respec=args.respec, package=args.book, folder=args.folder, tempfile=args.tempfile).process()
 
 if __name__ == '__main__':
 	process()

@@ -69,7 +69,7 @@ library speak, if the URL-s of those resources have the same net location, i.e.,
 
 <dl class="class">
 <dt id="rp2epub.doc2epub.DocToEpub">
-<em class="property">class </em><tt class="descclassname">rp2epub.doc2epub.</tt><tt class="descname">DocToEpub</tt><big>(</big><em>url</em>, <em>is_respec=False</em>, <em>package=True</em>, <em>folder=False</em><big>)</big><a class="reference internal" href="_modules/rp2epub/doc2epub.html#DocToEpub"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.doc2epub.DocToEpub" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">rp2epub.doc2epub.</tt><tt class="descname">DocToEpub</tt><big>(</big><em>url</em>, <em>is_respec=False</em>, <em>package=True</em>, <em>folder=False</em>, <em>tempfile=False</em><big>)</big><a class="reference internal" href="_modules/rp2epub/doc2epub.html#DocToEpub"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.doc2epub.DocToEpub" title="Permalink to this definition">¶</a></dt>
 <dd><p>Top level entry class; receives the URI to be retrieved and generates the folders and packages (as required)
 in the current directory.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -81,6 +81,7 @@ in the current directory.</p>
 <li><strong>is_respec</strong> (<em>boolean</em>) &#8211; flag whether the source is a respec source (ie, has to be transformed through spec generator) or not</li>
 <li><strong>package</strong> (<em>boolean</em>) &#8211; whether a real zip file should be created or not</li>
 <li><strong>folder</strong> (<em>boolean</em>) &#8211; whether the directory structure should be created separately or not</li>
+<li><strong>tempfile</strong> (<em>boolean</em>) &#8211; whether the zipped EPUB file should be put into a temporary filesystem location (important for Web Services)</li>
 </ul>
 </td>
 </tr>
@@ -88,7 +89,7 @@ in the current directory.</p>
 </table>
 <dl class="attribute">
 <dt id="rp2epub.doc2epub.DocToEpub.To_transfer">
-<tt class="descname">To_transfer</tt><em class="property"> = [('http://www.w3.org/Icons/w3c_main.png', 'Assets/w3c_main.png'), ('http://www.w3.org/StyleSheets/TR/base.css', 'Assets/base.css')]</em><a class="headerlink" href="#rp2epub.doc2epub.DocToEpub.To_transfer" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">To_transfer</tt><em class="property"> = [('http://www.w3.org/Icons/w3c_main.png', 'Assets/w3c_main.png'), ('http://www.w3.org/Icons/w3c_home.png', 'Assets/w3c_home.png'), ('http://www.w3.org/StyleSheets/TR/base.css', 'Assets/base.css')]</em><a class="headerlink" href="#rp2epub.doc2epub.DocToEpub.To_transfer" title="Permalink to this definition">¶</a></dt>
 <dd><p>array of (url,local_name) pairs of resources that must be transferred and added to the output.</p>
 </dd></dl>
 
@@ -143,7 +144,14 @@ in the current directory.</p>
 <dl class="method">
 <dt id="rp2epub.doc2epub.DocToEpub.process">
 <tt class="descname">process</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/rp2epub/doc2epub.html#DocToEpub.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.doc2epub.DocToEpub.process" title="Permalink to this definition">¶</a></dt>
-<dd><p>Process the book, ie, extract whatever has to be extracted and produce the epub file</p>
+<dd><p>Process the book, ie, extract whatever has to be extracted and produce the epub file
+:return: full file name of the generated EPUB file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocToEpub.tempfile">
+<tt class="descname">tempfile</tt><a class="headerlink" href="#rp2epub.doc2epub.DocToEpub.tempfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag whether the EPUB file should be created in temporary file created by the system</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -342,7 +350,7 @@ file is added to the book as <tt class="docutils literal"><span class="pre">pack
 <span id="common-utilities"></span><h2>Common Utilities<a class="headerlink" href="#module-rp2epub.utils" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rp2epub.utils.Book">
-<em class="property">class </em><tt class="descclassname">rp2epub.utils.</tt><tt class="descname">Book</tt><big>(</big><em>name</em>, <em>package=True</em>, <em>folder=False</em><big>)</big><a class="reference internal" href="_modules/rp2epub/utils.html#Book"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Book" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">rp2epub.utils.</tt><tt class="descname">Book</tt><big>(</big><em>book_name</em>, <em>folder_name</em>, <em>package=True</em>, <em>folder=False</em><big>)</big><a class="reference internal" href="_modules/rp2epub/utils.html#Book"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Book" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstraction for a book; in real usage, it just encapsulates a zip file but, for debugging purposes,
 it just a wrapper around equivalent file output in the current directory.</p>
 <dl class="method">

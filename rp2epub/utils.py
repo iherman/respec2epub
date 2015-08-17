@@ -370,7 +370,7 @@ class Book(object):
 	"""Abstraction for a book; in real usage, it just encapsulates a zip file but, for debugging purposes,
 		it just a wrapper around equivalent file output in the current directory.
 	"""
-	def __init__(self, name, package=True, folder=False):
+	def __init__(self, book_name, folder_name, package=True, folder=False):
 		"""
 		:param name: name of the book (without the '.epub' extension)
 		:param package: whether a real zip file should be created or not
@@ -379,17 +379,17 @@ class Book(object):
 		"""
 		self._package       = package
 		self._folder        = folder
-		self._name          = name
+		self._name          = folder_name
 		self._zip           = None
 		self.already_stored = []
 
 		if self.folder:
 			# To be sure, the previous folder, if it exists, should be removed
-			if os.path.exists(name) :
-				shutil.rmtree(name, ignore_errors=True)
-			os.mkdir(name)
+			if os.path.exists(folder_name):
+				shutil.rmtree(folder_name, ignore_errors=True)
+			os.mkdir(folder_name)
 		if self.package:
-			self._zip = zipfile.ZipFile(name + '.epub', 'w', zipfile.ZIP_DEFLATED)
+			self._zip = zipfile.ZipFile(book_name, 'w', zipfile.ZIP_DEFLATED)
 
 		self.writestr('mimetype', 'application/epub+zip', zipfile.ZIP_STORED)
 		self.writestr('META-INF/container.xml', meta_inf)
