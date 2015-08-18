@@ -118,7 +118,7 @@ try:
 
 except:
 	if cgi:
-		print 'Status: 304'
+		print 'Status: 500'
 		print 'Content-Type: text/xml; charset=utf-8'
 		print
 		print "<html>"
