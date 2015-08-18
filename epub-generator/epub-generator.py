@@ -1,10 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import os, os.path
+import os
+import os.path
+import sys
 import urllib
-import shutil
-import tempfile
-import zipfile
 import datetime
 
 # To ensure the right format for the dates
@@ -13,8 +12,19 @@ locale.setlocale(locale.LC_ALL, 'en_us')
 
 # Global boolean flag to decide whether this is a CGI script or not; for debugging
 cgi = 'HTTP_USER_AGENT' in os.environ
-if not cgi:
-	os.environ['QUERY_STRING'] = 'type=respec&url=http://w3c.github.io/csvw/csv2rdf/?publishDate=2015-07-16;specStatus=CR'
+
+# noinspection PyPep8
+if cgi:
+	# The import path should include the place where my library resides
+	# Depending on settings and environments, this may have to be adapted to various situations...
+	if os.environ['HTTP_HOST'] == 'localhost:8001':
+		# this is my local machine
+		sys.path.insert(0, "/Users/ivan/Library/Python")
+else:
+	# Set artificial arguments for debugging
+	# noinspection PyPep8
+	os.environ['QUERY_STRING'] = 'type=html&url=http://localhost:8001/LocalData/github/csvw/publishing-snapshots/CR-csv2json/Overview.html'
+	# os.environ['QUERY_STRING'] = 'type=respec&url=http://w3c.github.io/csvw/csv2rdf/?publishDate=2015-07-16;specStatus=CR'
 
 
 def now():
@@ -24,35 +34,6 @@ def now():
 	"""
 	return datetime.datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT")
 
-
-def getargs():
-	"""
-	Extract the query string value of interest. Note that the usual Python FieldStorage class cannot be used,
-	because the url argument may be a query string by itself (this is due to the peculiarities of respec, ie,
-	the fact that one can use URLs with query string to override the respec config data).
-
-	:return: a directory containing the 'respec' and 'url' fields.
-	"""
-	retval = {
-		'url'    : "",
-		'respec' : False
-	}
-	if 'QUERY_STRING' in os.environ:
-		args = {}
-		for arg in os.environ['QUERY_STRING'].split('&'):
-			current = arg.split('=', 1)
-			if len(current) > 1:
-				args[current[0]] = current[1]
-
-		if 'type' in args:
-			val = args['type'].lower()
-			retval['respec'] = True if val == 'respec' else False
-
-		if 'url' in args:
-			retval['url'] = urllib.unquote(args['url'])
-		elif 'uri' in args:
-			retval['url'] = urllib.unquote(args['uri'])
-	return retval
 
 def respond(file_name, modified):
 	"""
@@ -72,47 +53,83 @@ def respond(file_name, modified):
 	else:
 		print file_name
 
-def generate_ebook(args):
-	"""
-	Interface to the real ebook generation; test setup for now
-	:return: file name for the final book
-	"""
-	# Generate the EPUB in the external library
-	# Testing the temporary file creation and return...
-	# Create a temporary file that will be used for the epub file
-	file_name = tempfile.mkstemp(suffix="_testbook.epub")[1]
 
-	# Fake EPUB generation
-	zip = zipfile.ZipFile(file_name, 'w', zipfile.ZIP_DEFLATED)
-	zip.writestr("f1.txt", 'namivan')
-	zip.writestr("f2.txt", 'ez van')
-	zip.close()
-	#######
+class Generator:
+	# noinspection PyPep8
+	def __init__(self):
+		"""
+		Extract the query string value of interest. Note that the usual Python FieldStorage class cannot be used,
+		because the url argument may be a query string by itself (this is due to the peculiarities of respec, ie,
+		the fact that one can use URLs with query string to override the respec config data).
+		"""
+		self.args = {
+			'url'   : "",
+			'respec': False
+		}
+		if 'QUERY_STRING' in os.environ:
+			call_args = {}
+			for arg in os.environ['QUERY_STRING'].split('&'):
+				current = arg.split('=', 1)
+				if len(current) > 1:
+					call_args[current[0]] = current[1]
 
-	# FAKE!!!!!!!
-	return '/Users/ivan/W3C/WWW/LocalData/test/csv2json.epub'
+			if 'type' in call_args:
+				self.args['respec'] = True if call_args['type'].lower() == 'respec' else False
 
+			if 'url' in call_args:
+				self.args['url'] = urllib.unquote(call_args['url'])
+			elif 'uri' in call_args:
+				self.args['url'] = urllib.unquote(call_args['uri'])
 
-def process():
-	"""
-	Full process of EPUB generation
-	"""
-	# Get the call arguments
-	args = getargs()
+	def generate_ebook(self):
+		"""
+		Interface to the real ebook generation; test setup for now
+		:return: file name for the final book
+		"""
+		# Generate the EPUB in the external library
 
-	# Start of EPUB generation, this will set the 'last modified' header field in the response
-	modified  = now()
-	file_name = generate_ebook(args)
+		from rp2epub import DocToEpub
+		return DocToEpub(self.args['url'], is_respec=self.args['respec'], package=True, folder=True, tempfile=True).process()
 
-	# Return the HTTP result
-	respond(file_name, modified)
+	def process(self):
+		"""
+		Full process of EPUB generation
+		"""
 
-	# The file must be removed...
-	if os.path.exists(file_name):
-		pass
-		#os.remove(file_name)
+		# Start of EPUB generation, this will set the 'last modified' header field in the response
+		modified = now()
+
+		# The real 'meat': EPUB generation
+		file_name = self.generate_ebook()
+
+		# Return the HTTP result
+		respond(file_name, modified)
+
+		# The file must be removed...
+		if cgi and os.path.exists(file_name):
+			os.remove(file_name)
 
 
 ########################
-# GO!
-process()
+# noinspection PyBroadException
+try:
+	# GO!
+	Generator().process()
+
+except:
+	if cgi:
+		print 'Status: 304'
+		print 'Content-Type: text/xml; charset=utf-8'
+		print
+		print "<html>"
+		print "<head>"
+		print "<title>Error</title>"
+		print "</head></body>"
+		print "<p>Exception raised: (%s,%s,%s)</p>" % sys.exc_info()
+		print "</body></html>"
+	else:
+		(etype, value, traceback) = sys.exc_info()
+		print "Exception raised: (%s,%s,%s)" % (etype, value, traceback)
+		sys.excepthook(etype, value, traceback)
+
+
