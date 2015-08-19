@@ -26,6 +26,8 @@ else:
 	os.environ['QUERY_STRING'] = 'type=html&url=http://localhost:8001/LocalData/github/csvw/publishing-snapshots/CR-csv2json/Overview.html'
 	# os.environ['QUERY_STRING'] = 'type=respec&url=http://w3c.github.io/csvw/csv2rdf/?publishDate=2015-07-16;specStatus=CR'
 
+import rp2epub
+
 
 def now():
 	"""
@@ -35,10 +37,10 @@ def now():
 	return datetime.datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT")
 
 
-def respond(file_name, modified):
+def respond(wrapper, modified):
 	"""
 	Generate the full HTTP response
-	:param file_name: name where the EPUB3 can be found
+	:param wrapper: Wrapper around the document conversion; a :py:class:`rp2epub.DocWrapper` instance
 	:param modified: time stamp to be added to the response, through the 'Last-Modified' header response field
 	:return:
 	"""
@@ -46,12 +48,13 @@ def respond(file_name, modified):
 		print "Content-type: application/epub+zip"
 		print "Last-Modified: %s" % modified
 		print "Expires: %s" % now()
-		print "Content-Length: %s" % os.stat(file_name).st_size
+		print "Content-Length: %s" % os.stat(wrapper.book_file_name).st_size
+		print "Content-Disposition: attachment; filename=%s" % wrapper.document.short_name + ".epub"
 		print
-		with open(file_name) as book:
+		with open(wrapper.book_file_name) as book:
 			print book.read()
 	else:
-		print file_name
+		print wrapper.book_file_name
 
 
 class Generator:
@@ -87,9 +90,7 @@ class Generator:
 		:return: file name for the final book
 		"""
 		# Generate the EPUB in the external library
-
-		from rp2epub import DocToEpub
-		return DocToEpub(self.args['url'], is_respec=self.args['respec'], package=True, folder=True, tempfile=True).process()
+		return rp2epub.DocWrapper(self.args['url'], is_respec=self.args['respec'], package=True, folder=True, temporary=True).process()
 
 	def process(self):
 		"""
@@ -100,14 +101,14 @@ class Generator:
 		modified = now()
 
 		# The real 'meat': EPUB generation
-		file_name = self.generate_ebook()
+		wrapper = self.generate_ebook()
 
 		# Return the HTTP result
-		respond(file_name, modified)
+		respond(wrapper, modified)
 
 		# The file must be removed...
-		if cgi and os.path.exists(file_name):
-			os.remove(file_name)
+		if cgi and os.path.exists(wrapper.book_file_name):
+			os.remove(wrapper.book_file_name)
 
 
 ########################
