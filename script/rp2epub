@@ -16,8 +16,8 @@ def process():
 	parser.add_argument("-t", "--tempfile", action="store_true", help="Create a one-time, temporary name for the EPUB3 file")
 
 	args = parser.parse_args()
-	from rp2epub import DocToEpub
-	fname = DocToEpub(args.url, is_respec=args.respec, package=args.book, folder=args.folder, tempfile=args.tempfile).process()
+	from rp2epub import DocWrapper
+	DocWrapper(args.url, is_respec=args.respec, package=args.book, folder=args.folder, temporary=args.tempfile).process()
 
 if __name__ == '__main__':
 	process()

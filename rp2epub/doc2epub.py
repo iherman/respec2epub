@@ -53,7 +53,7 @@ CSS_LOGOS = {
 
 ###################################################################################
 # noinspection PyPep8
-class DocToEpub:
+class DocWrapper:
 	"""
 	Top level entry class; receives the URI to be retrieved and generates the folders and packages (as required)
 	in the current directory.
@@ -62,7 +62,7 @@ class DocToEpub:
 	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
 	:param boolean package: whether a real zip file should be created or not
 	:param boolean folder: whether the directory structure should be created separately or not
-	:param boolean tempfile: whether the zipped EPUB file should be put into a temporary filesystem location (important for Web Services)
+	:param boolean temporary: whether the zipped EPUB file should be put into a temporary filesystem location (important for Web Services)
 	"""
 
 	# noinspection PyPep8
@@ -75,14 +75,13 @@ class DocToEpub:
 	]
 
 	# noinspection PyPep8
-	def __init__(self, url, is_respec=False, package=True, folder=False, tempfile=False):
+	def __init__(self, url, is_respec=False, package=True, folder=False, temporary=False):
 		self._html_document = None
 		self._top_uri       = url
 		self._book          = None
 		self._domain        = urlparse(url).netloc
 		self._package       = package
 		self._folder        = folder
-		self._tempfile      = tempfile
 
 		# Get the base URL, ie, remove the possible query parameter and the last portion of the path name
 		url_tuples = urlparse(url)
@@ -99,6 +98,12 @@ class DocToEpub:
 		# representation of the whole document, with the various metadata, etc.
 		self._document = Document(self)
 
+		# File name to be used for the final epub file
+		if temporary:
+			self._book_file_name = (tempfile.mkstemp(suffix='_' + self.document.short_name + '.epub'))[1]
+		else:
+			self._book_file_name = self.document.short_name + ".epub"
+
 	@property
 	def package(self):
 		"""Flag whether an epub package is created"""
@@ -110,10 +115,9 @@ class DocToEpub:
 		return self._folder
 
 	@property
-	def tempfile(self):
-		"""Flag whether the EPUB file should be created in temporary file created by the system"""
-		return self._tempfile
-
+	def book_file_name(self):
+		"""Flag whether an epub package is created"""
+		return self._book_file_name
 
 	@property
 	def base(self):
@@ -160,12 +164,7 @@ class DocToEpub:
 		# It is important to get these metadata before the real processing because, for example, the
 		# 'short name' will also be used for the name of the final book
 
-		if self.tempfile :
-			book_fname = (tempfile.mkstemp(suffix='_' + self.document.short_name + '.epub'))[1]
-		else:
-			book_fname = self.document.short_name + ".epub"
-
-		with Book(book_fname, self.document.short_name, self.package, self.folder) as self._book:
+		with Book(self.book_file_name, self.document.short_name, self.package, self.folder) as self._book:
 			# Add the book.css with the right value set for the background image
 			if self.document.doc_type in CSS_LOGOS:
 				uri, local = CSS_LOGOS[self.document.doc_type]
@@ -185,4 +184,4 @@ class DocToEpub:
 			# The main content should be stored in the target book
 			self.book.write_element('Overview.xhtml', self.html_document)
 
-		return book_fname
+		return self
