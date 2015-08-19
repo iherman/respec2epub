@@ -5,6 +5,7 @@ import os.path
 import sys
 import urllib
 import datetime
+import traceback
 
 # To ensure the right format for the dates
 import locale
@@ -90,7 +91,8 @@ class Generator:
 		:return: file name for the final book
 		"""
 		# Generate the EPUB in the external library
-		return rp2epub.DocWrapper(self.args['url'], is_respec=self.args['respec'], package=True, folder=True, temporary=True).process()
+		# noinspection PyPep8
+		return rp2epub.DocWrapper(self.args['url'], is_respec=self.args['respec'], package=True, folder=False, temporary=True).process()
 
 	def process(self):
 		"""
@@ -116,21 +118,22 @@ class Generator:
 try:
 	# GO!
 	Generator().process()
-
 except:
+	exc_type, exc_value, exc_traceback = sys.exc_info()
 	if cgi:
 		print 'Status: 500'
-		print 'Content-Type: text/xml; charset=utf-8'
+		print 'Content-Type: text/html; charset=utf-8'
 		print
 		print "<html>"
 		print "<head>"
-		print "<title>Error</title>"
-		print "</head></body>"
-		print "<p>Exception raised: (%s,%s,%s)</p>" % sys.exc_info()
+		print "<title>Epub Generator Exception</title>"
+		print "</head><body>"
+		print "<h1>Epub Generator Exception</h1>"
+		print "<pre>"
+		traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stdout)
+		print "</pre>"
 		print "</body></html>"
 	else:
-		(etype, value, traceback) = sys.exc_info()
-		print "Exception raised: (%s,%s,%s)" % (etype, value, traceback)
-		sys.excepthook(etype, value, traceback)
+		traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stdout)
 
 

@@ -3,7 +3,6 @@
 ## Current code
 
 * If the diff file is not reachable, it will be silently ignored. Ideally, the corresponding code should then be removed from the generated code! In general, if a reference cannot be reached, then the reference should probably be removed.
-* why don't I get proper exception report from the server when there is an exception? (It currently silently stops...)
 
 
 # Quality todo-s
