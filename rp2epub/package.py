@@ -12,7 +12,8 @@ SUBTITLE = {
 	"PR"   : "W3C Proposed Recommendation",
 	"PER"  : "W3C Proposed Edited Recommendation",
 	"CR"   : "W3C Candidate Recommendation",
-	"WD"   : "W3C Working Draft"
+	"WD"   : "W3C Working Draft",
+	"ED"   : "W3C Editor's Draft"
 }
 
 

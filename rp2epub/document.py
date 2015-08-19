@@ -1,6 +1,7 @@
 from urlparse import urlparse, urljoin
 from xml.etree.ElementTree import SubElement
 from .utils import HttpSession, Utils
+from datetime import date
 
 # suffixes and media types for resources that are recognized by EPUB
 # noinspection PyPep8,PyPep8
@@ -264,7 +265,10 @@ class Document:
 			break
 
 		# Date of the document, to be reused in the metadata
-		self._date = Utils.retrieve_date(self.dated_uri)
+		if self._doc_type == "ED":
+			self._date = date.today()
+		else:
+			self._date = Utils.retrieve_date(self.dated_uri)
 
 		# Extract the editors
 		editor_set = Utils.extract_editors(self.html)

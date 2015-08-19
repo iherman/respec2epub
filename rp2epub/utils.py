@@ -122,10 +122,10 @@ class Utils(object):
 	def create_shortname(name):
 		"""
 		Create the short name, in W3C jargon, based on the dated name. Returns a tuple with the category of the
-		publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, or ``PER``), and the short name itself.
+		publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, ``ED``, or ``PER``), and the short name itself.
 
 		:param str name: dated name
-		:return: tuple of with the category of the publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, or ``PER``), and the short name itself.
+		:return: tuple of with the category of the publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, ``ED``, or ``PER``), and the short name itself.
 		:rtype: tuple
 		"""
 		# This is very W3C specific...
@@ -133,6 +133,9 @@ class Utils(object):
 			if name.startswith(cat + "-"):
 				name = name[len(cat)+1:]
 				return cat, name[:-9]
+
+		# If we get there, the name does not abide to any pattern, it is taken to be an ED
+		return "ED", name
 	# end create_shortname
 
 	@staticmethod

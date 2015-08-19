@@ -45,9 +45,11 @@ DEFAULT_FILES = [
 CSS_LOGOS = {
 	"REC"  : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-REC.png"),
 	"NOTE" : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-NOTE.png"),
+	"PER"  : ("http://www.w3.org/StyleSheets/TR/logo-PER.png", "Assets/logo-PR.png"),
 	"PR"   : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-PR.png"),
 	"CR"   : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-CR.png"),
 	"WD"   : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-WD.png"),
+	"ED"   : ("http://www.w3.org/StyleSheets/TR/logo-ED.png", "Assets/logo-ED.png"),
 }
 
 
