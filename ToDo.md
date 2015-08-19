@@ -7,7 +7,6 @@
 
 # Quality todo-s
 
-* Find out if it is possible to control the name of the return file when a service is run...
 * Add an option for the unpublished respec document (hm. that may not work because there is no such thing as a short name for that one...)
 
 
