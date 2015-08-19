@@ -2,7 +2,7 @@ from urlparse import urlparse, urljoin
 from xml.etree.ElementTree import SubElement
 from .utils import HttpSession, Utils
 from datetime import date
-from . import R2EException
+from . import R2EError
 
 
 # suffixes and media types for resources that are recognized by EPUB
@@ -268,7 +268,7 @@ class Document:
 
 		# Date of the document, to be reused in the metadata
 		if self._doc_type is None:
-			raise R2EException("Unrecognized document type, unable to convert (should be ED, WD, CR, PR, PER, REC, or NOTE")
+			raise R2EError("Unrecognized document type, unable to convert (should be ED, WD, CR, PR, PER, REC, or NOTE")
 		elif self._doc_type == "ED":
 			self._date = date.today()
 		else:

@@ -11,6 +11,7 @@ from xml.etree.ElementTree import SubElement, ElementTree
 import zipfile
 import html5lib
 from .templates import meta_inf
+from . import R2EError
 
 # These media types should be added to the zip file uncompressed
 # noinspection PyPep8
@@ -73,7 +74,6 @@ class Utils(object):
 	"""
 	Generic utility functions to extract information from a W3C TR document.
 	"""
-
 	# noinspection PyUnusedLocal,PyPep8
 	@staticmethod
 	def get_document_properties(html):
@@ -134,7 +134,7 @@ class Utils(object):
 				name = name[len(cat)+1:]
 				return cat, name[:-9]
 
-		# If we get there, the name does not abide to any pattern, it is taken to be an ED
+		# If we get there, the name does not abide to any pattern; it is taken to be an ED
 		return "ED", name
 	# end create_shortname
 
@@ -148,10 +148,13 @@ class Utils(object):
 		:rtype: :py:class:`datetype.date`
 		"""
 		# remove the last '/' if any
-		d = duri[:-1] if duri[-1] == '/' else duri
-		# Date in compact format:
-		pdate = d[-8:]
-		return date(int(pdate[0:4]), int(pdate[4:6]), int(pdate[6:8]))
+		try:
+			d = duri[:-1] if duri[-1] == '/' else duri
+			# Date in compact format:
+			pdate = d[-8:]
+			return date(int(pdate[0:4]), int(pdate[4:6]), int(pdate[6:8]))
+		except:
+			R2EError("dated URI is not of the expected format")
 	# end retrieve_date
 
 	@staticmethod
@@ -330,17 +333,17 @@ class HttpSession:
 			self._data = urlopen(url)
 		except HTTPError:
 			if raise_exception:
-				raise Exception("%s cannot be reached!" % url)
+				raise R2EError("%s cannot be reached!" % url)
 			return
 
 		if self._data.getcode() != '200' and self._data.getcode() != 200:
 			if raise_exception:
-				raise Exception("Received a '%s' status code instead of '200'" % self._data.getcode())
+				raise R2EError("Received a '%s' status code instead of '200'" % self._data.getcode())
 			return
 		self._media_type = self._data.info().gettype()
 		if accepted_media_types is not None and self._media_type not in accepted_media_types:
 			if raise_exception:
-				raise Exception("Received a file of type '%s', which was not listed as acceptable" % self._media_type)
+				raise R2EError("Received a file of type '%s', which was not listed as acceptable" % self._media_type)
 			return
 		self._success = True
 
