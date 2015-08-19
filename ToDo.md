@@ -2,8 +2,6 @@
 
 ## Current code
 
-* If the diff file is not reachable, it will be silently ignored. Ideally, the corresponding code should then be removed from the generated code! In general, if a reference cannot be reached, then the reference should probably be removed.
-
 
 # Quality todo-s
 
