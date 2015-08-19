@@ -131,6 +131,14 @@ class Document:
 
 						# Change the original reference
 						element.set(attr, final_target)
+					else:
+						# That resource is not available
+						# Typical situation where it happens: the document is generated from respec
+						# on the fly but from a place where the diff file is not yet
+						# generated (but referenced from content)
+						# Take out those situations that are under the control of this script
+						if not element.get(attr).startswith("Assets/"):
+							element.attrib.pop(attr)
 
 	###################################################################################################
 	# noinspection PyPep8
@@ -146,7 +154,7 @@ class Document:
 
 		# The reference to the W3C logo should be localized
 		for img in self.html.findall(".//img[@alt='W3C']"):
-			img.set('src','Assets/w3c_home.png')
+			img.set('src', 'Assets/w3c_home.png')
 			break
 
 		# handle stylesheet references
