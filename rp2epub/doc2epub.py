@@ -1,18 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 # noinspection PyPep8
-"""
-Get a W3C TR document based on its URI and dump it into an EPUB3 file for off-line reading.
-
-It is a bit like the browser archive commands, but the result is an EPUB3 file. Stylesheets and images are
-downloaded and included in the book, provided they are on the same Web domain as the original file (i.e., in Python's URL
-library speak, if the URL-s of those resources have the same net location, i.e., ``netloc``).
-
-The result is an EPUB3 in the same folder, whose name is the last part of the URI, expanded with the ``.epub`` suffix.
-
-The program depends on the html5lib library for HTML parsing.
-
-"""
 # TODO: handle the possible css references to other css files or to images
 
 # noinspection PyPep8Naming
@@ -27,6 +15,8 @@ from .package import Package
 
 from .utils import HttpSession, Book
 
+#: URI of the service that can be used to convert a ReSpec source onto an HTML file on the fly. This service is used
+#: by this script to process ReSpec sources before EPUB3 generation.
 CONVERTER = "https://labs.w3.org/spec-generator/?type=respec&url="
 
 # These are the items that have to be added to each file and package, no matter what: (id,file,media-type,properties)
@@ -42,6 +32,8 @@ DEFAULT_FILES = [
 ]
 
 # noinspection PyPep8
+#: The pictures on the upper left hand side of the front page, denoting the document status, and also the path within
+#: the book.
 CSS_LOGOS = {
 	"REC"  : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-REC.png"),
 	"NOTE" : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-NOTE.png"),
@@ -57,10 +49,10 @@ CSS_LOGOS = {
 # noinspection PyPep8
 class DocWrapper:
 	"""
-	Top level entry class; receives the URI to be retrieved and generates the folders and packages (as required)
+	Top level entry class; receives the URI to be retrieved and generates the folders and the EPUB Package (as required)
 	in the current directory.
 
-	:param str url: the URI that was used to invoke the package, ie, the location of the document source
+	:param str url: location of the document source
 	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
 	:param boolean package: whether a real zip file should be created or not
 	:param boolean folder: whether the directory structure should be created separately or not
@@ -68,7 +60,7 @@ class DocWrapper:
 	"""
 
 	# noinspection PyPep8
-	#: array of (url,local_name) pairs of resources that must be transferred and added to the output.
+	# Array of (url,local_name) pairs of resources that must be transferred and added to the output.
 	# This is expanded run-time.
 	To_transfer = [
 		("http://www.w3.org/Icons/w3c_main.png", "Assets/w3c_main.png"),
@@ -128,7 +120,7 @@ class DocWrapper:
 
 	@property
 	def domain(self):
-		"""Domain of the URI's home"""
+		"""Domain of the original source"""
 		return self._domain
 
 	@property
@@ -153,12 +145,13 @@ class DocWrapper:
 
 	@property
 	def book(self):
-		"""The book to be generated; an open :py:class:`zipfile.ZipFile` instance"""
+		"""The book being generated; an open :py:class:`zipfile.ZipFile` instance"""
 		return self._book
 
 	def process(self):
 		"""
 		Process the book, ie, extract whatever has to be extracted and produce the epub file
+
 		:return: full file name of the generated EPUB file
 		"""
 		# Create the wrapper around the parsed version. This will also

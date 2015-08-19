@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Overview: module code &mdash; Respec to EPUB 8 documentation</title>
+    <title>rp2epub &mdash; Respec to EPUB 8 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,8 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Respec to EPUB 8 documentation" href="../index.html" /> 
+    <link rel="top" title="Respec to EPUB 8 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -35,7 +36,8 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">Respec to EPUB 8 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">Respec to EPUB 8 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -44,14 +46,19 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="rp2epub.html">rp2epub</a></li>
-<ul><li><a href="rp2epub/doc2epub.html">rp2epub.doc2epub</a></li>
-<li><a href="rp2epub/document.html">rp2epub.document</a></li>
-<li><a href="rp2epub/package.html">rp2epub.package</a></li>
-<li><a href="rp2epub/templates.html">rp2epub.templates</a></li>
-<li><a href="rp2epub/utils.html">rp2epub.utils</a></li>
-</ul></ul>
+  <h1>Source code for rp2epub</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.8&quot;</span>
+<span class="c"># noinspection PyPep8</span>
+<span class="n">__author__</span>  <span class="o">=</span> <span class="s">&#39;Ivan Herman, W3C&#39;</span>
+<span class="n">__contact__</span> <span class="o">=</span> <span class="s">&#39;Ivan Herman, ivan@w3.org&#39;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s">&#39;W3C SOFTWARE NOTICE AND LICENSE &lt;http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231&gt;&#39;</span>
+
+<div class="viewcode-block" id="R2EError"><a class="viewcode-back" href="../rp2epub.html#rp2epub.R2EError">[docs]</a><span class="k">class</span> <span class="nc">R2EError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+	<span class="k">pass</span>
+</div>
+<span class="kn">from</span> <span class="nn">.doc2epub</span> <span class="kn">import</span> <span class="n">DocWrapper</span>
+</pre></div>
 
           </div>
         </div>
@@ -84,7 +91,8 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">Respec to EPUB 8 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">Respec to EPUB 8 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

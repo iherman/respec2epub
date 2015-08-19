@@ -28,7 +28,7 @@ extra_media_types = {
 	"video/ogg"                   : "ogg"
 }
 
-#: Pairs of element names and attributes for content that should be downloaded and referred to
+# Pairs of element names and attributes for content that should be downloaded and referred to
 # noinspection PyPep8
 external_references = [
 	("img", "src"),
@@ -42,10 +42,10 @@ external_references = [
 class Document:
 	"""
 	Wrapper around the top level document, ie, looking at its content and retrieve the necessary references like images
-	or style files, possibly modifying the document on the fly.
+	or style files, and possibly modifying the document's DOM Tree on the fly.
 
 	:param driver: the caller instance
-	:type driver: :py:class:`.DocToEpub`
+	:type driver: :py:class:`.DocWrapper`
 	"""
 
 	# noinspection PyPep8,PyPep8
@@ -221,7 +221,7 @@ class Document:
 
 	@property
 	def doc_type(self):
-		"""Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``"""
+		"""Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``, or ``ED``"""
 		return self._doc_type
 
 	@property
@@ -245,6 +245,11 @@ class Document:
 		return self._issued_as
 
 	def _get_document_metadata(self):
+		"""
+		Extract metadata from the source, stored as attribute for this class (date, title, editors, etc.)
+
+		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)
+		"""
 		# Get the title of the document
 		for title_element in self.html.findall(".//title"):
 			self._title = ""

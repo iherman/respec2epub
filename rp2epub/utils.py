@@ -146,6 +146,7 @@ class Utils(object):
 		:param str duri: dated URI
 		:return: date
 		:rtype: :py:class:`datetype.date`
+		:raises R2EError: the dated URI is not of an expected format
 		"""
 		# remove the last '/' if any
 		try:
@@ -161,7 +162,7 @@ class Utils(object):
 	# noinspection PyBroadException
 	def extract_editors(html):
 		"""Extract the editors' names from a document, following the respec conventions
-		(@class=p-author for <dd> including <a> or <span> with @class=p-name)
+		(``@class=p-author`` for ``<dd>`` including ``<a>`` or ``<span>`` with ``@class=p-name``)
 
 		:param html: the object for the whole document
 		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
@@ -324,7 +325,7 @@ class HttpSession:
 		:param str url: the URL to be retrieved
 		:param list accepted_media_types: and array of media type strings giving a list of those that should be added to the book
 		:param boolean raise_exception: whether an exception should be raised if the document cannot be retrieved (either because the HTTP return is not 200, or not of an acceptable media type)
-		:raises Exception: in case the file is not an of an acceptable media type, or the HTTP return is not 200
+		:raises R2EError: in case the file is not an of an acceptable media type, or the HTTP return is not 200
 		"""
 	# noinspection PyPep8,PyPep8
 	def __init__(self, url, accepted_media_types=None, raise_exception=False):
@@ -373,16 +374,15 @@ class HttpSession:
 
 # noinspection PyPep8
 class Book(object):
-	"""Abstraction for a book; in real usage, it just encapsulates a zip file but, for debugging purposes,
-		it just a wrapper around equivalent file output in the current directory.
+	"""Abstraction for a book; it encapsulates a zip file as well as saving the content into a
+	  directory.
+
+	  :param name: file name of the book
+	  :param folder_name: name of the directory
+  	  :param package: whether a real zip file should be created or not
+	  :param folder: whether the directory structure should be created separately or not
 	"""
 	def __init__(self, book_name, folder_name, package=True, folder=False):
-		"""
-		:param name: name of the book (without the '.epub' extension)
-		:param package: whether a real zip file should be created or not
-		:param folder: whether the directory structure should be created separately or not
-		:return:
-		"""
 		self._package       = package
 		self._folder        = folder
 		self._name          = folder_name
@@ -422,7 +422,8 @@ class Book(object):
 
 	def writestr(self, target, content, compress=zipfile.ZIP_DEFLATED):
 		"""
-		Write the content of a strong onto a file in the book.
+		Write the content of a string.
+
 		:param target: path for the target file
 		:param content: string/bytes to be written on the file
 		:param compress: either zipfile.ZIP_DEFLATED or zipfile.ZIP_STORED, whether the content should be compressed, resp. not compressed
@@ -440,7 +441,7 @@ class Book(object):
 	# noinspection PyUnresolvedReferences
 	def write_element(self, target, element):
 		"""
-		An ElementTree object added to the book.
+		An ElementTree object is added to the book.
 
 		:param str target: path for the target file
 		:param element: the XML tree to be stored
@@ -454,11 +455,10 @@ class Book(object):
 	# noinspection PyTypeChecker
 	def write_session(self, target, session):
 		"""
-		Return content of an HTTP session added to the book.
+		Return content of an :py:class:`.HttpSession` is added to the book.
 
 		:param str target: path for the target file
-		:param HttpSession session: session whose data must retrieved to be written into the book
-		:return:
+		:param session: a :py:class:`.HttpSession` instance whose data must retrieved to be written into the book
 		"""
 		# Copy the content into the final book
 		# Special care should be taken with html files. Those are supposed to become XHTML:-(
@@ -477,11 +477,10 @@ class Book(object):
 	# noinspection PyPep8Naming
 	def write_HTTP(self, target, url):
 		"""
-		Return content of an HTTP session added to the book.
+		Retrieve the content of a URI and store it in the book
 
 		:param str target: path for the target file
 		:param url: URL that has to be retrieved to be written into the book
-		:return:
 		"""
 		# Copy the content into the final book.
 		# Note that some of the media types are not to be compressed
@@ -490,7 +489,8 @@ class Book(object):
 	def _path(self, path):
 		"""
 		Expand the path with the name of the package, check if the resulting path (filename) includes intermediate
-		directories and create those on the fly
+		directories and create those on the fly.
+
 		:param path: path to be checked
 		:return: expanded, full path
 		"""
@@ -502,7 +502,7 @@ class Book(object):
 
 	def close(self):
 		"""
-		Closing the archive.
+		Close the book (i.e., the archive).
 		"""
 		if self.package:
 			self.zip.close()

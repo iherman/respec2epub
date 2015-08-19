@@ -1,5 +1,3 @@
-# TODO: the name of the book is not necessarily 'Recommendation', this should be parametrized
-
 # noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
@@ -20,10 +18,10 @@ SUBTITLE = {
 # noinspection PyPep8
 class Package:
 	"""
-	Methods to generate the manifest, TOC, and cover pages
+	Methods to generate the manifest, TOC in different formats, and the cover pages
 
 	:param driver: the caller
-	:type driver: :py:class:`.DocToEpub`
+	:type driver: :py:class:`.DocWrapper`
 	"""
 	def __init__(self, driver):
 		self._book     = driver.book
