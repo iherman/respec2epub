@@ -11,9 +11,19 @@ import traceback
 import locale
 locale.setlocale(locale.LC_ALL, 'en_us')
 
-# Global boolean flag to decide whether this is a CGI script or not; for debugging
+##########################################
+# Global boolean flag to decide whether this is a CGI script or not (the non-cgi case is for debugging)
+# If it is not cgi, then an artificial environment is created for debugging.
 cgi = 'HTTP_USER_AGENT' in os.environ
+# noinspection PyPep8
+if cgi is not True:
+	# noinspection PyPep8
+	os.environ['QUERY_STRING'] = 'type=html&url=http://localhost:8001/LocalData/github/csvw/publishing-snapshots/CR-csv2json/Overview.html'
+	# os.environ['QUERY_STRING'] = 'type=respec&url=http://w3c.github.io/csvw/csv2rdf/?publishDate=2015-07-16;specStatus=CR'
 
+##########################################
+# If it is a cgi script then the python distribution may not include what is needed for import... Then import the
+# generator library
 # noinspection PyPep8
 if cgi:
 	# The import path should include the place where my library resides
@@ -21,14 +31,37 @@ if cgi:
 	if os.environ['HTTP_HOST'] == 'localhost:8001':
 		# this is my local machine
 		sys.path.insert(0, "/Users/ivan/Library/Python")
-else:
-	# Set artificial arguments for debugging
-	# noinspection PyPep8
-	os.environ['QUERY_STRING'] = 'type=html&url=http://localhost:8001/LocalData/github/csvw/publishing-snapshots/CR-csv2json/Overview.html'
-	# os.environ['QUERY_STRING'] = 'type=respec&url=http://w3c.github.io/csvw/csv2rdf/?publishDate=2015-07-16;specStatus=CR'
 
 import rp2epub
 
+##########################################
+# Set up a logger. This may be useful if something goes wrong with the server...
+# However, the failing to set up the logger should not interrupt to program in general, hence all this in an exception
+# noinspection PyBroadException,PyPep8
+try:
+	import logging
+	import logging.handlers
+	# Set the logger part
+	logger = logging.getLogger("Epub generator")
+	logger.setLevel(logging.DEBUG)
+
+	# Set the handler; this handler provides a way to limit the file size, and also gives a rollover
+	# TODO: when going for a real deployment, the maxBytes argument should be set to, say, 100000 (or more?) and backupCount to 10
+	handler = logging.handlers.RotatingFileHandler(filename="/tmp/logs/epub_generator.log", maxBytes=3000, backupCount=2)
+	handler.setLevel(logging.DEBUG)
+
+	# create and add a formatter
+	# noinspection PyPep8
+	handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s: %(message)s", datefmt='%Y-%m-%d %H:%M:%S'))
+
+	# done...
+	logger.addHandler(handler)
+except:
+	logger = None
+
+
+##########################################
+# Various utility functions
 
 def now():
 	"""
@@ -54,6 +87,8 @@ def respond(wrapper, modified):
 		print
 		with open(wrapper.book_file_name) as book:
 			print book.read()
+		if cgi and logger is not None:
+			logger.info("%s generated and returned" % (wrapper.document.short_name + ".epub"))
 	else:
 		print wrapper.book_file_name
 
@@ -84,6 +119,9 @@ class Generator:
 				self.args['url'] = urllib.unquote(call_args['url'])
 			elif 'uri' in call_args:
 				self.args['url'] = urllib.unquote(call_args['uri'])
+
+		if cgi and logger is not None:
+			logger.info("respec:%s; url=%s" % (self.args['respec'], self.args['url']))
 
 	def generate_ebook(self):
 		"""
@@ -121,6 +159,15 @@ try:
 except:
 	exc_type, exc_value, exc_traceback = sys.exc_info()
 	if cgi:
+		if logger is not None:
+			# The error should be logged...
+			from StringIO import StringIO
+			err = StringIO()
+			traceback.print_exception(exc_type, exc_value, exc_traceback, file=err)
+			logger.critical("Exception has been raised:\n" + err.getvalue())
+			err.close()
+
+		# ...and returned
 		print 'Status: 500'
 		print 'Content-Type: text/html; charset=utf-8'
 		print
