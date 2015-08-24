@@ -45,9 +45,12 @@ try:
 	logger = logging.getLogger("Epub generator")
 	logger.setLevel(logging.DEBUG)
 
+	if not os.path.exists('/tmp/epub_generator_logs'):
+		os.mkdir('/tmp/epub_generator_logs')
+
 	# Set the handler; this handler provides a way to limit the file size, and also gives a rollover
 	# TODO: when going for a real deployment, the maxBytes argument should be set to, say, 100000 (or more?) and backupCount to 10
-	handler = logging.handlers.RotatingFileHandler(filename="/tmp/logs/epub_generator.log", maxBytes=3000, backupCount=2)
+	handler = logging.handlers.RotatingFileHandler(filename="/tmp/epub_generator_logs/log", maxBytes=3000, backupCount=2)
 	handler.setLevel(logging.DEBUG)
 
 	# create and add a formatter
@@ -58,7 +61,6 @@ try:
 	logger.addHandler(handler)
 except:
 	logger = None
-
 
 ##########################################
 # Various utility functions
