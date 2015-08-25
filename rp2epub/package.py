@@ -1,3 +1,14 @@
+"""
+Generate all the auxiliary files that are needed for EPUB: package file, table of content in different formats,
+cover page. Most of the files make use of various templates stored in the separate template file.
+
+.. :class::
+
+Module Content
+--------------
+"""
+
+
 # noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
@@ -18,7 +29,7 @@ SUBTITLE = {
 # noinspection PyPep8
 class Package:
 	"""
-	Methods to generate the manifest, TOC in different formats, and the cover pages
+	Collection of methods to generate the manifest, TOC in different formats, and the cover pages
 
 	:param driver: the caller
 	:type driver: :py:class:`.DocWrapper`
@@ -29,12 +40,12 @@ class Package:
 
 	@property
 	def book(self):
-		"""The target book; a :py:class:`.Book` instance"""
+		"""The target book; a :py:class:`.utils.Book` instance"""
 		return self._book
 
 	@property
 	def document(self):
-		"""Wrapper around a document; a :py:class:`.Document` instance"""
+		"""Encapsulation of the real document; a :py:class:`.document.Document` instance"""
 		return self._document
 
 	def process(self):
@@ -60,8 +71,6 @@ class Package:
 
 		# Get the default resources first
 		for (href, media_type, item_id, prop) in DEFAULT_FILES:
-			# These resources should be added to the zip file
-			# Images should not be compressed, just stored
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
 			item.set("id", item_id)
 			item.set("href", href)
@@ -115,7 +124,7 @@ class Package:
 		creator = opf.findall(".//{http://purl.org/dc/elements/1.1/}creator")[0]
 		creator.text = self.document.editors
 
-		# Push the manifest file into the book, too
+		# Push the manifest file into the book
 		self.book.write_element('package.opf', opf)
 
 	#===================================================
@@ -202,7 +211,7 @@ class Package:
 
 		# The landmark part of the nav file has to be changed; there is no explicit cover page
 		li_landmark = nav.findall(".//{http://www.w3.org/1999/xhtml}li[@href='cover.xhtml']")[0]
-		li_landmark.set("href", "Overview.html")
+		li_landmark.set("href", "Overview.xhtml")
 
 		navMap = nav.findall(".//{http://www.w3.org/1999/xhtml}nav[@id='toc']")[0]
 

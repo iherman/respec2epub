@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>rp2epub.document &mdash; Respec to EPUB 8 documentation</title>
+    <title>rp2epub.document &mdash; ReSpec to EPUB Utility</title>
     
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '8',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,34 +23,50 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="Respec to EPUB 8 documentation" href="../../index.html" />
+    <link rel="top" title="ReSpec to EPUB Utility" href="../../index.html" />
     <link rel="up" title="rp2epub" href="../rp2epub.html" /> 
   </head>
-  <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../index.html">Respec to EPUB 8 documentation</a> &raquo;</li>
-          <li><a href="../index.html" >Module code</a> &raquo;</li>
-          <li><a href="../rp2epub.html" accesskey="U">rp2epub</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ReSpec to EPUB Utility</span></a></h1>
+        <h2 class="heading"><span>rp2epub.document</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="../../index.html">Contents</a>
+        </p>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
-            
+      </div>
+      <div class="content">
+        
+        
   <h1>Source code for rp2epub.document</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">:py:class:`Document` Class encapsulating the original source document, plus the various metadata that can and should be</span>
+<span class="sd">extracted: short name, dated URI, editors, document type, etc. These data are extracted from the file,</span>
+<span class="sd">usually trying to interpret the content of the file. The metadata also includes information on whether there</span>
+<span class="sd">is scripting, whether it contains svg of MathML: these should be added to the book&#39;s package file.</span>
+
+<span class="sd">The class instance collects the various external references that must be, eventually, added to the final book</span>
+<span class="sd">(images, CSS files, etc.).</span>
+
+<span class="sd">Finally, the HTML content (ie, the DOM tree) is also modified on the fly: HTML namespace is added, some metadata</span>
+<span class="sd">is changed to fit the HTML5 requirements, link references may be updated for, e.g., CSS, etc.</span>
+
+<span class="sd">.. :class::</span>
+
+<span class="sd">Module content</span>
+<span class="sd">--------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
 <span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">urljoin</span>
 <span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">SubElement</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Utils</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">R2EError</span>
+
 
 <span class="c"># suffixes and media types for resources that are recognized by EPUB</span>
 <span class="c"># noinspection PyPep8,PyPep8</span>
@@ -75,7 +91,7 @@
 	<span class="s">&quot;video/ogg&quot;</span>                   <span class="p">:</span> <span class="s">&quot;ogg&quot;</span>
 <span class="p">}</span>
 
-<span class="c">#: Pairs of element names and attributes for content that should be downloaded and referred to</span>
+<span class="c"># Pairs of element names and attributes for content that should be downloaded and referred to</span>
 <span class="c"># noinspection PyPep8</span>
 <span class="n">external_references</span> <span class="o">=</span> <span class="p">[</span>
 	<span class="p">(</span><span class="s">&quot;img&quot;</span><span class="p">,</span> <span class="s">&quot;src&quot;</span><span class="p">),</span>
@@ -86,13 +102,12 @@
 
 
 <span class="c"># Massage the core document</span>
-<div class="viewcode-block" id="Document"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document">[docs]</a><span class="k">class</span> <span class="nc">Document</span><span class="p">:</span>
+<div class="viewcode-block" id="Document"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document">[docs]</a><span class="k">class</span> <span class="nc">Document</span><span class="p">:</span>
 	<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Wrapper around the top level document, ie, looking at its content and retrieve the necessary references like images</span>
-<span class="sd">	or style files, possibly modifying the document on the fly.</span>
+<span class="sd">	Encapsulation of the top level document.</span>
 
 <span class="sd">	:param driver: the caller instance</span>
-<span class="sd">	:type driver: :py:class:`.DocToEpub`</span>
+<span class="sd">	:type driver: :py:class:`.DocWrapper`</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 
 	<span class="c"># noinspection PyPep8,PyPep8</span>
@@ -115,28 +130,26 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_massage_html</span><span class="p">()</span>
 
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Document.driver"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.driver">[docs]</a>	<span class="k">def</span> <span class="nf">driver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;The caller: a :class:`.DocToEpub` instance.&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">driver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;The caller: a :py:class:`.doc2epub.DocToEpub` instance.&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span>
-</div>
+
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Document.html"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.html">[docs]</a>	<span class="k">def</span> <span class="nf">html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;HTML element as parsed; an :py:class:`xml.etree.ElementTree.Element` instance  &quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">html</span>
-</div>
+
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Document.additional_resources"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.additional_resources">[docs]</a>	<span class="k">def</span> <span class="nf">additional_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;List of additional resources that have been added to the book. A list of tuples, containing the internal</span>
+	<span class="k">def</span> <span class="nf">additional_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;List of additional resources that must be added to the book. A list of tuples, containing the internal</span>
 <span class="sd">		reference to the resource and the media type. Built up during processing, it is used in when creating the manifest</span>
-<span class="sd">		file of the book</span>
+<span class="sd">		file of the book.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span>
 
-	<span class="c"># noinspection PyPep8</span></div>
-<div class="viewcode-block" id="Document.extract_external_references"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.extract_external_references">[docs]</a>	<span class="k">def</span> <span class="nf">extract_external_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Handle the external references (images, etc) in the core file, and copy them to the book.</span>
-
-<span class="sd">		If the file referred to is</span>
+	<span class="c"># noinspection PyPep8</span>
+<div class="viewcode-block" id="Document.extract_external_references"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document.extract_external_references">[docs]</a>	<span class="k">def</span> <span class="nf">extract_external_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is</span>
 
 <span class="sd">		- on the same domain as the original file</span>
 <span class="sd">		- is one of the &#39;accepted&#39; media types for epub</span>
@@ -144,6 +157,12 @@
 <span class="sd">		then the file is copied and stored in the book, the reference is changed in the document,</span>
 <span class="sd">		and the resource is marked to be added to the manifest file</span>
 <span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">def</span> <span class="nf">final_target_media</span><span class="p">(</span><span class="n">f_session</span><span class="p">,</span> <span class="n">f_target</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">f_session</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="s">&#39;text/html&#39;</span><span class="p">:</span>
+				<span class="k">return</span> <span class="s">&#39;application/xhtml+xml&#39;</span><span class="p">,</span> <span class="n">f_target</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.html&#39;</span><span class="p">,</span> <span class="s">&#39;.xhtml&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">return</span> <span class="n">f_session</span><span class="o">.</span><span class="n">media_type</span><span class="p">,</span> <span class="n">f_target</span>
+
 		<span class="c"># Retrieve the value of the reference. By making a urljoin, relative URI-s are also turned into absolute one;</span>
 		<span class="c"># this simplifies the issue</span>
 		<span class="c"># Look at generic external references like images, and, possibly copy the content</span>
@@ -164,12 +183,8 @@
 						<span class="c"># yet another complication: if the target is an html file, it will have to become xhtml :-(</span>
 						<span class="c"># this means that the target and the media types should receive a local name, to</span>
 						<span class="c"># be stored and used below</span>
-						<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="s">&#39;text/html&#39;</span><span class="p">:</span>
-							<span class="n">final_media_type</span> <span class="o">=</span> <span class="s">&#39;application/xhtml+xml&#39;</span>
-							<span class="n">final_target</span>     <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.html&#39;</span><span class="p">,</span> <span class="s">&#39;.xhtml&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-						<span class="k">else</span> <span class="p">:</span>
-							<span class="n">final_media_type</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span>
-							<span class="n">final_target</span>     <span class="o">=</span> <span class="n">target</span>
+
+						<span class="n">final_media_type</span><span class="p">,</span> <span class="n">final_target</span> <span class="o">=</span> <span class="n">final_target_media</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
 
 						<span class="c"># We can now copy the content into the final book.</span>
 						<span class="c"># Note that some of the media types are not to be compressed; this is taken care in the</span>
@@ -181,10 +196,18 @@
 
 						<span class="c"># Change the original reference</span>
 						<span class="n">element</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">final_target</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="c"># That resource is not available</span>
+						<span class="c"># Typical situation where it happens: the document is generated from respec</span>
+						<span class="c"># on the fly but from a place where the diff file is not yet</span>
+						<span class="c"># generated (but referenced from content)</span>
+						<span class="c"># Take out those situations that are under the control of this script</span>
+						<span class="k">if</span> <span class="ow">not</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;Assets/&quot;</span><span class="p">):</span>
+							<span class="n">element</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
 
 	<span class="c">###################################################################################################</span>
 	<span class="c"># noinspection PyPep8</span></div>
-<div class="viewcode-block" id="Document._massage_html"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document._massage_html">[docs]</a>	<span class="k">def</span> <span class="nf">_massage_html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Document._massage_html"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._massage_html">[docs]</a>	<span class="k">def</span> <span class="nf">_massage_html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Process a document looking for (and possibly copying) external references and making some modifications on the fly</span>
 <span class="sd">		&quot;&quot;&quot;</span>
@@ -193,6 +216,11 @@
 
 		<span class="c"># Change the value of @about to the dated URI, which is what counts...</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;about&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dated_uri</span><span class="p">)</span>
+
+		<span class="c"># The reference to the W3C logo should be localized</span>
+		<span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//img[@alt=&#39;W3C&#39;]&quot;</span><span class="p">):</span>
+			<span class="n">img</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;src&#39;</span><span class="p">,</span> <span class="s">&#39;Assets/w3c_home.png&#39;</span><span class="p">)</span>
+			<span class="k">break</span>
 
 		<span class="c"># handle stylesheet references</span>
 		<span class="k">for</span> <span class="n">lnk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//link[@rel=&#39;stylesheet&#39;]&quot;</span><span class="p">):</span>
@@ -234,51 +262,56 @@
 	<span class="c"># Metadata; all these are filled with value through the _get_document_metadata method, called at</span>
 	<span class="c"># initialization time</span></div>
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Document.title"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.title">[docs]</a>	<span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;The ``title`` element content.&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span>
-</div>
+
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Document.properties"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.properties">[docs]</a>	<span class="k">def</span> <span class="nf">properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;The properties of the document, to be added to the manifest entry&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span>
-</div>
+
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Document.short_name"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.short_name">[docs]</a>	<span class="k">def</span> <span class="nf">short_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">short_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;&#39;Short Name&#39;, in the W3C jargon&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span>
-</div>
+
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Document.dated_uri"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.dated_uri">[docs]</a>	<span class="k">def</span> <span class="nf">dated_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">dated_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;&#39;Dated URI&#39;, in the W3C jargon&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>
-</div>
+
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Document.doc_type"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.doc_type">[docs]</a>	<span class="k">def</span> <span class="nf">doc_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">doc_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``, or ``ED``&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>
-</div>
+
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Document.date"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.date">[docs]</a>	<span class="k">def</span> <span class="nf">date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Date of publication&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_date</span>
-</div>
+
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Document.editors"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.editors">[docs]</a>	<span class="k">def</span> <span class="nf">editors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">editors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;List of editors (as a string)&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>
-</div>
+
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Document.toc"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.toc">[docs]</a>	<span class="k">def</span> <span class="nf">toc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">toc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Table of content, an array of ``TOC_Item`` objects&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toc</span>
-</div>
+
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Document.issued_as"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document.issued_as">[docs]</a>	<span class="k">def</span> <span class="nf">issued_as</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">issued_as</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; &quot;W3C Note/Recommendation/Draft/ etc.&quot;: the text to be reused as a subtitle on the cover page. &quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issued_as</span>
-</div>
-<div class="viewcode-block" id="Document._get_document_metadata"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.document.Document._get_document_metadata">[docs]</a>	<span class="k">def</span> <span class="nf">_get_document_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Document._get_document_metadata"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._get_document_metadata">[docs]</a>	<span class="k">def</span> <span class="nf">_get_document_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Extract metadata from the source, stored as attribute for this class (date, title, editors, etc.)</span>
+
+<span class="sd">		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)</span>
+<span class="sd">		&quot;&quot;&quot;</span>
 		<span class="c"># Get the title of the document</span>
 		<span class="k">for</span> <span class="n">title_element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//title&quot;</span><span class="p">):</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
@@ -301,7 +334,12 @@
 			<span class="k">break</span>
 
 		<span class="c"># Date of the document, to be reused in the metadata</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_date</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">retrieve_date</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dated_uri</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="s">&quot;Unrecognized document type, unable to convert (should be ED, WD, CR, PR, PER, REC, or NOTE&quot;</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span> <span class="o">==</span> <span class="s">&quot;ED&quot;</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_date</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">retrieve_date</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dated_uri</span><span class="p">)</span>
 
 		<span class="c"># Extract the editors</span>
 		<span class="n">editor_set</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">extract_editors</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
@@ -322,45 +360,18 @@
 				<span class="bp">self</span><span class="o">.</span><span class="n">_issued_as</span> <span class="o">+=</span> <span class="n">t</span>
 </pre></div></div></div>
 
-          </div>
-        </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="../../index.html">Contents</a>
+        </p>
+
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../index.html">Respec to EPUB 8 documentation</a> &raquo;</li>
-          <li><a href="../index.html" >Module code</a> &raquo;</li>
-          <li><a href="../rp2epub.html" >rp2epub</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer">
+
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2015, Ivan Herman.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

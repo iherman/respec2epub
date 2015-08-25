@@ -1,4 +1,14 @@
 # -*- coding: utf-8 -*-
+"""
+Various utility classes and methods.
+
+
+Module Content
+--------------
+
+"""
+
+
 from urllib2 import urlopen, HTTPError
 from StringIO import StringIO
 from datetime import date
@@ -15,17 +25,19 @@ from . import R2EError
 
 # These media types should be added to the zip file uncompressed
 # noinspection PyPep8
-_NO_COMPRESS = ["image/png",
-				"image/jpeg",
-				"image/jpeg",
-				"image/gif",
-				"audio/mpeg",
-				"video/mp4",
-				"video/webm",
-				"video/ogg"]
+_NO_COMPRESS = [
+	"image/png",
+	"image/jpeg",
+	"image/gif",
+	"audio/mpeg",
+	"video/mp4",
+	"video/webm",
+	"video/ogg"
+]
 
 ########################################## Table of content extraction ########################################
 short_label_pattern = re.compile("^[1-9][0-9]*\. .*$")
+
 # list of element pairs that lead to a table of content
 # noinspection PyPep8
 # structures for TOC elements in respec: element hierarchy and, if not None, the class name for the <li> element.
@@ -98,22 +110,15 @@ class Utils(object):
 				break
 
 		# If an interactive form is used, the 'scripted' property should be set
-		for f in html.findall(".//form"):
+		if html.find(".//form") is not None:
 			retval.add("scripted")
-			# one is enough:-)
-			break
 
-		# Inline SVG
-		for f in html.findall(".//{http://www.w3.org/2000/svg}svg"):
+		if html.find(".//{http://www.w3.org/2000/svg}svg") is not None:
 			retval.add("svg")
-			# one is enough:-)
-			break
 
-		# Inline MathML
-		for f in html.findall(".//{http://www.w3.org/1998/Math/MathML}math"):
+		if html.find(".//{http://www.w3.org/1998/Math/MathML}math") is not None:
 			retval.add("mathml")
-			# one is enough:-)
-			break
+
 		return retval
 	# end _get_extra_properties
 
@@ -134,7 +139,7 @@ class Utils(object):
 				name = name[len(cat)+1:]
 				return cat, name[:-9]
 
-		# If we get there, the name does not abide to any pattern; it is taken to be an ED
+		# If we get here, the name does not abide to any pattern; it is taken to be an ED
 		return "ED", name
 	# end create_shortname
 
@@ -155,7 +160,7 @@ class Utils(object):
 			pdate = d[-8:]
 			return date(int(pdate[0:4]), int(pdate[4:6]), int(pdate[6:8]))
 		except:
-			R2EError("dated URI is not of the expected format")
+			raise R2EError("dated URI is not of the expected format")
 	# end retrieve_date
 
 	@staticmethod
@@ -169,6 +174,7 @@ class Utils(object):
 		:return: set of editors
 		"""
 		retval = set()
+
 		for dd in html.findall(".//dd[@class]"):
 			if dd.get('class').find('p-author') != -1:
 				for a in dd.findall(".//a[@class]"):
@@ -179,6 +185,7 @@ class Utils(object):
 					if span.get('class').find('p-name') != -1:
 						retval.add(span.text)
 						break
+
 		return retval
 
 	# noinspection PyPep8,PyBroadException
@@ -186,7 +193,8 @@ class Utils(object):
 	def set_html_meta(html, head):
 		"""
 		 Change the meta elements so that:
-		 - any ``@http-equiv=content-type`` should be removed
+
+		 - any ``@http-equiv=content-type`` is removed
 		 - there should be an extra meta setting the character set
 
 		:param html: the object for the whole document
@@ -194,12 +202,7 @@ class Utils(object):
 		:param head: the object for the <head> element
 		:type head: :py:class:`xml.etree.ElementTree.Element`
 		"""
-		for meta in html.findall(".//meta[@http-equiv='content-type']"):
-			try:
-				head.remove(meta)
-			except:
-				pass
-		for meta in html.findall(".//meta[@http-equiv='Content-Type']"):
+		for meta in html.findall(".//meta[@http-equiv='content-type']") + html.findall(".//meta[@http-equiv='Content-Type']"):
 			try:
 				head.remove(meta)
 			except:
@@ -270,8 +273,8 @@ class Utils(object):
 
 		def toc_respec():
 			"""
-			Extract the TOC items following respec conventions. there are possible pairs (see the ``TOC_PAIRS``
-			alternatives, they all appear in different respec generated documents...), yielding to <li> elements with
+			Extract the TOC items following respec conventions. There are possible pairs (see the ``TOC_PAIRS``
+			alternatives, they all appear in different respec generated documents...), yielding <li> elements with
 			the toc entry.
 			"""
 			## respec version
@@ -377,7 +380,7 @@ class Book(object):
 	"""Abstraction for a book; it encapsulates a zip file as well as saving the content into a
 	  directory.
 
-	  :param name: file name of the book
+	  :param book_name: file name of the book
 	  :param folder_name: name of the directory
   	  :param package: whether a real zip file should be created or not
 	  :param folder: whether the directory structure should be created separately or not
@@ -390,7 +393,7 @@ class Book(object):
 		self.already_stored = []
 
 		if self.folder:
-			# To be sure, the previous folder, if it exists, should be removed
+			# To be sure the previous folder, if it exists, should be removed
 			if os.path.exists(folder_name):
 				shutil.rmtree(folder_name, ignore_errors=True)
 			os.mkdir(folder_name)
@@ -417,26 +420,26 @@ class Book(object):
 
 	@property
 	def zip(self):
-		"""The package files itself"""
+		"""The package (book) file itself"""
 		return self._zip
 
 	def writestr(self, target, content, compress=zipfile.ZIP_DEFLATED):
 		"""
-		Write the content of a string.
+		Write the content of a string. Care should be taken not to write "target" twice; the zipfile would really
+		duplicate the content in the archive (as opposed to file writing that would simply overwrite the previous
+		incarnation of the same file). This method takes care of that through the `already_stored` array.
 
 		:param target: path for the target file
 		:param content: string/bytes to be written on the file
 		:param compress: either zipfile.ZIP_DEFLATED or zipfile.ZIP_STORED, whether the content should be compressed, resp. not compressed
 		"""
-		if target in self.already_stored:
-			return
-		else:
+		if target not in self.already_stored:
 			self.already_stored.append(target)
-		if self.folder:
-			with open(self._path(target), "w") as f:
-				f.write(content)
-		if self.package:
-			self.zip.writestr(target, content, compress)
+			if self.folder:
+				with open(self._path(target), "w") as f:
+					f.write(content)
+			if self.package:
+				self.zip.writestr(target, content, compress)
 
 	# noinspection PyUnresolvedReferences
 	def write_element(self, target, element):
@@ -455,7 +458,8 @@ class Book(object):
 	# noinspection PyTypeChecker
 	def write_session(self, target, session):
 		"""
-		Return content of an :py:class:`.HttpSession` is added to the book.
+		The returned content of an :py:class:`.HttpSession` is added to the book. If the content is an HTML file,
+		it will be converted into XHTML on the fly.
 
 		:param str target: path for the target file
 		:param session: a :py:class:`.HttpSession` instance whose data must retrieved to be written into the book
@@ -477,7 +481,7 @@ class Book(object):
 	# noinspection PyPep8Naming
 	def write_HTTP(self, target, url):
 		"""
-		Retrieve the content of a URI and store it in the book
+		Retrieve the content of a URI and store it in the book. (This is a wrapper around the `write_session` method.)
 
 		:param str target: path for the target file
 		:param url: URL that has to be retrieved to be written into the book
@@ -488,13 +492,13 @@ class Book(object):
 
 	def _path(self, path):
 		"""
-		Expand the path with the name of the package, check if the resulting path (filename) includes intermediate
-		directories and create those on the fly.
+		Expand the path with the name of the package, check whether the resulting path (filename) includes intermediate
+		directories and create those on the fly if necessary.
 
 		:param path: path to be checked
 		:return: expanded, full path
 		"""
-		full_path = os.path.join(self.name,path)
+		full_path = os.path.join(self.name, path)
 		(dirs, name) = os.path.split(full_path)
 		if dirs != '' and not os.path.exists(dirs):
 			os.makedirs(dirs)

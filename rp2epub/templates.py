@@ -7,13 +7,27 @@ by the :py:class:`.Package` instance.
 
   XML code for the Manifest file
 
+.. py:data:: NAV
+
+  XHTML code for the new type, EPUB3 table of content file
+
+.. py:data:: TOC
+
+  XML code for the old type, EPUB2 table of content file
+
+.. py:data:: PACKAGE
+
+  XML code for the package file (``opf`` file)
+
 .. py:data:: COVER
 
-  XHTML scaffolding code for the cover page
+  XHTML code for the cover page
 
 .. py:data:: BOOK_CSS
 
   Content of the ``book.css`` file, adding some page-breaking statements to the overall styling.
+
+**Source code:** `utils.py <https://github.com/iherman/respec2epub/blob/master/rp2epub/templates.py>`_
 
 """
 

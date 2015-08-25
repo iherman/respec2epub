@@ -1,3 +1,22 @@
+"""
+:py:class:`Document` Class encapsulating the original source document, plus the various metadata that can and should be
+extracted: short name, dated URI, editors, document type, etc. These data are extracted from the file,
+usually trying to interpret the content of the file. The metadata also includes information on whether there
+is scripting, whether it contains svg of MathML: these should be added to the book's package file.
+
+The class instance collects the various external references that must be, eventually, added to the final book
+(images, CSS files, etc.).
+
+Finally, the HTML content (ie, the DOM tree) is also modified on the fly: HTML namespace is added, some metadata
+is changed to fit the HTML5 requirements, link references may be updated for, e.g., CSS, etc.
+
+.. :class::
+
+Module content
+--------------
+"""
+
+
 from urlparse import urlparse, urljoin
 from xml.etree.ElementTree import SubElement
 from .utils import HttpSession, Utils
@@ -41,8 +60,7 @@ external_references = [
 # Massage the core document
 class Document:
 	"""
-	Wrapper around the top level document, ie, looking at its content and retrieve the necessary references like images
-	or style files, and possibly modifying the document's DOM Tree on the fly.
+	Encapsulation of the top level document.
 
 	:param driver: the caller instance
 	:type driver: :py:class:`.DocWrapper`
@@ -69,7 +87,7 @@ class Document:
 
 	@property
 	def driver(self):
-		"""The caller: a :class:`.DocToEpub` instance."""
+		"""The caller: a :py:class:`.doc2epub.DocToEpub` instance."""
 		return self._driver
 
 	@property
@@ -79,17 +97,15 @@ class Document:
 
 	@property
 	def additional_resources(self):
-		"""List of additional resources that have been added to the book. A list of tuples, containing the internal
+		"""List of additional resources that must be added to the book. A list of tuples, containing the internal
 		reference to the resource and the media type. Built up during processing, it is used in when creating the manifest
-		file of the book
+		file of the book.
 		"""
 		return self._additional_resources
 
 	# noinspection PyPep8
 	def extract_external_references(self):
-		"""Handle the external references (images, etc) in the core file, and copy them to the book.
-
-		If the file referred to is
+		"""Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is
 
 		- on the same domain as the original file
 		- is one of the 'accepted' media types for epub
@@ -97,6 +113,12 @@ class Document:
 		then the file is copied and stored in the book, the reference is changed in the document,
 		and the resource is marked to be added to the manifest file
 		"""
+		def final_target_media(f_session, f_target):
+			if f_session.media_type == 'text/html':
+				return 'application/xhtml+xml', f_target.replace('.html', '.xhtml', 1)
+			else:
+				return f_session.media_type, f_target
+
 		# Retrieve the value of the reference. By making a urljoin, relative URI-s are also turned into absolute one;
 		# this simplifies the issue
 		# Look at generic external references like images, and, possibly copy the content
@@ -117,12 +139,8 @@ class Document:
 						# yet another complication: if the target is an html file, it will have to become xhtml :-(
 						# this means that the target and the media types should receive a local name, to
 						# be stored and used below
-						if session.media_type == 'text/html':
-							final_media_type = 'application/xhtml+xml'
-							final_target     = target.replace('.html', '.xhtml', 1)
-						else :
-							final_media_type = session.media_type
-							final_target     = target
+
+						final_media_type, final_target = final_target_media(session, target)
 
 						# We can now copy the content into the final book.
 						# Note that some of the media types are not to be compressed; this is taken care in the

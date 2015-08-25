@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>rp2epub.package &mdash; Respec to EPUB 8 documentation</title>
+    <title>rp2epub.package &mdash; ReSpec to EPUB Utility</title>
     
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '8',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,32 +23,35 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="Respec to EPUB 8 documentation" href="../../index.html" />
+    <link rel="top" title="ReSpec to EPUB Utility" href="../../index.html" />
     <link rel="up" title="rp2epub" href="../rp2epub.html" /> 
   </head>
-  <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../index.html">Respec to EPUB 8 documentation</a> &raquo;</li>
-          <li><a href="../index.html" >Module code</a> &raquo;</li>
-          <li><a href="../rp2epub.html" accesskey="U">rp2epub</a> &raquo;</li> 
-      </ul>
-    </div>  
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ReSpec to EPUB Utility</span></a></h1>
+        <h2 class="heading"><span>rp2epub.package</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="../../index.html">Contents</a>
+        </p>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
-            
+      </div>
+      <div class="content">
+        
+        
   <h1>Source code for rp2epub.package</h1><div class="highlight"><pre>
-<span class="c"># TODO: the name of the book is not necessarily &#39;Recommendation&#39;, this should be parametrized</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Generate all the auxiliary files that are needed for EPUB: package file, table of content in different formats,</span>
+<span class="sd">cover page. Most of the files make use of various templates stored in the separate template file.</span>
+
+<span class="sd">.. :class::</span>
+
+<span class="sd">Module Content</span>
+<span class="sd">--------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 
 <span class="c"># noinspection PyPep8Naming</span>
 <span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">as</span> <span class="nn">ET</span>
@@ -62,40 +65,41 @@
 	<span class="s">&quot;PR&quot;</span>   <span class="p">:</span> <span class="s">&quot;W3C Proposed Recommendation&quot;</span><span class="p">,</span>
 	<span class="s">&quot;PER&quot;</span>  <span class="p">:</span> <span class="s">&quot;W3C Proposed Edited Recommendation&quot;</span><span class="p">,</span>
 	<span class="s">&quot;CR&quot;</span>   <span class="p">:</span> <span class="s">&quot;W3C Candidate Recommendation&quot;</span><span class="p">,</span>
-	<span class="s">&quot;WD&quot;</span>   <span class="p">:</span> <span class="s">&quot;W3C Working Draft&quot;</span>
+	<span class="s">&quot;WD&quot;</span>   <span class="p">:</span> <span class="s">&quot;W3C Working Draft&quot;</span><span class="p">,</span>
+	<span class="s">&quot;ED&quot;</span>   <span class="p">:</span> <span class="s">&quot;W3C Editor&#39;s Draft&quot;</span>
 <span class="p">}</span>
 
 
 <span class="c"># noinspection PyPep8</span>
-<div class="viewcode-block" id="Package"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.package.Package">[docs]</a><span class="k">class</span> <span class="nc">Package</span><span class="p">:</span>
+<div class="viewcode-block" id="Package"><a class="viewcode-back" href="../../package.html#rp2epub.package.Package">[docs]</a><span class="k">class</span> <span class="nc">Package</span><span class="p">:</span>
 	<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Methods to generate the manifest, TOC, and cover pages</span>
+<span class="sd">	Collection of methods to generate the manifest, TOC in different formats, and the cover pages</span>
 
 <span class="sd">	:param driver: the caller</span>
-<span class="sd">	:type driver: :py:class:`.DocToEpub`</span>
+<span class="sd">	:type driver: :py:class:`.DocWrapper`</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_book</span>     <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">book</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_document</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">document</span>
 
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Package.book"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.package.Package.book">[docs]</a>	<span class="k">def</span> <span class="nf">book</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;The target book; a :py:class:`.Book` instance&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">book</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;The target book; a :py:class:`.utils.Book` instance&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_book</span>
-</div>
+
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Package.document"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.package.Package.document">[docs]</a>	<span class="k">def</span> <span class="nf">document</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Wrapper around a document; a :py:class:`.Document` instance&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">document</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Encapsulation of the real document; a :py:class:`.document.Document` instance&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_document</span>
-</div>
-<div class="viewcode-block" id="Package.process"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.package.Package.process">[docs]</a>	<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Package.process"><a class="viewcode-back" href="../../package.html#rp2epub.package.Package.process">[docs]</a>	<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Top level entry to execute the various internal methods&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_create_opf</span><span class="p">()</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_create_ncx</span><span class="p">()</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_create_nav</span><span class="p">()</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_create_cover</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Package._create_opf"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.package.Package._create_opf">[docs]</a>	<span class="k">def</span> <span class="nf">_create_opf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Package._create_opf"><a class="viewcode-back" href="../../package.html#rp2epub.package.Package._create_opf">[docs]</a>	<span class="k">def</span> <span class="nf">_create_opf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Create the manifest file. Includes the list of resources, book metadata, and the spine. The manifest</span>
 <span class="sd">		file is added to the book as ``package.opf``</span>
@@ -111,8 +115,6 @@
 
 		<span class="c"># Get the default resources first</span>
 		<span class="k">for</span> <span class="p">(</span><span class="n">href</span><span class="p">,</span> <span class="n">media_type</span><span class="p">,</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span> <span class="ow">in</span> <span class="n">DEFAULT_FILES</span><span class="p">:</span>
-			<span class="c"># These resources should be added to the zip file</span>
-			<span class="c"># Images should not be compressed, just stored</span>
 			<span class="n">item</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="s">&quot;{http://www.idpf.org/2007/opf}item&quot;</span><span class="p">)</span>
 			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="n">item_id</span><span class="p">)</span>
 			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="n">href</span><span class="p">)</span>
@@ -166,14 +168,14 @@
 		<span class="n">creator</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://purl.org/dc/elements/1.1/}creator&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 		<span class="n">creator</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">editors</span>
 
-		<span class="c"># Push the manifest file into the book, too</span>
+		<span class="c"># Push the manifest file into the book</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="s">&#39;package.opf&#39;</span><span class="p">,</span> <span class="n">opf</span><span class="p">)</span>
 
 	<span class="c">#===================================================</span>
 	<span class="c"># Generate the old style table of content (ncx file)</span>
 	<span class="c">#===================================================</span>
 	<span class="c"># noinspection PyPep8,PyPep8Naming</span></div>
-<div class="viewcode-block" id="Package._create_ncx"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.package.Package._create_ncx">[docs]</a>	<span class="k">def</span> <span class="nf">_create_ncx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Package._create_ncx"><a class="viewcode-back" href="../../package.html#rp2epub.package.Package._create_ncx">[docs]</a>	<span class="k">def</span> <span class="nf">_create_ncx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Create and old style TOC file (&#39;ncx&#39; file): ``toc.ncx``. To be used for reading systems that cannot</span>
 <span class="sd">		handle EPUB3 specific TOC.</span>
@@ -229,7 +231,7 @@
 	<span class="c"># Generate the new style table of content (nav file)</span>
 	<span class="c">#===================================================</span>
 	<span class="c"># noinspection PyPep8Naming</span></div>
-<div class="viewcode-block" id="Package._create_nav"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.package.Package._create_nav">[docs]</a>	<span class="k">def</span> <span class="nf">_create_nav</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Package._create_nav"><a class="viewcode-back" href="../../package.html#rp2epub.package.Package._create_nav">[docs]</a>	<span class="k">def</span> <span class="nf">_create_nav</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Create a new style TOC file (&#39;nav&#39; file): ``nav.xhtml``.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
@@ -253,7 +255,7 @@
 
 		<span class="c"># The landmark part of the nav file has to be changed; there is no explicit cover page</span>
 		<span class="n">li_landmark</span> <span class="o">=</span> <span class="n">nav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}li[@href=&#39;cover.xhtml&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-		<span class="n">li_landmark</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="s">&quot;Overview.html&quot;</span><span class="p">)</span>
+		<span class="n">li_landmark</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="s">&quot;Overview.xhtml&quot;</span><span class="p">)</span>
 
 		<span class="n">navMap</span> <span class="o">=</span> <span class="n">nav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}nav[@id=&#39;toc&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -281,7 +283,7 @@
 	<span class="c"># Generate the cover page</span>
 	<span class="c">#========================</span>
 	<span class="c"># noinspection PyPep8,PyPep8</span></div>
-<div class="viewcode-block" id="Package._create_cover"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.package.Package._create_cover">[docs]</a>	<span class="k">def</span> <span class="nf">_create_cover</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Package._create_cover"><a class="viewcode-back" href="../../package.html#rp2epub.package.Package._create_cover">[docs]</a>	<span class="k">def</span> <span class="nf">_create_cover</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Create a cover page: ``cover.xhtml``.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
@@ -325,45 +327,18 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="s">&#39;cover.xhtml&#39;</span><span class="p">,</span> <span class="n">cover</span><span class="p">)</span>
 </pre></div></div></div>
 
-          </div>
-        </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="../../index.html">Contents</a>
+        </p>
+
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../index.html">Respec to EPUB 8 documentation</a> &raquo;</li>
-          <li><a href="../index.html" >Module code</a> &raquo;</li>
-          <li><a href="../rp2epub.html" >rp2epub</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer">
+
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2015, Ivan Herman.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Common Utilities &mdash; ReSpec to EPUB Utility</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ReSpec to EPUB Utility" href="index.html" />
+    <link rel="next" title="Templates" href="templates.html" />
+    <link rel="prev" title="Package processing" href="package.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>ReSpec to EPUB Utility</span></a></h1>
+        <h2 class="heading"><span>Common Utilities</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="package.html">Package processing</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="templates.html">Templates</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="module-rp2epub.utils">
+<span id="common-utilities"></span><h1>Common Utilities<a class="headerlink" href="#module-rp2epub.utils" title="Permalink to this headline">¶</a></h1>
+<p>Various utility classes and methods.</p>
+<div class="section" id="module-content">
+<h2>Module Content<a class="headerlink" href="#module-content" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rp2epub.utils.Book">
+<em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">Book</code><span class="sig-paren">(</span><em>book_name</em>, <em>folder_name</em>, <em>package=True</em>, <em>folder=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Book"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Book" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstraction for a book; it encapsulates a zip file as well as saving the content into a
+directory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>book_name</strong> &#8211; file name of the book</li>
+<li><strong>folder_name</strong> &#8211; name of the directory</li>
+<li><strong>package</strong> &#8211; whether a real zip file should be created or not</li>
+<li><strong>folder</strong> &#8211; whether the directory structure should be created separately or not</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rp2epub.utils.Book._path">
+<code class="descname">_path</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Book._path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Book._path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expand the path with the name of the package, check whether the resulting path (filename) includes intermediate
+directories and create those on the fly if necessary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> &#8211; path to be checked</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">expanded, full path</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.utils.Book.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Book.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Book.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the book (i.e., the archive).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.utils.Book.folder">
+<code class="descname">folder</code><a class="headerlink" href="#rp2epub.utils.Book.folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag whether a folder should be generated or not</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.utils.Book.name">
+<code class="descname">name</code><a class="headerlink" href="#rp2epub.utils.Book.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prefix that should be added to all names when storing a folder (set to the short name of the document)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.utils.Book.package">
+<code class="descname">package</code><a class="headerlink" href="#rp2epub.utils.Book.package" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag whether an EPUB package should be generated or not</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.utils.Book.write_HTTP">
+<code class="descname">write_HTTP</code><span class="sig-paren">(</span><em>target</em>, <em>url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Book.write_HTTP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Book.write_HTTP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the content of a URI and store it in the book. (This is a wrapper around the <cite>write_session</cite> method.)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>target</strong> (<em>str</em>) &#8211; path for the target file</li>
+<li><strong>url</strong> &#8211; URL that has to be retrieved to be written into the book</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.utils.Book.write_element">
+<code class="descname">write_element</code><span class="sig-paren">(</span><em>target</em>, <em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Book.write_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Book.write_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>An ElementTree object is added to the book.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>target</strong> (<em>str</em>) &#8211; path for the target file</li>
+<li><strong>element</strong> (<code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree</span></code>) &#8211; the XML tree to be stored</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.utils.Book.write_session">
+<code class="descname">write_session</code><span class="sig-paren">(</span><em>target</em>, <em>session</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Book.write_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Book.write_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>The returned content of an <a class="reference internal" href="#rp2epub.utils.HttpSession" title="rp2epub.utils.HttpSession"><code class="xref py py-class docutils literal"><span class="pre">HttpSession</span></code></a> is added to the book. If the content is an HTML file,
+it will be converted into XHTML on the fly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>target</strong> (<em>str</em>) &#8211; path for the target file</li>
+<li><strong>session</strong> &#8211; a <a class="reference internal" href="#rp2epub.utils.HttpSession" title="rp2epub.utils.HttpSession"><code class="xref py py-class docutils literal"><span class="pre">HttpSession</span></code></a> instance whose data must retrieved to be written into the book</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.utils.Book.writestr">
+<code class="descname">writestr</code><span class="sig-paren">(</span><em>target</em>, <em>content</em>, <em>compress=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Book.writestr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Book.writestr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the content of a string. Care should be taken not to write &#8220;target&#8221; twice; the zipfile would really
+duplicate the content in the archive (as opposed to file writing that would simply overwrite the previous
+incarnation of the same file). This method takes care of that through the <cite>already_stored</cite> array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>target</strong> &#8211; path for the target file</li>
+<li><strong>content</strong> &#8211; string/bytes to be written on the file</li>
+<li><strong>compress</strong> &#8211; either zipfile.ZIP_DEFLATED or zipfile.ZIP_STORED, whether the content should be compressed, resp. not compressed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.utils.Book.zip">
+<code class="descname">zip</code><a class="headerlink" href="#rp2epub.utils.Book.zip" title="Permalink to this definition">¶</a></dt>
+<dd><p>The package (book) file itself</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rp2epub.utils.HttpSession">
+<em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">HttpSession</code><span class="sig-paren">(</span><em>url</em>, <em>accepted_media_types=None</em>, <em>raise_exception=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#HttpSession"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.HttpSession" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around an HTTP session; the returned media type is compared against accepted media
+types.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url</strong> (<em>str</em>) &#8211; the URL to be retrieved</li>
+<li><strong>accepted_media_types</strong> (<em>list</em>) &#8211; and array of media type strings giving a list of those that should be added to the book</li>
+<li><strong>raise_exception</strong> (<em>boolean</em>) &#8211; whether an exception should be raised if the document cannot be retrieved (either because the HTTP return is not 200, or not of an acceptable media type)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Raises R2EError:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><p class="first last">in case the file is not an of an acceptable media type, or the HTTP return is not 200</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="rp2epub.utils.HttpSession.data">
+<code class="descname">data</code><a class="headerlink" href="#rp2epub.utils.HttpSession.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>The returned resource, as a file-like object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.utils.HttpSession.media_type">
+<code class="descname">media_type</code><a class="headerlink" href="#rp2epub.utils.HttpSession.media_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Media type of the resource</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.utils.HttpSession.success">
+<code class="descname">success</code><a class="headerlink" href="#rp2epub.utils.HttpSession.success" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the HTTP retrieval was successful, False otherwise</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rp2epub.utils.TOC_Item">
+<em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">TOC_Item</code><span class="sig-paren">(</span><em>href</em>, <em>label</em>, <em>short_label</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#TOC_Item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.TOC_Item" title="Permalink to this definition">¶</a></dt>
+<dd><p>A single Table of Content (TOC) item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>href</strong> (<em>str</em>) &#8211; reference in the TOC</li>
+<li><strong>label</strong> (<em>str</em>) &#8211; long label, ie, including the chapter numbering</li>
+<li><strong>short_label</strong> (<em>str</em>) &#8211; shotr label, ie, <em>without</em> the chapter numbering</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="rp2epub.utils.Utils">
+<em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">Utils</code><a class="reference internal" href="_modules/rp2epub/utils.html#Utils"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic utility functions to extract information from a W3C TR document.</p>
+<dl class="staticmethod">
+<dt id="rp2epub.utils.Utils.create_shortname">
+<em class="property">static </em><code class="descname">create_shortname</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.create_shortname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.create_shortname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the short name, in W3C jargon, based on the dated name. Returns a tuple with the category of the
+publication (<code class="docutils literal"><span class="pre">REC</span></code>, <code class="docutils literal"><span class="pre">NOTE</span></code>, <code class="docutils literal"><span class="pre">PR</span></code>, <code class="docutils literal"><span class="pre">WD</span></code>, <code class="docutils literal"><span class="pre">CR</span></code>, <code class="docutils literal"><span class="pre">ED</span></code>, or <code class="docutils literal"><span class="pre">PER</span></code>), and the short name itself.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>str</em>) &#8211; dated name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">tuple of with the category of the publication (<code class="docutils literal"><span class="pre">REC</span></code>, <code class="docutils literal"><span class="pre">NOTE</span></code>, <code class="docutils literal"><span class="pre">PR</span></code>, <code class="docutils literal"><span class="pre">WD</span></code>, <code class="docutils literal"><span class="pre">CR</span></code>, <code class="docutils literal"><span class="pre">ED</span></code>, or <code class="docutils literal"><span class="pre">PER</span></code>), and the short name itself.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="rp2epub.utils.Utils.extract_editors">
+<em class="property">static </em><code class="descname">extract_editors</code><span class="sig-paren">(</span><em>html</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.extract_editors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.extract_editors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the editors&#8217; names from a document, following the respec conventions
+(<code class="docutils literal"><span class="pre">&#64;class=p-author</span></code> for <code class="docutils literal"><span class="pre">&lt;dd&gt;</span></code> including <code class="docutils literal"><span class="pre">&lt;a&gt;</span></code> or <code class="docutils literal"><span class="pre">&lt;span&gt;</span></code> with <code class="docutils literal"><span class="pre">&#64;class=p-name</span></code>)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>html</strong> (<code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.ElementTree</span></code>) &#8211; the object for the whole document</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">set of editors</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="rp2epub.utils.Utils.extract_toc">
+<em class="property">static </em><code class="descname">extract_toc</code><span class="sig-paren">(</span><em>html</em>, <em>short_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.extract_toc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.extract_toc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the table of content from the document. <code class="docutils literal"><span class="pre">html</span></code> is the Element object for the full document. <code class="docutils literal"><span class="pre">toc_tuples</span></code>
+is an array of <code class="docutils literal"><span class="pre">TOC_Item</span></code> objects where the items should be put, <code class="docutils literal"><span class="pre">short_name</span></code> is the short name for the
+document as a whole (used in possible warnings).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>html</strong> (<code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.ElementTree</span></code>) &#8211; the object for the whole document</li>
+<li><strong>short_name</strong> (<em>str</em>) &#8211; short name of the document as a whole (used in possible warning)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">array of <a class="reference internal" href="#rp2epub.utils.TOC_Item" title="rp2epub.utils.TOC_Item"><code class="xref py py-class docutils literal"><span class="pre">TOC_Item</span></code></a> instances</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="rp2epub.utils.Utils.get_document_properties">
+<em class="property">static </em><code class="descname">get_document_properties</code><span class="sig-paren">(</span><em>html</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.get_document_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.get_document_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the extra manifest properties that must be added to the HTML resource in the opf file.</p>
+<p>See the <a class="reference external" href="http://www.idpf.org/epub/30/spec/epub30-publications.html#sec-item-property-values">IDPF documentation</a> for details</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>html</strong> (<code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.ElementTree</span></code>) &#8211; the object for the whole document</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">set collecting all possible property values</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="rp2epub.utils.Utils.html_to_xhtml">
+<em class="property">static </em><code class="descname">html_to_xhtml</code><span class="sig-paren">(</span><em>html</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.html_to_xhtml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.html_to_xhtml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the minimum changes necessary in the DOM tree so that the XHTML output is valid and accepted
+by epub readers
+:param html: the object for the whole document
+:type html: <code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.ElementTree</span></code>
+:return: the input object</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="rp2epub.utils.Utils.retrieve_date">
+<em class="property">static </em><code class="descname">retrieve_date</code><span class="sig-paren">(</span><em>duri</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.retrieve_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.retrieve_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the (publication) date from the dated URI.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>duri</strong> (<em>str</em>) &#8211; dated URI</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">date</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">datetype.date</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Raises R2EError:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">the dated URI is not of an expected format</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="rp2epub.utils.Utils.set_html_meta">
+<em class="property">static </em><code class="descname">set_html_meta</code><span class="sig-paren">(</span><em>html</em>, <em>head</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.set_html_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.set_html_meta" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Change the meta elements so that:</p>
+<ul class="simple">
+<li>any <code class="docutils literal"><span class="pre">&#64;http-equiv=content-type</span></code> is removed</li>
+<li>there should be an extra meta setting the character set</li>
+</ul>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>html</strong> (<code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.ElementTree</span></code>) &#8211; the object for the whole document</li>
+<li><strong>head</strong> (<code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.Element</span></code>) &#8211; the object for the &lt;head&gt; element</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="package.html">Package processing</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="templates.html">Templates</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
