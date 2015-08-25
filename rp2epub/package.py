@@ -1,3 +1,14 @@
+"""
+Generate all the auxiliary files that are needed for EPUB: package file, table of content in different formats,
+cover page. Most of the files make use of various templates stored in the separate template file.
+
+.. :class::
+
+Module Content
+--------------
+"""
+
+
 # noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
@@ -18,7 +29,7 @@ SUBTITLE = {
 # noinspection PyPep8
 class Package:
 	"""
-	Methods to generate the manifest, TOC in different formats, and the cover pages
+	Collection of methods to generate the manifest, TOC in different formats, and the cover pages
 
 	:param driver: the caller
 	:type driver: :py:class:`.DocWrapper`
@@ -29,12 +40,12 @@ class Package:
 
 	@property
 	def book(self):
-		"""The target book; a :py:class:`.Book` instance"""
+		"""The target book; a :py:class:`.utils.Book` instance"""
 		return self._book
 
 	@property
 	def document(self):
-		"""Wrapper around a document; a :py:class:`.Document` instance"""
+		"""Encapsulation of the real document; a :py:class:`.document.Document` instance"""
 		return self._document
 
 	def process(self):

@@ -1,6 +1,6 @@
 
-Wrapper around the document
-===========================
+The Document instance
+=====================
 
 .. automodule:: rp2epub.document
     :members:

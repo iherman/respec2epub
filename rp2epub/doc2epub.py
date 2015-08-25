@@ -1,5 +1,22 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+The real entry point to the package through the  :py:class:`DocWrapper` class below. Instance of that class controls the
+necessary actions
+
+* gets hold of the content, possibly converts the ReSpec source on the fly to HTML
+* creates a :py:class:`.document.Document` class around the content that holds all the necessary metadata, and further references
+* creates the book and, if required, the folder for the content
+* collects all the dependencies from the Web, and copies them to the output
+* collects all the auxiliary files (package file, etc) and copies them to the output
+
+
+.. :class:: DocWrapper
+
+Module content
+--------------
+"""
+
 # noinspection PyPep8
 # TODO: handle the possible css references to other css files or to images
 
@@ -15,13 +32,14 @@ from .package import Package
 
 from .utils import HttpSession, Book
 
-#: URI of the service that can be used to convert a ReSpec source onto an HTML file on the fly. This service is used
+#: URI of the service used to convert a ReSpec source onto an HTML file on the fly. This service is used
 #: by this script to process ReSpec sources before EPUB3 generation.
 CONVERTER = "https://labs.w3.org/spec-generator/?type=respec&url="
 
 # These are the items that have to be added to each file and package, no matter what: (id,file,media-type,properties)
 # noinspection PyPep8
-#: Items that have to be added to the book's manifest, no matter; tuples of the form (id,file,media-type,properties)
+#
+#  Items that have to be added to the book's manifest, no matter; tuples of the form (id,file,media-type,properties)
 DEFAULT_FILES = [
 		("nav.xhtml", "application/xhtml+xml", "nav", "nav"),
 		("toc.ncx", "application/x-dtbncx+xml", "ncx", ""),
@@ -32,8 +50,8 @@ DEFAULT_FILES = [
 ]
 
 # noinspection PyPep8
-#: The pictures on the upper left hand side of the front page, denoting the document status, and also the path within
-#: the book.
+# The pictures on the upper left hand side of the front page, denoting the document status, and also the path within
+# the book.
 CSS_LOGOS = {
 	"REC"  : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-REC.png"),
 	"NOTE" : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-NOTE.png"),
@@ -50,13 +68,14 @@ CSS_LOGOS = {
 class DocWrapper:
 	"""
 	Top level entry class; receives the URI to be retrieved and generates the folders and the EPUB Package (as required)
-	in the current directory.
+	in the current directory (by default).
+
 
 	:param str url: location of the document source
 	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
 	:param boolean package: whether a real zip file should be created or not
 	:param boolean folder: whether the directory structure should be created separately or not
-	:param boolean temporary: whether the zipped EPUB file should be put into a temporary filesystem location (important for Web Services)
+	:param boolean temporary: whether the zipped EPUB file should be put into a temporary filesystem location (used when the service is used through the Web)
 	"""
 
 	# noinspection PyPep8
@@ -110,7 +129,7 @@ class DocWrapper:
 
 	@property
 	def book_file_name(self):
-		"""Flag whether an epub package is created"""
+		"""Name of the book; usually `shortname + .epub`, but can be a temporary file if so requested"""
 		return self._book_file_name
 
 	@property
@@ -151,8 +170,6 @@ class DocWrapper:
 	def process(self):
 		"""
 		Process the book, ie, extract whatever has to be extracted and produce the epub file
-
-		:return: full file name of the generated EPUB file
 		"""
 		# Create the wrapper around the parsed version. This will also
 		# retrieve the various 'meta' data from the document, like title, editors, document type, etc.

@@ -1,9 +1,10 @@
 
-Respec to EPUB (rp2epub) package
-================================
+Package entry point
+===================
 .. automodule:: rp2epub
     :members:
     :undoc-members:
+    :private-members:
 
 
 

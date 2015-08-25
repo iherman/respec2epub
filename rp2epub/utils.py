@@ -1,4 +1,14 @@
 # -*- coding: utf-8 -*-
+"""
+Various utility classes and methods.
+
+
+Module Content
+--------------
+
+"""
+
+
 from urllib2 import urlopen, HTTPError
 from StringIO import StringIO
 from datetime import date
@@ -183,7 +193,8 @@ class Utils(object):
 	def set_html_meta(html, head):
 		"""
 		 Change the meta elements so that:
-		 - any ``@http-equiv=content-type`` should be removed
+
+		 - any ``@http-equiv=content-type`` is removed
 		 - there should be an extra meta setting the character set
 
 		:param html: the object for the whole document
