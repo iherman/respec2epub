@@ -42,7 +42,7 @@ try:
 	import logging
 	import logging.handlers
 	# Set the logger part
-	logger = logging.getLogger("Epub generator")
+	logger = logging.getLogger(" - ")
 	logger.setLevel(logging.DEBUG)
 
 	if not os.path.exists('/tmp/epub_generator_logs'):
@@ -55,15 +55,31 @@ try:
 
 	# create and add a formatter
 	# noinspection PyPep8
-	handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s: %(message)s", datefmt='%Y-%m-%d %H:%M:%S'))
+	handler.setFormatter(logging.Formatter("%(asctime) s%(name) s%(levelname)s: %(message)s", datefmt='%Y-%m-%d %H:%M:%S'))
 
 	# done...
 	logger.addHandler(handler)
 except:
 	logger = None
+	exc_type, exc_value, exc_traceback = sys.exc_info()
+	if cgi:
+		# ...and returned
+		print 'Status: 500'
+		print 'Content-Type: text/html; charset=utf-8'
+		print
+		print "<html>"
+		print "<head>"
+		print "<title>Epub Generator Exception</title>"
+		print "</head><body>"
+		print "<h1>Epub Generator Exception</h1>"
+		print "<pre>"
+		traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stdout)
+		print "</pre>"
+		print "</body></html>"
 
 ##########################################
 # Various utility functions
+
 
 def now():
 	"""

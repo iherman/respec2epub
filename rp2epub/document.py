@@ -97,6 +97,12 @@ class Document:
 		then the file is copied and stored in the book, the reference is changed in the document,
 		and the resource is marked to be added to the manifest file
 		"""
+		def final_target_media(f_session, f_target):
+			if f_session.media_type == 'text/html':
+				return 'application/xhtml+xml', f_target.replace('.html', '.xhtml', 1)
+			else:
+				return f_session.media_type, f_target
+
 		# Retrieve the value of the reference. By making a urljoin, relative URI-s are also turned into absolute one;
 		# this simplifies the issue
 		# Look at generic external references like images, and, possibly copy the content
@@ -117,12 +123,8 @@ class Document:
 						# yet another complication: if the target is an html file, it will have to become xhtml :-(
 						# this means that the target and the media types should receive a local name, to
 						# be stored and used below
-						if session.media_type == 'text/html':
-							final_media_type = 'application/xhtml+xml'
-							final_target     = target.replace('.html', '.xhtml', 1)
-						else :
-							final_media_type = session.media_type
-							final_target     = target
+
+						final_media_type, final_target = final_target_media(session, target)
 
 						# We can now copy the content into the final book.
 						# Note that some of the media types are not to be compressed; this is taken care in the

@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The “driver” &mdash; Respec to EPUB 8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Respec to EPUB 8 documentation" href="index.html" />
+    <link rel="next" title="Wrapper around the document" href="wrapper.html" />
+    <link rel="prev" title="Respec to EPUB (rp2epub) package" href="rp2epub.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wrapper.html" title="Wrapper around the document"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rp2epub.html" title="Respec to EPUB (rp2epub) package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Respec to EPUB 8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-rp2epub.doc2epub">
+<span id="the-driver"></span><h1>The &#8220;driver&#8221;<a class="headerlink" href="#module-rp2epub.doc2epub" title="Permalink to this headline">¶</a></h1>
+<dl class="data">
+<dt id="rp2epub.doc2epub.CONVERTER">
+<tt class="descclassname">rp2epub.doc2epub.</tt><tt class="descname">CONVERTER</tt><em class="property"> = 'https://labs.w3.org/spec-generator/?type=respec&amp;url='</em><a class="headerlink" href="#rp2epub.doc2epub.CONVERTER" title="Permalink to this definition">¶</a></dt>
+<dd><p>URI of the service that can be used to convert a ReSpec source onto an HTML file on the fly. This service is used
+by this script to process ReSpec sources before EPUB3 generation.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.doc2epub.CSS_LOGOS">
+<tt class="descclassname">rp2epub.doc2epub.</tt><tt class="descname">CSS_LOGOS</tt><em class="property"> = {'PR': ('http://www.w3.org/StyleSheets/TR/logo-CR.png', 'Assets/logo-PR.png'), 'WD': ('http://www.w3.org/StyleSheets/TR/logo-CR.png', 'Assets/logo-WD.png'), 'ED': ('http://www.w3.org/StyleSheets/TR/logo-ED.png', 'Assets/logo-ED.png'), 'PER': ('http://www.w3.org/StyleSheets/TR/logo-PER.png', 'Assets/logo-PR.png'), 'NOTE': ('http://www.w3.org/StyleSheets/TR/logo-CR.png', 'Assets/logo-NOTE.png'), 'CR': ('http://www.w3.org/StyleSheets/TR/logo-CR.png', 'Assets/logo-CR.png'), 'REC': ('http://www.w3.org/StyleSheets/TR/logo-CR.png', 'Assets/logo-REC.png')}</em><a class="headerlink" href="#rp2epub.doc2epub.CSS_LOGOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The pictures on the upper left hand side of the front page, denoting the document status, and also the path within
+the book.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.doc2epub.DEFAULT_FILES">
+<tt class="descclassname">rp2epub.doc2epub.</tt><tt class="descname">DEFAULT_FILES</tt><em class="property"> = [('nav.xhtml', 'application/xhtml+xml', 'nav', 'nav'), ('toc.ncx', 'application/x-dtbncx+xml', 'ncx', ''), ('cover.xhtml', 'application/xhtml+xml', 'cover', ''), ('Assets/w3c_main.png', 'image/png', 'w3c_main', ''), ('Assets/base.css', 'text/css', 'StyleSheets-base', ''), ('Assets/book.css', 'text/css', 'StyleSheets-book', '')]</em><a class="headerlink" href="#rp2epub.doc2epub.DEFAULT_FILES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Items that have to be added to the book&#8217;s manifest, no matter; tuples of the form (id,file,media-type,properties)</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="rp2epub.doc2epub.DocWrapper">
+<em class="property">class </em><tt class="descclassname">rp2epub.doc2epub.</tt><tt class="descname">DocWrapper</tt><big>(</big><em>url</em>, <em>is_respec=False</em>, <em>package=True</em>, <em>folder=False</em>, <em>temporary=False</em><big>)</big><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Top level entry class; receives the URI to be retrieved and generates the folders and the EPUB Package (as required)
+in the current directory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>url</strong> (<em>str</em>) &#8211; location of the document source</li>
+<li><strong>is_respec</strong> (<em>boolean</em>) &#8211; flag whether the source is a respec source (ie, has to be transformed through spec generator) or not</li>
+<li><strong>package</strong> (<em>boolean</em>) &#8211; whether a real zip file should be created or not</li>
+<li><strong>folder</strong> (<em>boolean</em>) &#8211; whether the directory structure should be created separately or not</li>
+<li><strong>temporary</strong> (<em>boolean</em>) &#8211; whether the zipped EPUB file should be put into a temporary filesystem location (important for Web Services)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.To_transfer">
+<tt class="descname">To_transfer</tt><em class="property"> = [('http://www.w3.org/Icons/w3c_main.png', 'Assets/w3c_main.png'), ('http://www.w3.org/Icons/w3c_home.png', 'Assets/w3c_home.png'), ('http://www.w3.org/StyleSheets/TR/base.css', 'Assets/base.css')]</em><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.To_transfer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.base">
+<tt class="descname">base</tt><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base URI for the document (used to retrieve additional resources, if needed)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.book">
+<tt class="descname">book</tt><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.book" title="Permalink to this definition">¶</a></dt>
+<dd><p>The book being generated; an open <tt class="xref py py-class docutils literal"><span class="pre">zipfile.ZipFile</span></tt> instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.book_file_name">
+<tt class="descname">book_file_name</tt><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.book_file_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag whether an epub package is created</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.document">
+<tt class="descname">document</tt><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around the document, containing extra meta information for packaging</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.domain">
+<tt class="descname">domain</tt><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Domain of the original source</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.folder">
+<tt class="descname">folder</tt><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag whether a folder, containing the package content, is created</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.html">
+<tt class="descname">html</tt><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.html" title="Permalink to this definition">¶</a></dt>
+<dd><p>HTML element as parsed; <tt class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.ElementTree</span></tt> instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.html_document">
+<tt class="descname">html_document</tt><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.html_document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Document, as parsed; an <tt class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.Element</span></tt> instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.package">
+<tt class="descname">package</tt><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.package" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag whether an epub package is created</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.doc2epub.DocWrapper.process">
+<tt class="descname">process</tt><big>(</big><big>)</big><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the book, ie, extract whatever has to be extracted and produce the epub file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">full file name of the generated EPUB file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.top_uri">
+<tt class="descname">top_uri</tt><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.top_uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Top level URI for the file to be processed</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rp2epub.html"
+                        title="previous chapter">Respec to EPUB (rp2epub) package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="wrapper.html"
+                        title="next chapter">Wrapper around the document</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/driver.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wrapper.html" title="Wrapper around the document"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rp2epub.html" title="Respec to EPUB (rp2epub) package"
+             >previous</a> |</li>
+        <li><a href="index.html">Respec to EPUB 8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

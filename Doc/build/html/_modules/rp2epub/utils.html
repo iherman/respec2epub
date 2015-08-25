@@ -90,7 +90,7 @@
 
 
 <span class="c"># noinspection PyPep8Naming</span>
-<div class="viewcode-block" id="TOC_Item"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.TOC_Item">[docs]</a><span class="k">class</span> <span class="nc">TOC_Item</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="TOC_Item"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.TOC_Item">[docs]</a><span class="k">class</span> <span class="nc">TOC_Item</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	A single Table of Content (TOC) item.</span>
 
@@ -105,28 +105,28 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_short_label</span> <span class="o">=</span> <span class="n">short_label</span>
 
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="TOC_Item.href"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.TOC_Item.href">[docs]</a>	<span class="k">def</span> <span class="nf">href</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TOC_Item.href"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.TOC_Item.href">[docs]</a>	<span class="k">def</span> <span class="nf">href</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_href</span>
 </div>
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="TOC_Item.label"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.TOC_Item.label">[docs]</a>	<span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TOC_Item.label"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.TOC_Item.label">[docs]</a>	<span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span>
 </div>
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="TOC_Item.short_label"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.TOC_Item.short_label">[docs]</a>	<span class="k">def</span> <span class="nf">short_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TOC_Item.short_label"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.TOC_Item.short_label">[docs]</a>	<span class="k">def</span> <span class="nf">short_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_label</span>
 
 
 <span class="c">##################################################################################</span>
 </div></div>
-<div class="viewcode-block" id="Utils"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Utils">[docs]</a><span class="k">class</span> <span class="nc">Utils</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Utils"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils">[docs]</a><span class="k">class</span> <span class="nc">Utils</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	Generic utility functions to extract information from a W3C TR document.</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 
 	<span class="c"># noinspection PyUnusedLocal,PyPep8</span>
 	<span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Utils.get_document_properties"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Utils.get_document_properties">[docs]</a>	<span class="k">def</span> <span class="nf">get_document_properties</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
+<div class="viewcode-block" id="Utils.get_document_properties"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.get_document_properties">[docs]</a>	<span class="k">def</span> <span class="nf">get_document_properties</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">			Find the extra manifest properties that must be added to the HTML resource in the opf file.</span>
 
@@ -169,7 +169,7 @@
 
 	<span class="c"># noinspection PyPep8</span></div>
 	<span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Utils.create_shortname"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Utils.create_shortname">[docs]</a>	<span class="k">def</span> <span class="nf">create_shortname</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<div class="viewcode-block" id="Utils.create_shortname"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.create_shortname">[docs]</a>	<span class="k">def</span> <span class="nf">create_shortname</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Create the short name, in W3C jargon, based on the dated name. Returns a tuple with the category of the</span>
 <span class="sd">		publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, or ``PER``), and the short name itself.</span>
@@ -186,7 +186,7 @@
 	<span class="c"># end create_shortname</span>
 </div>
 	<span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Utils.retrieve_date"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Utils.retrieve_date">[docs]</a>	<span class="k">def</span> <span class="nf">retrieve_date</span><span class="p">(</span><span class="n">duri</span><span class="p">):</span>
+<div class="viewcode-block" id="Utils.retrieve_date"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.retrieve_date">[docs]</a>	<span class="k">def</span> <span class="nf">retrieve_date</span><span class="p">(</span><span class="n">duri</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Retrieve the (publication) date from the dated URI.</span>
 
@@ -203,7 +203,7 @@
 </div>
 	<span class="nd">@staticmethod</span>
 	<span class="c"># noinspection PyBroadException</span>
-<div class="viewcode-block" id="Utils.extract_editors"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Utils.extract_editors">[docs]</a>	<span class="k">def</span> <span class="nf">extract_editors</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
+<div class="viewcode-block" id="Utils.extract_editors"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.extract_editors">[docs]</a>	<span class="k">def</span> <span class="nf">extract_editors</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Extract the editors&#39; names from a document, following the respec conventions</span>
 <span class="sd">		(@class=p-author for &lt;dd&gt; including &lt;a&gt; or &lt;span&gt; with @class=p-name)</span>
 
@@ -226,7 +226,7 @@
 
 	<span class="c"># noinspection PyPep8,PyBroadException</span></div>
 	<span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Utils.set_html_meta"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Utils.set_html_meta">[docs]</a>	<span class="k">def</span> <span class="nf">set_html_meta</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
+<div class="viewcode-block" id="Utils.set_html_meta"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.set_html_meta">[docs]</a>	<span class="k">def</span> <span class="nf">set_html_meta</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		 Change the meta elements so that:</span>
 <span class="sd">		 - any ``@http-equiv=content-type`` should be removed</span>
@@ -250,7 +250,7 @@
 		<span class="n">SubElement</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="s">&quot;meta&quot;</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="s">&quot;utf-8&quot;</span><span class="p">)</span>
 </div>
 	<span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Utils.html_to_xhtml"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Utils.html_to_xhtml">[docs]</a>	<span class="k">def</span> <span class="nf">html_to_xhtml</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
+<div class="viewcode-block" id="Utils.html_to_xhtml"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.html_to_xhtml">[docs]</a>	<span class="k">def</span> <span class="nf">html_to_xhtml</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Make the minimum changes necessary in the DOM tree so that the XHTML output is valid and accepted</span>
 <span class="sd">		by epub readers</span>
@@ -270,7 +270,7 @@
 		<span class="k">return</span> <span class="n">html</span>
 </div>
 	<span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Utils.extract_toc"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Utils.extract_toc">[docs]</a>	<span class="k">def</span> <span class="nf">extract_toc</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">short_name</span><span class="p">):</span>
+<div class="viewcode-block" id="Utils.extract_toc"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.extract_toc">[docs]</a>	<span class="k">def</span> <span class="nf">extract_toc</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">short_name</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Extract the table of content from the document. ``html`` is the Element object for the full document. ``toc_tuples``</span>
 <span class="sd">		is an array of ``TOC_Item`` objects where the items should be put, ``short_name`` is the short name for the</span>
@@ -359,7 +359,7 @@
 
 
 <span class="c">###################################################################################</span></div></div>
-<div class="viewcode-block" id="HttpSession"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.HttpSession">[docs]</a><span class="k">class</span> <span class="nc">HttpSession</span><span class="p">:</span>
+<div class="viewcode-block" id="HttpSession"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.HttpSession">[docs]</a><span class="k">class</span> <span class="nc">HttpSession</span><span class="p">:</span>
 	<span class="c"># noinspection PyPep8</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Wrapper around an HTTP session; the returned media type is compared against accepted media</span>
@@ -390,21 +390,21 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_success</span> <span class="o">=</span> <span class="bp">True</span>
 
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="HttpSession.success"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.HttpSession.success">[docs]</a>	<span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HttpSession.success"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.HttpSession.success">[docs]</a>	<span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		True if the HTTP retrieval was successful, False otherwise</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_success</span>
 </div>
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="HttpSession.data"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.HttpSession.data">[docs]</a>	<span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HttpSession.data"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.HttpSession.data">[docs]</a>	<span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		The returned resource, as a file-like object</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 </div>
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="HttpSession.media_type"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.HttpSession.media_type">[docs]</a>	<span class="k">def</span> <span class="nf">media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HttpSession.media_type"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.HttpSession.media_type">[docs]</a>	<span class="k">def</span> <span class="nf">media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Media type of the resource</span>
 <span class="sd">		&quot;&quot;&quot;</span>
@@ -414,7 +414,7 @@
 
 
 <span class="c"># noinspection PyPep8</span></div></div>
-<div class="viewcode-block" id="Book"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Book">[docs]</a><span class="k">class</span> <span class="nc">Book</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Book"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book">[docs]</a><span class="k">class</span> <span class="nc">Book</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;Abstraction for a book; in real usage, it just encapsulates a zip file but, for debugging purposes,</span>
 <span class="sd">		it just a wrapper around equivalent file output in the current directory.</span>
 <span class="sd">	&quot;&quot;&quot;</span>
@@ -443,26 +443,26 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s">&#39;META-INF/container.xml&#39;</span><span class="p">,</span> <span class="n">meta_inf</span><span class="p">)</span>
 
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Book.package"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Book.package">[docs]</a>	<span class="k">def</span> <span class="nf">package</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Book.package"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.package">[docs]</a>	<span class="k">def</span> <span class="nf">package</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Flag whether an EPUB package should be generated or not&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_package</span>
 </div>
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Book.folder"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Book.folder">[docs]</a>	<span class="k">def</span> <span class="nf">folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Book.folder"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.folder">[docs]</a>	<span class="k">def</span> <span class="nf">folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Flag whether a folder should be generated or not&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folder</span>
 </div>
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Book.name"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Book.name">[docs]</a>	<span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Book.name"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.name">[docs]</a>	<span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Prefix that should be added to all names when storing a folder (set to the short name of the document)&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 </div>
 	<span class="nd">@property</span>
-<div class="viewcode-block" id="Book.zip"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Book.zip">[docs]</a>	<span class="k">def</span> <span class="nf">zip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Book.zip"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.zip">[docs]</a>	<span class="k">def</span> <span class="nf">zip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;The package files itself&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zip</span>
 </div>
-<div class="viewcode-block" id="Book.writestr"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Book.writestr">[docs]</a>	<span class="k">def</span> <span class="nf">writestr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">):</span>
+<div class="viewcode-block" id="Book.writestr"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.writestr">[docs]</a>	<span class="k">def</span> <span class="nf">writestr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Write the content of a strong onto a file in the book.</span>
 <span class="sd">		:param target: path for the target file</span>
@@ -480,7 +480,7 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">zip</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">compress</span><span class="p">)</span>
 
 	<span class="c"># noinspection PyUnresolvedReferences</span></div>
-<div class="viewcode-block" id="Book.write_element"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Book.write_element">[docs]</a>	<span class="k">def</span> <span class="nf">write_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+<div class="viewcode-block" id="Book.write_element"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.write_element">[docs]</a>	<span class="k">def</span> <span class="nf">write_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		An ElementTree object added to the book.</span>
 
@@ -494,7 +494,7 @@
 		<span class="n">content</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 	<span class="c"># noinspection PyTypeChecker</span></div>
-<div class="viewcode-block" id="Book.write_session"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Book.write_session">[docs]</a>	<span class="k">def</span> <span class="nf">write_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
+<div class="viewcode-block" id="Book.write_session"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.write_session">[docs]</a>	<span class="k">def</span> <span class="nf">write_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Return content of an HTTP session added to the book.</span>
 
@@ -517,7 +517,7 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_STORED</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="ow">in</span> <span class="n">_NO_COMPRESS</span> <span class="k">else</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span>
 
 	<span class="c"># noinspection PyPep8Naming</span></div>
-<div class="viewcode-block" id="Book.write_HTTP"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Book.write_HTTP">[docs]</a>	<span class="k">def</span> <span class="nf">write_HTTP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+<div class="viewcode-block" id="Book.write_HTTP"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.write_HTTP">[docs]</a>	<span class="k">def</span> <span class="nf">write_HTTP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Return content of an HTTP session added to the book.</span>
 
@@ -542,7 +542,7 @@
 			<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirs</span><span class="p">)</span>
 		<span class="k">return</span> <span class="n">full_path</span>
 
-<div class="viewcode-block" id="Book.close"><a class="viewcode-back" href="../../rp2epub.html#rp2epub.utils.Book.close">[docs]</a>	<span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Book.close"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.close">[docs]</a>	<span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Closing the archive.</span>
 <span class="sd">		&quot;&quot;&quot;</span>

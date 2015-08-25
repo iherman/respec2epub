@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Respec to EPUB's documentation!
-==========================================
+Welcome to the documentation of the Respec to EPUB utility
+==========================================================
 
 Python package to assist in turning W3C TR documents into EPUB3. The
 package is **not** a generic HTML->EPUB3 solution, it is indeed tailored
@@ -15,17 +15,14 @@ on the fly using a separate `Web Service set up (at W3C) <https://labs.w3.org/sp
 The package can be used as a command line tool or can be the core of a separate Web Service
 (it will be installed, eventually, on the `W3C Labs site <https://labs.w3.org/epub-generator/>`__. Finally, the plan is
 to extend the save menu of Respec so that the service can be invoked from within respec when the user generates the final output (see the
-`ReSpec <http://www.w3.org/respec/>`__ documentation for further details.
+`ReSpec <http://www.w3.org/respec/>`__ documentation for further details).
 
-
-.. See the separate :doc:`manual pages <manual>` for the usage of the packages.
 
 Dependencies
 ------------
 
-The package relies on Python 2.7. It does not seem to run on Python 2.6 (there are some missing libraries, as well as missing features in existing libraries).
-
-The script does not work (yet) with Python 3; the underlying libraries (e.g., HTML5Lib) seems to have issues with encoding, UTF-8, etc.
+The package relies on Python 2.7. The script does not work (yet) with Python 3; the underlying libraries
+(e.g., HTML5Lib) seem to have issues with encoding, UTF-8, etc.
 
 Apart from the standard Python libraries the package also depends on
 `HTML5lib <https://pypi.python.org/pypi/html5lib>`__, an HTML5 parser library for
@@ -36,10 +33,14 @@ encoding issues, and should not be used.
 ====================
 
 .. toctree::
-   :maxdepth: 2
 
    manual
    rp2epub
+   driver
+   wrapper
+   package
+   utils
+   templates
 
 Indices and tables
 ==================

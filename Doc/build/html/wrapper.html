@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Wrapper around the document &mdash; Respec to EPUB 8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Respec to EPUB 8 documentation" href="index.html" />
+    <link rel="next" title="Package processing" href="package.html" />
+    <link rel="prev" title="The “driver”" href="driver.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="package.html" title="Package processing"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="driver.html" title="The “driver”"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Respec to EPUB 8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-rp2epub.document">
+<span id="wrapper-around-the-document"></span><h1>Wrapper around the document<a class="headerlink" href="#module-rp2epub.document" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="rp2epub.document.Document">
+<em class="property">class </em><tt class="descclassname">rp2epub.document.</tt><tt class="descname">Document</tt><big>(</big><em>driver</em><big>)</big><a class="reference internal" href="_modules/rp2epub/document.html#Document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around the top level document, ie, looking at its content and retrieve the necessary references like images
+or style files, and possibly modifying the document&#8217;s DOM Tree on the fly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>driver</strong> (<a class="reference internal" href="driver.html#rp2epub.doc2epub.DocWrapper" title="rp2epub.doc2epub.DocWrapper"><tt class="xref py py-class docutils literal"><span class="pre">DocWrapper</span></tt></a>) &#8211; the caller instance</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rp2epub.document.Document._get_document_metadata">
+<tt class="descname">_get_document_metadata</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/rp2epub/document.html#Document._get_document_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document._get_document_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract metadata from the source, stored as attribute for this class (date, title, editors, etc.)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Raises R2EError:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.document.Document._massage_html">
+<tt class="descname">_massage_html</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/rp2epub/document.html#Document._massage_html"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document._massage_html" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a document looking for (and possibly copying) external references and making some modifications on the fly</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.additional_resources">
+<tt class="descname">additional_resources</tt><a class="reference internal" href="_modules/rp2epub/document.html#Document.additional_resources"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.additional_resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of additional resources that have been added to the book. A list of tuples, containing the internal
+reference to the resource and the media type. Built up during processing, it is used in when creating the manifest
+file of the book</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.date">
+<tt class="descname">date</tt><a class="reference internal" href="_modules/rp2epub/document.html#Document.date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Date of publication</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.dated_uri">
+<tt class="descname">dated_uri</tt><a class="reference internal" href="_modules/rp2epub/document.html#Document.dated_uri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.dated_uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#8216;Dated URI&#8217;, in the W3C jargon</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.doc_type">
+<tt class="descname">doc_type</tt><a class="reference internal" href="_modules/rp2epub/document.html#Document.doc_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.doc_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Document type, ie, one of <tt class="docutils literal"><span class="pre">REC</span></tt>, <tt class="docutils literal"><span class="pre">NOTE</span></tt>, <tt class="docutils literal"><span class="pre">PR</span></tt>, <tt class="docutils literal"><span class="pre">PER</span></tt>, <tt class="docutils literal"><span class="pre">CR</span></tt>, <tt class="docutils literal"><span class="pre">WD</span></tt>, or <tt class="docutils literal"><span class="pre">ED</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.driver">
+<tt class="descname">driver</tt><a class="reference internal" href="_modules/rp2epub/document.html#Document.driver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.driver" title="Permalink to this definition">¶</a></dt>
+<dd><p>The caller: a <tt class="xref py py-class docutils literal"><span class="pre">DocToEpub</span></tt> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.editors">
+<tt class="descname">editors</tt><a class="reference internal" href="_modules/rp2epub/document.html#Document.editors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.editors" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of editors (as a string)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.document.Document.extract_external_references">
+<tt class="descname">extract_external_references</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/rp2epub/document.html#Document.extract_external_references"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.extract_external_references" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle the external references (images, etc) in the core file, and copy them to the book.</p>
+<p>If the file referred to is</p>
+<ul class="simple">
+<li>on the same domain as the original file</li>
+<li>is one of the &#8216;accepted&#8217; media types for epub</li>
+</ul>
+<p>then the file is copied and stored in the book, the reference is changed in the document,
+and the resource is marked to be added to the manifest file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.html">
+<tt class="descname">html</tt><a class="reference internal" href="_modules/rp2epub/document.html#Document.html"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.html" title="Permalink to this definition">¶</a></dt>
+<dd><p>HTML element as parsed; an <tt class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.Element</span></tt> instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.issued_as">
+<tt class="descname">issued_as</tt><a class="reference internal" href="_modules/rp2epub/document.html#Document.issued_as"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.issued_as" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#8220;W3C Note/Recommendation/Draft/ etc.&#8221;: the text to be reused as a subtitle on the cover page.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.properties">
+<tt class="descname">properties</tt><a class="reference internal" href="_modules/rp2epub/document.html#Document.properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>The properties of the document, to be added to the manifest entry</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.short_name">
+<tt class="descname">short_name</tt><a class="reference internal" href="_modules/rp2epub/document.html#Document.short_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.short_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#8216;Short Name&#8217;, in the W3C jargon</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.title">
+<tt class="descname">title</tt><a class="reference internal" href="_modules/rp2epub/document.html#Document.title"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <tt class="docutils literal"><span class="pre">title</span></tt> element content.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.toc">
+<tt class="descname">toc</tt><a class="reference internal" href="_modules/rp2epub/document.html#Document.toc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.toc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Table of content, an array of <tt class="docutils literal"><span class="pre">TOC_Item</span></tt> objects</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="driver.html"
+                        title="previous chapter">The &#8220;driver&#8221;</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="package.html"
+                        title="next chapter">Package processing</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/wrapper.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="package.html" title="Package processing"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="driver.html" title="The “driver”"
+             >previous</a> |</li>
+        <li><a href="index.html">Respec to EPUB 8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

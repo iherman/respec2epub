@@ -60,8 +60,6 @@ class Package:
 
 		# Get the default resources first
 		for (href, media_type, item_id, prop) in DEFAULT_FILES:
-			# These resources should be added to the zip file
-			# Images should not be compressed, just stored
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
 			item.set("id", item_id)
 			item.set("href", href)
@@ -115,7 +113,7 @@ class Package:
 		creator = opf.findall(".//{http://purl.org/dc/elements/1.1/}creator")[0]
 		creator.text = self.document.editors
 
-		# Push the manifest file into the book, too
+		# Push the manifest file into the book
 		self.book.write_element('package.opf', opf)
 
 	#===================================================
@@ -202,7 +200,7 @@ class Package:
 
 		# The landmark part of the nav file has to be changed; there is no explicit cover page
 		li_landmark = nav.findall(".//{http://www.w3.org/1999/xhtml}li[@href='cover.xhtml']")[0]
-		li_landmark.set("href", "Overview.html")
+		li_landmark.set("href", "Overview.xhtml")
 
 		navMap = nav.findall(".//{http://www.w3.org/1999/xhtml}nav[@id='toc']")[0]
 

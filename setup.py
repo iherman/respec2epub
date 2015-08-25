@@ -11,7 +11,7 @@ setup(
 	license = 'W3C® SOFTWARE NOTICE AND LICENSE <http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231>',
 	author = 'Ivan Herman',
 	author_email = 'ivan@ivan-herman.net',
-	description = 'Generate EPUB3 files from respec based W3C Technical Reports, possibly generting from respec on the fly',
+	description = 'Generate EPUB3 files from respec based W3C Technical Reports, possibly generating from respec on the fly',
 	keywords='W3C EPUB3',
-	platforms='any'
+	platforms='any', requires = ['html5lib']
 )
