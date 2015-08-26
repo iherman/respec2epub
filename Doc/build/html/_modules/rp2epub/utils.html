@@ -61,7 +61,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">SubElement</span><span class="p">,</span> <span class="n">ElementTree</span>
+<span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">SubElement</span><span class="p">,</span> <span class="n">ElementTree</span><span class="p">,</span> <span class="n">Element</span>
 <span class="kn">import</span> <span class="nn">zipfile</span>
 <span class="kn">import</span> <span class="nn">html5lib</span>
 <span class="kn">from</span> <span class="nn">.templates</span> <span class="kn">import</span> <span class="n">meta_inf</span>
@@ -94,6 +94,7 @@
 	<span class="p">(</span><span class="s">&quot;body&quot;</span><span class="p">,</span> <span class="s">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
 	<span class="p">(</span><span class="s">&quot;body&quot;</span><span class="p">,</span> <span class="s">&quot;ol[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 <span class="p">]</span>
+
 
 <span class="c"># noinspection PyPep8Naming</span>
 <div class="viewcode-block" id="TOC_Item"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.TOC_Item">[docs]</a><span class="k">class</span> <span class="nc">TOC_Item</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -271,6 +272,28 @@
 			<span class="k">if</span> <span class="n">script</span><span class="o">.</span><span class="n">text</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
 				<span class="n">script</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s">&quot; &quot;</span>
 		<span class="k">return</span> <span class="n">html</span>
+</div>
+	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Utils.change_DOM"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.change_DOM">[docs]</a>	<span class="k">def</span> <span class="nf">change_DOM</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		 Changes on the DOM to ensure a proper interoperability of the display among EPUB readers.</span>
+
+<span class="sd">		 Due to the rigidity of the iBook reader, the DOM tree has to be change: all children of the ``&lt;body&gt;`` should be</span>
+<span class="sd">		 encapsulated into a top level block element (we use ``&lt;main&gt;``). This is because iBook imposes</span>
+<span class="sd">		 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level</span>
+<span class="sd">		 block element allows for suitable CSS adjustments.</span>
+
+<span class="sd">		:param html: the object for the whole document</span>
+<span class="sd">		:type html: :py:class:`xml.etree.ElementTree.ElementTree`</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="n">body</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//body&quot;</span><span class="p">)</span>
+		<span class="n">main</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">)</span>
+
+		<span class="c"># All children of body, except for main, should be re-parented to main and removed from body</span>
+		<span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">body</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;*&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s">&quot;main&quot;</span><span class="p">]:</span>
+			<span class="n">main</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+			<span class="n">body</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
 </div>
 	<span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="Utils.extract_toc"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.extract_toc">[docs]</a>	<span class="k">def</span> <span class="nf">extract_toc</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">short_name</span><span class="p">):</span>

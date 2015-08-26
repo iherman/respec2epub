@@ -235,7 +235,7 @@
 			<span class="k">else</span><span class="p">:</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lnk</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">))</span>
 
-		<span class="n">head</span>     <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//head&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">head</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//head&quot;</span><span class="p">)</span>
 		<span class="n">book_css</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="s">&quot;link&quot;</span><span class="p">)</span>
 		<span class="n">book_css</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;rel&quot;</span><span class="p">,</span> <span class="s">&quot;stylesheet&quot;</span><span class="p">)</span>
 		<span class="n">book_css</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/book.css&quot;</span><span class="p">)</span>
@@ -246,6 +246,9 @@
 
 		<span class="c"># Change the HTTP equivalent value</span>
 		<span class="n">Utils</span><span class="o">.</span><span class="n">set_html_meta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">,</span> <span class="n">head</span><span class="p">)</span>
+
+		<span class="c"># change the DOM</span>
+		<span class="n">Utils</span><span class="o">.</span><span class="n">change_DOM</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
 
 		<span class="c"># Collect the additional download targets</span>
 		<span class="k">for</span> <span class="p">(</span><span class="n">tag_name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="ow">in</span> <span class="n">external_references</span><span class="p">:</span>

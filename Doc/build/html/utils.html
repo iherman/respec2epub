@@ -261,6 +261,26 @@ types.</p>
 <em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">Utils</code><a class="reference internal" href="_modules/rp2epub/utils.html#Utils"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generic utility functions to extract information from a W3C TR document.</p>
 <dl class="staticmethod">
+<dt id="rp2epub.utils.Utils.change_DOM">
+<em class="property">static </em><code class="descname">change_DOM</code><span class="sig-paren">(</span><em>html</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.change_DOM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.change_DOM" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Changes on the DOM to ensure a proper interoperability of the display among EPUB readers.</p>
+<p>Due to the rigidity of the iBook reader, the DOM tree has to be change: all children of the <code class="docutils literal"><span class="pre">&lt;body&gt;</span></code> should be
+encapsulated into a top level block element (we use <code class="docutils literal"><span class="pre">&lt;main&gt;</span></code>). This is because iBook imposes
+a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level
+block element allows for suitable CSS adjustments.</p>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>html</strong> (<code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.ElementTree</span></code>) &#8211; the object for the whole document</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
 <dt id="rp2epub.utils.Utils.create_shortname">
 <em class="property">static </em><code class="descname">create_shortname</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.create_shortname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.create_shortname" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the short name, in W3C jargon, based on the dated name. Returns a tuple with the category of the
