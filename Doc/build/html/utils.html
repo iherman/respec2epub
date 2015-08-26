@@ -264,11 +264,17 @@ types.</p>
 <dt id="rp2epub.utils.Utils.change_DOM">
 <em class="property">static </em><code class="descname">change_DOM</code><span class="sig-paren">(</span><em>html</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.change_DOM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.change_DOM" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
-<div><p>Changes on the DOM to ensure a proper interoperability of the display among EPUB readers.</p>
-<p>Due to the rigidity of the iBook reader, the DOM tree has to be change: all children of the <code class="docutils literal"><span class="pre">&lt;body&gt;</span></code> should be
+<div><p>Changes on the DOM to ensure a proper interoperability of the display among EPUB readers. At the moment, the
+following actions are done:</p>
+<p>1. Due to the rigidity of the iBook reader, the DOM tree has to be change: all children of the <code class="docutils literal"><span class="pre">&lt;body&gt;</span></code> should be
 encapsulated into a top level block element (we use <code class="docutils literal"><span class="pre">&lt;main&gt;</span></code>). This is because iBook imposes
 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level
 block element allows for suitable CSS adjustments.</p>
+<p>2. For some unknown reasons, if a <code class="docutils literal"><span class="pre">&lt;pre&gt;</span></code> element has the class <code class="docutils literal"><span class="pre">hightlight</span></code>, the Readium extension to
+Chrome goes wild. On the other hand, that classname is used only for an internal processing of ReSpec; it is
+unused in the various, default CSS content. As a an emergency measure this is simply removed from the code, although,
+clearly, this is not the optimal way of doing this:-( But hopefully this will disappear and this hack can be
+removed, eventually.</p>
 </div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

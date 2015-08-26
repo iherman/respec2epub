@@ -232,12 +232,19 @@ class Utils(object):
 	@staticmethod
 	def change_DOM(html):
 		"""
-		 Changes on the DOM to ensure a proper interoperability of the display among EPUB readers.
+		 Changes on the DOM to ensure a proper interoperability of the display among EPUB readers. At the moment, the
+		 following actions are done:
 
-		 Due to the rigidity of the iBook reader, the DOM tree has to be change: all children of the ``<body>`` should be
+		 1. Due to the rigidity of the iBook reader, the DOM tree has to be change: all children of the ``<body>`` should be
 		 encapsulated into a top level block element (we use ``<main>``). This is because iBook imposes
 		 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level
 		 block element allows for suitable CSS adjustments.
+
+		 2. For some unknown reasons, if a ``<pre>`` element has the class ``hightlight``, the Readium extension to
+		 Chrome goes wild. On the other hand, that classname is used only for an internal processing of ReSpec; it is
+		 unused in the various, default CSS content. As a an emergency measure this is simply removed from the code, although,
+		 clearly, this is not the optimal way of doing this:-( But hopefully this will disappear and this hack can be
+		 removed, eventually.
 
 		:param html: the object for the whole document
 		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
@@ -250,6 +257,18 @@ class Utils(object):
 		for child in [x for x in body.findall("*") if x.tag != "main"]:
 			main.append(child)
 			body.remove(child)
+
+
+		# Change the class name
+		def _change_name(x):
+			return x if x != "highlight" else "book_highlight"
+
+		for pre in html.findall(".//pre[@class]"):
+			# there may be several class names
+			cl_names = pre.get("class").split()
+			new_cl_names = map(_change_name, cl_names)
+			pre.set("class", " ".join(new_cl_names))
+
 
 	@staticmethod
 	def extract_toc(html, short_name):
