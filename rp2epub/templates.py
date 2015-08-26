@@ -195,11 +195,34 @@ BOOK_CSS = """
 
   h2 {
     page-break-before: always;
-    break-before: always;
+    page-break-inside: avoid;
+    page-break-after: avoid;
   }
 
   div.head h2 {
     page-break-before: auto;
-    break-before: auto;
+    page-break-inside: avoid;
+    page-break-after: avoid;
+  }
+
+  h3, h4, h5 {
+    page-break-after: avoid;
+  }
+
+  dl dt {
+    page-break-after: avoid;
+  }
+
+  dl dd {
+    page-break-before: avoid;
+  }
+
+  div.example, div.note {
+    page-break-inside: avoid;
+  }
+
+  p {
+    orphans: 4;
+    widows: 2;
   }
 """
