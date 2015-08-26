@@ -17,7 +17,7 @@ import warnings
 import os
 import os.path
 import shutil
-from xml.etree.ElementTree import SubElement, ElementTree
+from xml.etree.ElementTree import SubElement, ElementTree, Element
 import zipfile
 import html5lib
 from .templates import meta_inf
@@ -228,6 +228,28 @@ class Utils(object):
 			if script.text is None:
 				script.text = " "
 		return html
+
+	@staticmethod
+	def change_DOM(html):
+		"""
+		 Changes on the DOM to ensure a proper interoperability of the display among EPUB readers.
+
+		 Due to the rigidity of the iBook reader, the DOM tree has to be change: all children of the ``<body>`` should be
+		 encapsulated into a top level block element (we use ``<main>``). This is because iBook imposes
+		 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level
+		 block element allows for suitable CSS adjustments.
+
+		:param html: the object for the whole document
+		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
+		"""
+
+		body = html.find(".//body")
+		main = SubElement(body, "main")
+
+		# All children of body, except for main, should be re-parented to main and removed from body
+		for child in [x for x in body.findall("*") if x.tag != "main"]:
+			main.append(child)
+			body.remove(child)
 
 	@staticmethod
 	def extract_toc(html, short_name):

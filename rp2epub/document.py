@@ -191,7 +191,7 @@ class Document:
 			else:
 				self.download_targets.append((lnk, 'href'))
 
-		head     = self.html.findall(".//head")[0]
+		head = self.html.find(".//head")
 		book_css = SubElement(head, "link")
 		book_css.set("rel", "stylesheet")
 		book_css.set("href", "Assets/book.css")
@@ -202,6 +202,9 @@ class Document:
 
 		# Change the HTTP equivalent value
 		Utils.set_html_meta(self.html, head)
+
+		# change the DOM
+		Utils.change_DOM(self.html)
 
 		# Collect the additional download targets
 		for (tag_name, attr) in external_references:

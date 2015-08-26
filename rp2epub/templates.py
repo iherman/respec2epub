@@ -184,17 +184,22 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
 """
 
 BOOK_CSS = """
-	h2 {
-	  page-break-before: always;
-	  break-before: always;
-	}
+  body {
+    background-image: url(%s);
+    padding: 0 0 0 0 !important;
+  }
 
-	div.head h2 {
-	  page-break-before: auto;
-	  break-before: auto;
-	}
+  main {
+    padding: 2em 1em 2em 70px;
+  }
 
-	body {
-	  background-image: url(%s);
-	}
+  h2 {
+    page-break-before: always;
+    break-before: always;
+  }
+
+  div.head h2 {
+    page-break-before: auto;
+    break-before: auto;
+  }
 """
