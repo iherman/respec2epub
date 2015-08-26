@@ -51,6 +51,8 @@ Metadata
 * Licence: W3C SOFTWARE NOTICE AND LICENSE <http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231>
 * Repository: <https://github.com/iherman/respec2epub>
 
+Thanks also to Zheng Xu (Rakuten/Kobo) who helped me in some of the interoperability problems around ePub readers.
+
 
 2. Table of Contents
 ====================
