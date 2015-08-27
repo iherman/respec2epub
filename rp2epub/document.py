@@ -22,6 +22,7 @@ from xml.etree.ElementTree import SubElement
 from .utils import HttpSession, Utils
 from datetime import date
 from . import R2EError
+from .config import TO_TRANSFER
 import config
 
 
@@ -129,7 +130,7 @@ class Document:
 			# earlier manipulation on the DOM may have already set the external references to those, the
 			# HTTPSession is unnecessary (and sometimes leads to 404 anyway)
 			# Bottom line: those references must be filtered out
-			if attr_value is not None and all(map(lambda x: x[1] != attr_value, self.driver.To_transfer)):
+			if attr_value is not None and all(map(lambda x: x[1] != attr_value, TO_TRANSFER)):
 				ref = urljoin(self.driver.base, attr_value)
 				if urlparse(ref).netloc == self.driver.domain:
 					session = HttpSession(ref, accepted_media_types=extra_media_types.keys())

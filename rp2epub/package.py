@@ -60,7 +60,7 @@ class Package:
 		Create the manifest file. Includes the list of resources, book metadata, and the spine. The manifest
 		file is added to the book as ``package.opf``
 		"""
-		from .doc2epub import DEFAULT_FILES, CSS_LOGOS
+		from .config import DEFAULT_FILES, CSS_LOGOS
 		# Last step: the manifest file must be created
 		# Parse the raw manifest file
 		ET.register_namespace('', "http://www.idpf.org/2007/opf")

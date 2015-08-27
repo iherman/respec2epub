@@ -74,38 +74,13 @@
 <span class="kn">from</span> <span class="nn">.document</span> <span class="kn">import</span> <span class="n">Document</span>
 <span class="kn">from</span> <span class="nn">.package</span> <span class="kn">import</span> <span class="n">Package</span>
 <span class="kn">import</span> <span class="nn">config</span>
-
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CSS_LOGOS</span><span class="p">,</span> <span class="n">TO_TRANSFER</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Book</span>
+
 
 <span class="c">#: URI of the service used to convert a ReSpec source onto an HTML file on the fly. This service is used</span>
 <span class="c">#: by this script to process ReSpec sources before EPUB3 generation.</span>
 <span class="n">CONVERTER</span> <span class="o">=</span> <span class="s">&quot;https://labs.w3.org/spec-generator/?type=respec&amp;url=&quot;</span>
-
-<span class="c"># These are the items that have to be added to each file and package, no matter what: (id,file,media-type,properties)</span>
-<span class="c"># noinspection PyPep8</span>
-<span class="c">#</span>
-<span class="c">#  Items that have to be added to the book&#39;s manifest, no matter; tuples of the form (id,file,media-type,properties)</span>
-<span class="n">DEFAULT_FILES</span> <span class="o">=</span> <span class="p">[</span>
-		<span class="p">(</span><span class="s">&quot;nav.xhtml&quot;</span><span class="p">,</span> <span class="s">&quot;application/xhtml+xml&quot;</span><span class="p">,</span> <span class="s">&quot;nav&quot;</span><span class="p">,</span> <span class="s">&quot;nav&quot;</span><span class="p">),</span>
-		<span class="p">(</span><span class="s">&quot;toc.ncx&quot;</span><span class="p">,</span> <span class="s">&quot;application/x-dtbncx+xml&quot;</span><span class="p">,</span> <span class="s">&quot;ncx&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">),</span>
-		<span class="p">(</span><span class="s">&quot;cover.xhtml&quot;</span><span class="p">,</span> <span class="s">&quot;application/xhtml+xml&quot;</span><span class="p">,</span> <span class="s">&quot;cover&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">),</span>
-		<span class="p">(</span><span class="s">&quot;Assets/w3c_main.png&quot;</span><span class="p">,</span> <span class="s">&quot;image/png&quot;</span><span class="p">,</span> <span class="s">&quot;w3c_main&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">),</span>
-		<span class="p">(</span><span class="s">&quot;Assets/base.css&quot;</span><span class="p">,</span> <span class="s">&quot;text/css&quot;</span><span class="p">,</span> <span class="s">&quot;StyleSheets-base&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">),</span>
-		<span class="p">(</span><span class="s">&quot;Assets/book.css&quot;</span><span class="p">,</span> <span class="s">&quot;text/css&quot;</span><span class="p">,</span> <span class="s">&quot;StyleSheets-book&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
-<span class="p">]</span>
-
-<span class="c"># noinspection PyPep8</span>
-<span class="c"># The pictures on the upper left hand side of the front page, denoting the document status, and also the path within</span>
-<span class="c"># the book.</span>
-<span class="n">CSS_LOGOS</span> <span class="o">=</span> <span class="p">{</span>
-	<span class="s">&quot;REC&quot;</span>  <span class="p">:</span> <span class="p">(</span><span class="s">&quot;http://www.w3.org/StyleSheets/TR/logo-CR.png&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/logo-REC.png&quot;</span><span class="p">),</span>
-	<span class="s">&quot;NOTE&quot;</span> <span class="p">:</span> <span class="p">(</span><span class="s">&quot;http://www.w3.org/StyleSheets/TR/logo-CR.png&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/logo-NOTE.png&quot;</span><span class="p">),</span>
-	<span class="s">&quot;PER&quot;</span>  <span class="p">:</span> <span class="p">(</span><span class="s">&quot;http://www.w3.org/StyleSheets/TR/logo-PER.png&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/logo-PR.png&quot;</span><span class="p">),</span>
-	<span class="s">&quot;PR&quot;</span>   <span class="p">:</span> <span class="p">(</span><span class="s">&quot;http://www.w3.org/StyleSheets/TR/logo-CR.png&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/logo-PR.png&quot;</span><span class="p">),</span>
-	<span class="s">&quot;CR&quot;</span>   <span class="p">:</span> <span class="p">(</span><span class="s">&quot;http://www.w3.org/StyleSheets/TR/logo-CR.png&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/logo-CR.png&quot;</span><span class="p">),</span>
-	<span class="s">&quot;WD&quot;</span>   <span class="p">:</span> <span class="p">(</span><span class="s">&quot;http://www.w3.org/StyleSheets/TR/logo-CR.png&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/logo-WD.png&quot;</span><span class="p">),</span>
-	<span class="s">&quot;ED&quot;</span>   <span class="p">:</span> <span class="p">(</span><span class="s">&quot;http://www.w3.org/StyleSheets/TR/logo-ED.png&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/logo-ED.png&quot;</span><span class="p">),</span>
-<span class="p">}</span>
 
 
 <span class="c">###################################################################################</span>
@@ -125,15 +100,6 @@
 <span class="sd">	&quot;&quot;&quot;</span>
 
 	<span class="c"># noinspection PyPep8</span>
-	<span class="c"># Array of (url,local_name) pairs of resources that must be transferred and added to the output.</span>
-	<span class="c"># This is expanded run-time.</span>
-	<span class="n">To_transfer</span> <span class="o">=</span> <span class="p">[</span>
-		<span class="p">(</span><span class="s">&quot;http://www.w3.org/Icons/w3c_main.png&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/w3c_main.png&quot;</span><span class="p">),</span>
-		<span class="p">(</span><span class="s">&quot;http://www.w3.org/Icons/w3c_home.png&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/w3c_home.png&quot;</span><span class="p">),</span>
-		<span class="p">(</span><span class="s">&quot;http://www.w3.org/StyleSheets/TR/base.css&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/base.css&quot;</span><span class="p">),</span>
-	<span class="p">]</span>
-
-	<span class="c"># noinspection PyPep8</span>
 	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">is_respec</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">temporary</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_html_document</span> <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_top_uri</span>       <span class="o">=</span> <span class="n">url</span>
@@ -141,10 +107,12 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_domain</span>        <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_package</span>       <span class="o">=</span> <span class="n">package</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_folder</span>        <span class="o">=</span> <span class="n">folder</span>
+		<span class="c"># This list may be locally extended</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_To_transfer</span>   <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">TO_TRANSFER</span><span class="p">)</span>
 
 		<span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
 			<span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
-			<span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Handling the &#39;</span><span class="si">%s</span><span class="s">&#39; </span><span class="si">%s</span><span class="s"> source&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s">&quot;ReSpec&quot;</span> <span class="k">if</span> <span class="n">is_respec</span> <span class="k">else</span> <span class="s">&quot;HTML&quot;</span><span class="p">)</span>
+			<span class="n">message</span> <span class="o">=</span> <span class="s">&quot;* Handling the &#39;</span><span class="si">%s</span><span class="s">&#39; </span><span class="si">%s</span><span class="s"> source *&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s">&quot;ReSpec&quot;</span> <span class="k">if</span> <span class="n">is_respec</span> <span class="k">else</span> <span class="s">&quot;HTML&quot;</span><span class="p">)</span>
 			<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
 		<span class="c"># Get the base URL, ie, remove the possible query parameter and the last portion of the path name</span>
@@ -236,10 +204,10 @@
 			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">doc_type</span> <span class="ow">in</span> <span class="n">CSS_LOGOS</span><span class="p">:</span>
 				<span class="n">uri</span><span class="p">,</span> <span class="n">local</span> <span class="o">=</span> <span class="n">CSS_LOGOS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">doc_type</span><span class="p">]</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s">&#39;Assets/book.css&#39;</span><span class="p">,</span> <span class="n">BOOK_CSS</span> <span class="o">%</span> <span class="n">local</span><span class="p">[</span><span class="mi">7</span><span class="p">:])</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">To_transfer</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">uri</span><span class="p">,</span> <span class="n">local</span><span class="p">))</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_To_transfer</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">uri</span><span class="p">,</span> <span class="n">local</span><span class="p">))</span>
 
 			<span class="c"># Some resources should be added to the book once and for all</span>
-			<span class="k">for</span> <span class="n">uri</span><span class="p">,</span> <span class="n">local</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">To_transfer</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">uri</span><span class="p">,</span> <span class="n">local</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_To_transfer</span><span class="p">:</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_HTTP</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">uri</span><span class="p">)</span>
 
 			<span class="c"># Add the additional resources that are referred to from the document itself</span>

@@ -104,7 +104,7 @@
 <span class="sd">		Create the manifest file. Includes the list of resources, book metadata, and the spine. The manifest</span>
 <span class="sd">		file is added to the book as ``package.opf``</span>
 <span class="sd">		&quot;&quot;&quot;</span>
-		<span class="kn">from</span> <span class="nn">.doc2epub</span> <span class="kn">import</span> <span class="n">DEFAULT_FILES</span><span class="p">,</span> <span class="n">CSS_LOGOS</span>
+		<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">DEFAULT_FILES</span><span class="p">,</span> <span class="n">CSS_LOGOS</span>
 		<span class="c"># Last step: the manifest file must be created</span>
 		<span class="c"># Parse the raw manifest file</span>
 		<span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&quot;http://www.idpf.org/2007/opf&quot;</span><span class="p">)</span>

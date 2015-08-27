@@ -30,38 +30,13 @@ from .templates import BOOK_CSS
 from .document import Document
 from .package import Package
 import config
-
+from .config import CSS_LOGOS, TO_TRANSFER
 from .utils import HttpSession, Book
+
 
 #: URI of the service used to convert a ReSpec source onto an HTML file on the fly. This service is used
 #: by this script to process ReSpec sources before EPUB3 generation.
 CONVERTER = "https://labs.w3.org/spec-generator/?type=respec&url="
-
-# These are the items that have to be added to each file and package, no matter what: (id,file,media-type,properties)
-# noinspection PyPep8
-#
-#  Items that have to be added to the book's manifest, no matter; tuples of the form (id,file,media-type,properties)
-DEFAULT_FILES = [
-		("nav.xhtml", "application/xhtml+xml", "nav", "nav"),
-		("toc.ncx", "application/x-dtbncx+xml", "ncx", ""),
-		("Assets/w3c_main.png", "image/png", "w3c_main", ""),
-		("Assets/base.css", "text/css", "StyleSheets-base", ""),
-		("Assets/book.css", "text/css", "StyleSheets-book", ""),
-		("cover.xhtml", "application/xhtml+xml", "start", "")
-]
-
-# noinspection PyPep8
-# The pictures on the upper left hand side of the front page, denoting the document status, and also the path within
-# the book.
-CSS_LOGOS = {
-	"REC"  : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-REC.png"),
-	"NOTE" : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-NOTE.png"),
-	"PER"  : ("http://www.w3.org/StyleSheets/TR/logo-PER.png", "Assets/logo-PR.png"),
-	"PR"   : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-PR.png"),
-	"CR"   : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-CR.png"),
-	"WD"   : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-WD.png"),
-	"ED"   : ("http://www.w3.org/StyleSheets/TR/logo-ED.png", "Assets/logo-ED.png"),
-}
 
 
 ###################################################################################
@@ -81,15 +56,6 @@ class DocWrapper:
 	"""
 
 	# noinspection PyPep8
-	# Array of (url,local_name) pairs of resources that must be transferred and added to the output.
-	# This is expanded run-time.
-	To_transfer = [
-		("http://www.w3.org/Icons/w3c_main.png", "Assets/w3c_main.png"),
-		("http://www.w3.org/Icons/w3c_home.png", "Assets/w3c_home.png"),
-		("http://www.w3.org/StyleSheets/TR/base.css", "Assets/base.css"),
-	]
-
-	# noinspection PyPep8
 	def __init__(self, url, is_respec=False, package=True, folder=False, temporary=False, logger=None):
 		self._html_document = None
 		self._top_uri       = url
@@ -97,10 +63,12 @@ class DocWrapper:
 		self._domain        = urlparse(url).netloc
 		self._package       = package
 		self._folder        = folder
+		# This list may be locally extended
+		self._To_transfer   = list(TO_TRANSFER)
 
 		if logger is not None:
 			config.logger = logger
-			message = "Handling the '%s' %s source" % (url, "ReSpec" if is_respec else "HTML")
+			message = "* Handling the '%s' %s source *" % (url, "ReSpec" if is_respec else "HTML")
 			config.logger.info(message)
 
 		# Get the base URL, ie, remove the possible query parameter and the last portion of the path name
@@ -192,10 +160,10 @@ class DocWrapper:
 			if self.document.doc_type in CSS_LOGOS:
 				uri, local = CSS_LOGOS[self.document.doc_type]
 				self.book.writestr('Assets/book.css', BOOK_CSS % local[7:])
-				self.To_transfer.append((uri, local))
+				self._To_transfer.append((uri, local))
 
 			# Some resources should be added to the book once and for all
-			for uri, local in self.To_transfer:
+			for uri, local in self._To_transfer:
 				self.book.write_HTTP(local, uri)
 
 			# Add the additional resources that are referred to from the document itself
