@@ -44,10 +44,10 @@ CONVERTER = "https://labs.w3.org/spec-generator/?type=respec&url="
 DEFAULT_FILES = [
 		("nav.xhtml", "application/xhtml+xml", "nav", "nav"),
 		("toc.ncx", "application/x-dtbncx+xml", "ncx", ""),
-		("cover.xhtml", "application/xhtml+xml", "cover", ""),
 		("Assets/w3c_main.png", "image/png", "w3c_main", ""),
 		("Assets/base.css", "text/css", "StyleSheets-base", ""),
-		("Assets/book.css", "text/css", "StyleSheets-book", "")
+		("Assets/book.css", "text/css", "StyleSheets-book", ""),
+		("cover.xhtml", "application/xhtml+xml", "start", "")
 ]
 
 # noinspection PyPep8

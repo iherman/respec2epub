@@ -115,7 +115,7 @@ PACKAGE = """<?xml version="1.0" encoding="UTF-8"?>
   <manifest>
   </manifest>
   <spine  toc="ncx">
-        <itemref idref="cover"/>
+        <itemref idref="start"/>
         <itemref idref="toc" />
   </spine>
 </package>
