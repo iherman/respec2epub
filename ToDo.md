@@ -1,5 +1,7 @@
 # Functional todo-s
 
+## Utils.py contains the `change_DOM` method that implements a hack around a Readium bug. When the newer version of Readium is deployed, that hack should be removed.
+
 ## Current code
 
 
