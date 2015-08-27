@@ -1,0 +1,193 @@
+
+body {
+	font: 12px arial, helvetica,arial,freesans,clean,sans-serif;
+	color:black;
+	line-height:1.4em;
+	background-color: #F8F8F8;
+	padding: 2em 2em;
+}
+
+/* --- */
+
+select,option {
+	padding:0 .25em;
+}
+optgroup {
+	margin-top:.5em;
+}
+
+img {
+	border:0;max-width:100%;
+}
+
+abbr {
+	border-bottom:none;
+}
+
+/* Links... */
+
+a {
+	color: NavyBlue;
+	background: transparent;
+}
+
+a:link, a:active {
+	background: transparent;
+	text-decoration:none;
+}
+
+a:visited {
+	color: NavyBlue;
+	background: transparent;
+}
+
+a:hover{
+	background-color: yellow; 
+	color: #00e;
+}
+
+a code, a:link code, a:visited code {
+	color:#4183c4;
+}
+
+a:link img, a:visited img {
+   border-style: none
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6
+{
+	margin-bottom: 0.5em;
+	margin-top: 1em;
+	padding-bottom: 0.15em;
+	border-bottom: 1px solid #ccc;
+	background: transparent;
+	color: #005a9c;
+	font-weight: normal;
+}
+
+.title-date {
+	font-size: 1.4em;
+	color: #005a9c;
+	font-weight: normal;
+}
+
+footer 
+{
+	margin-top: 2em;
+	border-top: 1px ridge #ccc;
+	font-size: 90%;
+}
+
+h1
+{
+	border-bottom: none;
+}
+
+h5, h6 {
+	border: none;
+	font-size: 100%;
+}
+
+/* 
+These come partially from the html.css file, but adapted to the headertoclevel classes; plus other,
+similar adaptation
+*/
+.headertoclevel1, .headertoclevel2, .headertoclevel3, .headertoclevel4
+{
+	border-bottom: 1px solid #ccc !important;
+}
+
+.headertoclevel1  
+{
+  font-size: 1.5em !important;
+}
+
+.headertoclevel2 
+{
+  font-size: 1.17em !important;
+}
+
+.headertoclevel3
+{
+	font-size: 1em !important;
+}
+
+.headertoclevel4, .headertoclevel5 {
+	border: none !important;
+	font-size: 1em !important;	
+}
+/* --- */
+
+hr { border:1px solid #ddd; }
+
+/* Lists */
+
+ul ul, ul ol, ol ol, ol ul {
+	margin-top:0;
+	margin-bottom:0;
+}
+
+dt {
+	font-weight:bold;
+	margin-left:1em;
+}
+dd {
+	margin-left:2em;
+	margin-bottom:1em;
+}
+
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+* {
+	-webkit-print-color-adjust: exact;
+}
+
+blockquote.large {
+	margin:1em 0;
+	border-left:5px solid #ddd;
+	padding-left:.6em;
+	color:#555;
+}
+
+.todo {
+	background-color: yellow;
+	font-style: italic;
+}
+
+.strike {
+	text-decoration: line-through;
+}
+
+#topwarning, #warning {  
+  font-size: 124%;  -epub-text-transform: lowercase;
+  text-transform: lowercase;  
+  font-variant: small-caps;  
+  border-top-width: medium;  
+  border-right-width: medium;  
+  border-bottom-width: medium;  
+  border-left-width: medium;  
+  border-top-style: ridge;  
+  border-right-style: ridge;  
+  border-bottom-style: ridge;  
+  border-left-style: ridge;  
+  padding-top: 0.5em;  
+  padding-right: 0.5em;  
+  padding-bottom: 0.5em;  
+  padding-left: 0.5em;  -webkit-box-shadow: 5px 5px 0px 0px gray;
+  box-shadow: 5px 5px 0px 0px gray;  
+  margin-right: 10em;
+}
+
+
+@media print {
+	table, pre {
+		page-break-inside: avoid;
+	}
+	pre {
+		word-wrap: break-word;
+	}
+}

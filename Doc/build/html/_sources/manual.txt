@@ -6,7 +6,16 @@
 Command line tool manual
 ========================
 
-This is a simple script that can be invoked from the command line. Usage of the command is::
+
+When using the command line tool, the result is an EPUB3 file in, by default, the same folder, and whose name is the
+short name of the document expanded with the ``.epub`` suffix.
+
+There is a possibility to generate the EPUB3 content in expanded form (i.e., in a directory instead of an EPUB file),
+or both. This may be useful for debugging, but also to inspect and possibly adapt the EPUB3 file before
+distribution.
+
+
+This script that can be invoked from the command as follows::
 
     usage: rp2epub [-h] [-r] [-b] [-f] [-t] url
 
