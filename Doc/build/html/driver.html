@@ -68,7 +68,7 @@ by this script to process ReSpec sources before EPUB3 generation.</p>
 
 <dl class="class">
 <dt id="rp2epub.doc2epub.DocWrapper">
-<em class="property">class </em><code class="descclassname">rp2epub.doc2epub.</code><code class="descname">DocWrapper</code><span class="sig-paren">(</span><em>url</em>, <em>is_respec=False</em>, <em>package=True</em>, <em>folder=False</em>, <em>temporary=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/doc2epub.html#DocWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rp2epub.doc2epub.</code><code class="descname">DocWrapper</code><span class="sig-paren">(</span><em>url</em>, <em>is_respec=False</em>, <em>package=True</em>, <em>folder=False</em>, <em>temporary=False</em>, <em>logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/doc2epub.html#DocWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Top level entry class; receives the URI to be retrieved and generates the folders and the EPUB Package (as required)
 in the current directory (by default).</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -81,6 +81,7 @@ in the current directory (by default).</p>
 <li><strong>package</strong> (<em>boolean</em>) &#8211; whether a real zip file should be created or not</li>
 <li><strong>folder</strong> (<em>boolean</em>) &#8211; whether the directory structure should be created separately or not</li>
 <li><strong>temporary</strong> (<em>boolean</em>) &#8211; whether the zipped EPUB file should be put into a temporary filesystem location (used when the service is used through the Web)</li>
+<li><strong>logger</strong> &#8211; a python logger (see the logging standard library module) to be used all around; initialized to None (for no logging)</li>
 </ul>
 </td>
 </tr>
@@ -148,7 +149,15 @@ in the current directory (by default).</p>
 <dl class="method">
 <dt id="rp2epub.doc2epub.DocWrapper.process">
 <code class="descname">process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/doc2epub.html#DocWrapper.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.doc2epub.DocWrapper.process" title="Permalink to this definition">¶</a></dt>
-<dd><p>Process the book, ie, extract whatever has to be extracted and produce the epub file</p>
+<dd><p>Process the book, ie, extract whatever has to be extracted and produce the epub file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the instance of the class itself</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">

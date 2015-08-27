@@ -22,6 +22,7 @@ from xml.etree.ElementTree import SubElement
 from .utils import HttpSession, Utils
 from datetime import date
 from . import R2EError
+import config
 
 
 # suffixes and media types for resources that are recognized by EPUB
@@ -123,8 +124,13 @@ class Document:
 		# this simplifies the issue
 		# Look at generic external references like images, and, possibly copy the content
 		for (element, attr) in self.download_targets:
-			if element.get(attr) is not None:
-				ref = urljoin(self.driver.base, element.get(attr))
+			attr_value = element.get(attr)
+			# The To_Transfer array collects the 'system' references collected in Assets. Although some
+			# earlier manipulation on the DOM may have already set the external references to those, the
+			# HTTPSession is unnecessary (and sometimes leads to 404 anyway)
+			# Bottom line: those references must be filtered out
+			if attr_value is not None and all(map(lambda x: x[1] != attr_value, self.driver.To_transfer)):
+				ref = urljoin(self.driver.base, attr_value)
 				if urlparse(ref).netloc == self.driver.domain:
 					session = HttpSession(ref, accepted_media_types=extra_media_types.keys())
 					if session.success:
@@ -160,6 +166,8 @@ class Document:
 						# Take out those situations that are under the control of this script
 						if not element.get(attr).startswith("Assets/"):
 							element.attrib.pop(attr)
+							if config.logger is not None:
+								config.logger.warning("Link to '%s' removed (non-existing local resource)" % ref)
 
 	###################################################################################################
 	# noinspection PyPep8
@@ -294,7 +302,10 @@ class Document:
 
 		# Date of the document, to be reused in the metadata
 		if self._doc_type is None:
-			raise R2EError("Unrecognized document type, unable to convert (should be ED, WD, CR, PR, PER, REC, or NOTE")
+			message = "Unrecognized document type, unable to convert (should be ED, WD, CR, PR, PER, REC, or NOTE)"
+			if config.logger is not None:
+				config.logger.exception(message)
+			raise R2EError(message)
 		elif self._doc_type == "ED":
 			self._date = date.today()
 		else:

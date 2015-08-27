@@ -66,6 +66,7 @@ Thanks also to Zheng Xu (Rakuten/Kobo) who helped me in some of the interoperabi
    package
    utils
    templates
+   config
 
 Indices and tables
 ==================

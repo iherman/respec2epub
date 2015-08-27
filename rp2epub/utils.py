@@ -17,11 +17,12 @@ import warnings
 import os
 import os.path
 import shutil
-from xml.etree.ElementTree import SubElement, ElementTree, Element
+from xml.etree.ElementTree import SubElement, ElementTree
 import zipfile
 import html5lib
 from .templates import meta_inf
 from . import R2EError
+import config
 
 # These media types should be added to the zip file uncompressed
 # noinspection PyPep8
@@ -229,6 +230,7 @@ class Utils(object):
 				script.text = " "
 		return html
 
+	# noinspection PyPep8Naming
 	@staticmethod
 	def change_DOM(html):
 		"""
@@ -240,8 +242,8 @@ class Utils(object):
 		 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level
 		 block element allows for suitable CSS adjustments.
 
-		 2. For some unknown reasons, if a ``<pre>`` element has the class ``hightlight``, the Readium extension to
-		 Chrome goes wild. On the other hand, that classname is used only for an internal processing of ReSpec; it is
+		 2. For some unknown reasons, if a ``<pre>`` element has the class ``highlight``, the Readium extension to
+		 Chrome goes wild. On the other hand, that class name is used only for an internal processing of ReSpec; it is
 		 unused in the various, default CSS content. As a an emergency measure this is simply removed from the code, although,
 		 clearly, this is not the optimal way of doing this:-( But hopefully this will disappear and this hack can be
 		 removed, eventually.
@@ -262,8 +264,8 @@ class Utils(object):
 			main.append(child)
 			body.remove(child)
 
-
 		# Change the class name
+		# noinspection PyShadowingNames
 		def _change_name(x):
 			return x if x != "highlight" else "book_highlight"
 
@@ -272,7 +274,6 @@ class Utils(object):
 			cl_names = pre.get("class").split()
 			new_cl_names = map(_change_name, cl_names)
 			pre.set("class", " ".join(new_cl_names))
-
 
 	@staticmethod
 	def extract_toc(html, short_name):
@@ -377,23 +378,29 @@ class HttpSession:
 		"""
 	# noinspection PyPep8,PyPep8
 	def __init__(self, url, accepted_media_types=None, raise_exception=False):
+		def handle_exception(message):
+			if config.logger is not None:
+				config.logger.error(message)
+			if raise_exception:
+				raise R2EError(message)
+
 		self._success = False
+
 		try:
 			self._data = urlopen(url)
 		except HTTPError:
-			if raise_exception:
-				raise R2EError("%s cannot be reached!" % url)
+			handle_exception("%s cannot be reached" % url)
 			return
 
 		if self._data.getcode() != '200' and self._data.getcode() != 200:
-			if raise_exception:
-				raise R2EError("Received a '%s' status code instead of '200'" % self._data.getcode())
+			handle_exception("Received a '%s' status code instead of '200'" % self._data.getcode() % url)
 			return
+
 		self._media_type = self._data.info().gettype()
 		if accepted_media_types is not None and self._media_type not in accepted_media_types:
-			if raise_exception:
-				raise R2EError("Received a file of type '%s', which was not listed as acceptable" % self._media_type)
+			handle_exception("Received a file of type '%s', which was not listed as acceptable" % self._media_type)
 			return
+
 		self._success = True
 
 	@property

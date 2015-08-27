@@ -73,6 +73,7 @@
 <span class="kn">from</span> <span class="nn">.templates</span> <span class="kn">import</span> <span class="n">BOOK_CSS</span>
 <span class="kn">from</span> <span class="nn">.document</span> <span class="kn">import</span> <span class="n">Document</span>
 <span class="kn">from</span> <span class="nn">.package</span> <span class="kn">import</span> <span class="n">Package</span>
+<span class="kn">import</span> <span class="nn">config</span>
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Book</span>
 
@@ -120,6 +121,7 @@
 <span class="sd">	:param boolean package: whether a real zip file should be created or not</span>
 <span class="sd">	:param boolean folder: whether the directory structure should be created separately or not</span>
 <span class="sd">	:param boolean temporary: whether the zipped EPUB file should be put into a temporary filesystem location (used when the service is used through the Web)</span>
+<span class="sd">	:param logger: a python logger (see the logging standard library module) to be used all around; initialized to None (for no logging)</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 
 	<span class="c"># noinspection PyPep8</span>
@@ -132,7 +134,7 @@
 	<span class="p">]</span>
 
 	<span class="c"># noinspection PyPep8</span>
-	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">is_respec</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">temporary</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">is_respec</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">temporary</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_html_document</span> <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_top_uri</span>       <span class="o">=</span> <span class="n">url</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_book</span>          <span class="o">=</span> <span class="bp">None</span>
@@ -140,12 +142,19 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_package</span>       <span class="o">=</span> <span class="n">package</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_folder</span>        <span class="o">=</span> <span class="n">folder</span>
 
+		<span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+			<span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Handling the &#39;</span><span class="si">%s</span><span class="s">&#39; </span><span class="si">%s</span><span class="s"> source&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s">&quot;ReSpec&quot;</span> <span class="k">if</span> <span class="n">is_respec</span> <span class="k">else</span> <span class="s">&quot;HTML&quot;</span><span class="p">)</span>
+			<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
 		<span class="c"># Get the base URL, ie, remove the possible query parameter and the last portion of the path name</span>
 		<span class="n">url_tuples</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 		<span class="n">base_path</span>  <span class="o">=</span> <span class="n">url_tuples</span><span class="o">.</span><span class="n">path</span> <span class="k">if</span> <span class="n">url_tuples</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="n">url_tuples</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_base</span> <span class="o">=</span> <span class="n">urlunparse</span><span class="p">((</span><span class="n">url_tuples</span><span class="o">.</span><span class="n">scheme</span><span class="p">,</span> <span class="n">url_tuples</span><span class="o">.</span><span class="n">netloc</span><span class="p">,</span> <span class="n">base_path</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">))</span>
 
 		<span class="c"># Get the data, possibly converting from respec on the fly</span>
+		<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">is_respec</span><span class="p">:</span>
+			<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Generating HTML via the spec generator service from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
 		<span class="n">session</span> <span class="o">=</span> <span class="n">HttpSession</span><span class="p">(</span><span class="n">CONVERTER</span> <span class="o">+</span> <span class="n">url</span> <span class="k">if</span> <span class="n">is_respec</span> <span class="k">else</span> <span class="n">url</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 		<span class="c"># Parse the generated document</span>
@@ -213,7 +222,9 @@
 
 <div class="viewcode-block" id="DocWrapper.process"><a class="viewcode-back" href="../../driver.html#rp2epub.doc2epub.DocWrapper.process">[docs]</a>	<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Process the book, ie, extract whatever has to be extracted and produce the epub file</span>
+<span class="sd">		Process the book, ie, extract whatever has to be extracted and produce the epub file.</span>
+
+<span class="sd">		:returns: the instance of the class itself</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="c"># Create the wrapper around the parsed version. This will also</span>
 		<span class="c"># retrieve the various &#39;meta&#39; data from the document, like title, editors, document type, etc.</span>
