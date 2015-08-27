@@ -1,23 +1,50 @@
 #!/usr/bin/env python
 import argparse
+import logging
+import logging.handlers
 
 description = "Generate EPUB3 for a single W3C TR document, either in respec format (default) or generated from respec."
+
+
+def _create_logger(fname, level=logging.DEBUG):
+	# Set the logger part
+	logger = logging.getLogger(" - ")
+	logger.setLevel(logging.DEBUG)
+
+	# Set the handler; this handler provides a way to limit the file size, and also gives a rollover
+	handler = logging.handlers.RotatingFileHandler(filename=fname, maxBytes=10000)
+	handler.setLevel(logging.DEBUG)
+
+	# create and add a formatter
+	# noinspection PyPep8
+	handler.setFormatter(logging.Formatter("%(asctime) s%(name) s%(levelname)s: %(message)s", datefmt='%Y-%m-%d %H:%M:%S'))
+
+	# done...
+	logger.addHandler(handler)
+	return logger
+
+
 # noinspection PyPep8
 def process():
 	"""
 	Main entry point for command line usage.
 	"""
 	parser = argparse.ArgumentParser(description=description)
-	parser.add_argument("url",
-						help="URL of the input; if this is in respec, it will passed on to the spec generator verbatim ")
+	parser.add_argument("url", help="URL of the input; if this is in respec, it will passed on to the spec generator verbatim ")
 	parser.add_argument("-r", "--respec", action='store_true', help="The source is a respec file, transform it before processing")
 	parser.add_argument("-b", "--book", action='store_true', help="Create an EPUB3 package")
 	parser.add_argument("-f", "--folder", action='store_true', help="Create a folder with the book content")
 	parser.add_argument("-t", "--tempfile", action="store_true", help="Create a one-time, temporary name for the EPUB3 file")
+	parser.add_argument("-l", "--logging", action="store_true", help="Log events in the local file 'log'")
 
 	args = parser.parse_args()
 	from rp2epub import DocWrapper
-	DocWrapper(args.url, is_respec=args.respec, package=args.book, folder=args.folder, temporary=args.tempfile).process()
+	DocWrapper(args.url, is_respec=args.respec,
+			   			 package=args.book,
+						 folder=args.folder,
+						 temporary=args.tempfile,
+						 logger= _create_logger("log") if args.logging else None
+	).process()
 
 if __name__ == '__main__':
 	process()

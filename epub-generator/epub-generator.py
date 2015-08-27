@@ -61,21 +61,6 @@ try:
 	logger.addHandler(handler)
 except:
 	logger = None
-	exc_type, exc_value, exc_traceback = sys.exc_info()
-	if cgi:
-		# ...and returned
-		print 'Status: 500'
-		print 'Content-Type: text/html; charset=utf-8'
-		print
-		print "<html>"
-		print "<head>"
-		print "<title>Epub Generator Exception</title>"
-		print "</head><body>"
-		print "<h1>Epub Generator Exception</h1>"
-		print "<pre>"
-		traceback.print_exception(exc_type, exc_value, exc_traceback, file=sys.stdout)
-		print "</pre>"
-		print "</body></html>"
 
 ##########################################
 # Various utility functions
@@ -106,9 +91,16 @@ def respond(wrapper, modified):
 		with open(wrapper.book_file_name) as book:
 			print book.read()
 		if cgi and logger is not None:
-			logger.info("%s generated and returned" % (wrapper.document.short_name + ".epub"))
+			logger.info("==== The '%s' EPUB 3 file has been generated and has been returned to caller ====" % (wrapper.document.short_name + ".epub"))
 	else:
 		print wrapper.book_file_name
+
+
+def debug_hack(args):
+	if args['respec'] and args['url'].find("localhost") != -1:
+		args['url'] = args['url'].replace("localhost:8001/LocalData/github", "w3c.github.io")
+		if logger is not None:
+			logger.info("Changed 'localhost:8001/LocalData/github' to 'w3c.github.io'")
 
 
 class Generator:
@@ -138,8 +130,10 @@ class Generator:
 			elif 'uri' in call_args:
 				self.args['url'] = urllib.unquote(call_args['uri'])
 
+		# debug_hack(self.args)
+
 		if cgi and logger is not None:
-			logger.info("respec:%s; url=%s" % (self.args['respec'], self.args['url']))
+			logger.info("==== Handling '%s' via the generator service ====" % self.args['url'])
 
 	def generate_ebook(self):
 		"""
@@ -148,7 +142,13 @@ class Generator:
 		"""
 		# Generate the EPUB in the external library
 		# noinspection PyPep8
-		return rp2epub.DocWrapper(self.args['url'], is_respec=self.args['respec'], package=True, folder=False, temporary=True).process()
+		return rp2epub.DocWrapper(self.args['url'],
+								  is_respec=self.args['respec'],
+								  package=True,
+								  folder=False,
+								  temporary=True,
+								  logger=logger
+		).process()
 
 	def process(self):
 		"""

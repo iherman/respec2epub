@@ -66,6 +66,7 @@
 <span class="kn">import</span> <span class="nn">html5lib</span>
 <span class="kn">from</span> <span class="nn">.templates</span> <span class="kn">import</span> <span class="n">meta_inf</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">R2EError</span>
+<span class="kn">import</span> <span class="nn">config</span>
 
 <span class="c"># These media types should be added to the zip file uncompressed</span>
 <span class="c"># noinspection PyPep8</span>
@@ -421,23 +422,29 @@
 <span class="sd">		&quot;&quot;&quot;</span>
 	<span class="c"># noinspection PyPep8,PyPep8</span>
 	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">accepted_media_types</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+		<span class="k">def</span> <span class="nf">handle_exception</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">raise_exception</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
 		<span class="bp">self</span><span class="o">.</span><span class="n">_success</span> <span class="o">=</span> <span class="bp">False</span>
+
 		<span class="k">try</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 		<span class="k">except</span> <span class="n">HTTPError</span><span class="p">:</span>
-			<span class="k">if</span> <span class="n">raise_exception</span><span class="p">:</span>
-				<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> cannot be reached!&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
+			<span class="n">handle_exception</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> cannot be reached&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
 			<span class="k">return</span>
 
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">getcode</span><span class="p">()</span> <span class="o">!=</span> <span class="s">&#39;200&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">getcode</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
-			<span class="k">if</span> <span class="n">raise_exception</span><span class="p">:</span>
-				<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="s">&quot;Received a &#39;</span><span class="si">%s</span><span class="s">&#39; status code instead of &#39;200&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">getcode</span><span class="p">())</span>
+			<span class="n">handle_exception</span><span class="p">(</span><span class="s">&quot;Received a &#39;</span><span class="si">%s</span><span class="s">&#39; status code instead of &#39;200&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">getcode</span><span class="p">()</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
 			<span class="k">return</span>
+
 		<span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">gettype</span><span class="p">()</span>
 		<span class="k">if</span> <span class="n">accepted_media_types</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">accepted_media_types</span><span class="p">:</span>
-			<span class="k">if</span> <span class="n">raise_exception</span><span class="p">:</span>
-				<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="s">&quot;Received a file of type &#39;</span><span class="si">%s</span><span class="s">&#39;, which was not listed as acceptable&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span><span class="p">)</span>
+			<span class="n">handle_exception</span><span class="p">(</span><span class="s">&quot;Received a file of type &#39;</span><span class="si">%s</span><span class="s">&#39;, which was not listed as acceptable&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span><span class="p">)</span>
 			<span class="k">return</span>
+
 		<span class="bp">self</span><span class="o">.</span><span class="n">_success</span> <span class="o">=</span> <span class="bp">True</span>
 
 	<span class="nd">@property</span>

@@ -23,5 +23,8 @@ This is a simple script that can be invoked from the command line. Usage of the 
       -b, --book      Create an EPUB3 package
       -f, --folder    Create a folder with the book content
       -t, --tempfile  Create a one-time, temporary name for the EPUB3 file
+      -l, --logging   Log events in the local file 'log'
 
+
+(The last two optional arguments are of a real interest for debugging only.)
 
