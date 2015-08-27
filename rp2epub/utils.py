@@ -246,9 +246,13 @@ class Utils(object):
 		 clearly, this is not the optimal way of doing this:-( But hopefully this will disappear and this hack can be
 		 removed, eventually.
 
+		 **Note**: the second issue is an `acknowledged bug in Readium <https://github.com/readium/readium-shared-js/issues/203>`__.
+		 When a newer release of Readium is deployed, this hack should be removed from the code.
+
 		:param html: the object for the whole document
 		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
 		"""
+		# TODO: Remove the hack when a newer version of Readium has been deployed.
 
 		body = html.find(".//body")
 		main = SubElement(body, "main")

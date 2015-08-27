@@ -290,9 +290,13 @@
 <span class="sd">		 clearly, this is not the optimal way of doing this:-( But hopefully this will disappear and this hack can be</span>
 <span class="sd">		 removed, eventually.</span>
 
+<span class="sd">		 **Note**: the second issue is an `acknowledged bug in Readium &lt;https://github.com/readium/readium-shared-js/issues/203&gt;`__.</span>
+<span class="sd">		 When a newer release of Readium is deployed, this hack should be removed from the code.</span>
+
 <span class="sd">		:param html: the object for the whole document</span>
 <span class="sd">		:type html: :py:class:`xml.etree.ElementTree.ElementTree`</span>
 <span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c"># TODO: Remove the hack when a newer version of Readium has been deployed.</span>
 
 		<span class="n">body</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//body&quot;</span><span class="p">)</span>
 		<span class="n">main</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">)</span>
