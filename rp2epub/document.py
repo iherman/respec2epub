@@ -126,11 +126,11 @@ class Document:
 		# Look at generic external references like images, and, possibly copy the content
 		for (element, attr) in self.download_targets:
 			attr_value = element.get(attr)
-			# The To_Transfer array collects the 'system' references collected in Assets. Although some
+			# The TO_TRANSFER array collects the 'system' references collected in Assets. Although some
 			# earlier manipulation on the DOM may have already set the external references to those, the
 			# HTTPSession is unnecessary (and sometimes leads to 404 anyway)
 			# Bottom line: those references must be filtered out
-			if attr_value is not None and all(map(lambda x: x[1] != attr_value, TO_TRANSFER)):
+			if attr_value is not None and all(map(lambda x: x[2] != attr_value, TO_TRANSFER)):
 				ref = urljoin(self.driver.base, attr_value)
 				if urlparse(ref).netloc == self.driver.domain:
 					session = HttpSession(ref, accepted_media_types=extra_media_types.keys())

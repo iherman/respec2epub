@@ -8,7 +8,6 @@ Module Content
 
 """
 
-
 from urllib2 import urlopen, HTTPError
 from StringIO import StringIO
 from datetime import date
@@ -527,24 +526,25 @@ class Book(object):
 
 		:param str target: path for the target file
 		:param session: a :py:class:`.HttpSession` instance whose data must retrieved to be written into the book
+		:boolean return: the value of session.success
 		"""
 		# Copy the content into the final book
 		# Special care should be taken with html files. Those are supposed to become XHTML:-(
 		if not session.success:
 			config.logger.info("Unsuccessful HTTP session; did not store %s" % session.url)
-			return
-
-		if session.media_type == 'text/html':
-			# We have to
-			# 1. parse the source with the html5 parser
-			# 2. add the xhtml namespace to the top and take care of the stupid script issue (no self-closing scripts!)
-			# 3. write the result as xhtml through the write_element method
-			html = html5lib.parse(session.data, namespaceHTMLElements=False)
-			Utils.html_to_xhtml(html)
-			self.write_element(target.replace('.html', '.xhtml', 1), ElementTree(html))
 		else:
-			# Note that some of the media types are not to be compressed
-			self.writestr(target, session.data.read(), zipfile.ZIP_STORED if session.media_type in _NO_COMPRESS else zipfile.ZIP_DEFLATED)
+			if session.media_type == 'text/html':
+				# We have to
+				# 1. parse the source with the html5 parser
+				# 2. add the xhtml namespace to the top and take care of the stupid script issue (no self-closing scripts!)
+				# 3. write the result as xhtml through the write_element method
+				html = html5lib.parse(session.data, namespaceHTMLElements=False)
+				Utils.html_to_xhtml(html)
+				self.write_element(target.replace('.html', '.xhtml', 1), ElementTree(html))
+			else:
+				# Note that some of the media types are not to be compressed
+				self.writestr(target, session.data.read(), zipfile.ZIP_STORED if session.media_type in _NO_COMPRESS else zipfile.ZIP_DEFLATED)
+		return session.success
 
 	# noinspection PyPep8Naming
 	def write_HTTP(self, target, url):
@@ -553,10 +553,11 @@ class Book(object):
 
 		:param str target: path for the target file
 		:param url: URL that has to be retrieved to be written into the book
+		:boolean return: whether the HTTP session was successful or not
 		"""
 		# Copy the content into the final book.
 		# Note that some of the media types are not to be compressed
-		self.write_session(target, HttpSession(url))
+		return self.write_session(target, HttpSession(url))
 
 	def _path(self, path):
 		"""

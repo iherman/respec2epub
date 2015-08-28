@@ -83,7 +83,7 @@ class Package:
 		if self.document.doc_type in CSS_LOGOS:
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
 			item.set("id", "css-logo")
-			item.set("href", CSS_LOGOS[self.document.doc_type][1])
+			item.set("href", CSS_LOGOS[self.document.doc_type][2])
 			item.set("media-type", "image/png")
 			item.tail = "\n    "
 

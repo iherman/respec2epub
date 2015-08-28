@@ -39,22 +39,22 @@ DEFAULT_FILES = [
 
 # noinspection PyPep8
 # The URL-s to the pictures on the upper left hand side of the front page, denoting the document status,
-# and also the path within the book.
+# and also the path within the book. A dictionary with keys denoting the status; values like the :py:data:`TO_TRANSFER`
 CSS_LOGOS = {
-	"REC"  : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-REC.png"),
-	"NOTE" : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-NOTE.png"),
-	"PER"  : ("http://www.w3.org/StyleSheets/TR/logo-PER.png", "Assets/logo-PR.png"),
-	"PR"   : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-PR.png"),
-	"CR"   : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-CR.png"),
-	"WD"   : ("http://www.w3.org/StyleSheets/TR/logo-CR.png", "Assets/logo-WD.png"),
-	"ED"   : ("http://www.w3.org/StyleSheets/TR/logo-ED.png", "Assets/logo-ED.png"),
+	"REC"  : ("http://www.w3.org/StyleSheets/TR/logo-REC.png",  "http://localhost:8001/StyleSheets/TR/logo-REC.png",  "Assets/logo-REC.png"),
+	"NOTE" : ("http://www.w3.org/StyleSheets/TR/logo-NOTE.png", "http://localhost:8001/StyleSheets/TR/logo-NOTE.png", "Assets/logo-NOTE.png"),
+	"PER"  : ("http://www.w3.org/StyleSheets/TR/logo-PER.png",  "http://localhost:8001/StyleSheets/TR/logo-PER.png",  "Assets/logo-PR.png"),
+	"PR"   : ("http://www.w3.org/StyleSheets/TR/logo-PR.png",   "http://localhost:8001/StyleSheets/TR/logo-PR.png",   "Assets/logo-PR.png"),
+	"CR"   : ("http://www.w3.org/StyleSheets/TR/logo-CR.png",   "http://localhost:8001/StyleSheets/TR/logo-CR.png",   "Assets/logo-CR.png"),
+	"WD"   : ("http://www.w3.org/StyleSheets/TR/logo-WD.png",   "http://localhost:8001/StyleSheets/TR/logo-WD.png",   "Assets/logo-WD.png"),
+	"ED"   : ("http://www.w3.org/StyleSheets/TR/logo-ED.png",   "http://localhost:8001/StyleSheets/TR/logo-ED.png",   "Assets/logo-ED.png"),
 }
 
 # noinspection PyPep8
 # Default array of (url,local_name) pairs of resources that must be transferred and added to the output.
 # This may be expanded run time.
 TO_TRANSFER = [
-	("http://www.w3.org/Icons/w3c_main.png", "Assets/w3c_main.png"),
-	("http://www.w3.org/Icons/w3c_home.png", "Assets/w3c_home.png"),
-	("http://www.w3.org/StyleSheets/TR/base.css", "Assets/base.css"),
+	("http://www.w3.org/Icons/w3c_main.png",      "http://localhost:8001/Icons/w3c_main.png",      "Assets/w3c_main.png"),
+	("http://www.w3.org/Icons/w3c_home.png",      "http://localhost:8001/Icons/w3c_home.png",      "Assets/w3c_home.png"),
+	("http://www.w3.org/StyleSheets/TR/base.css", "http://localhost:8001/StyleSheets/TR/base.css", "Assets/base.css"),
 ]

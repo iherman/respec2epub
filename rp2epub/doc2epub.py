@@ -158,13 +158,14 @@ class DocWrapper:
 		with Book(self.book_file_name, self.document.short_name, self.package, self.folder) as self._book:
 			# Add the book.css with the right value set for the background image
 			if self.document.doc_type in CSS_LOGOS:
-				uri, local = CSS_LOGOS[self.document.doc_type]
+				uri, alt_uri, local = CSS_LOGOS[self.document.doc_type]
 				self.book.writestr('Assets/book.css', BOOK_CSS % local[7:])
-				self._To_transfer.append((uri, local))
+				self._To_transfer.append((uri, alt_uri, local))
 
 			# Some resources should be added to the book once and for all
-			for uri, local in self._To_transfer:
-				self.book.write_HTTP(local, uri)
+			for uri, alt_uri, local in self._To_transfer:
+				if not self.book.write_HTTP(local, uri):
+					self.book.write_HTTP(local, alt_uri)
 
 			# Add the additional resources that are referred to from the document itself
 			self.document.extract_external_references()
