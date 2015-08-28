@@ -52,7 +52,6 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-
 <span class="kn">from</span> <span class="nn">urllib2</span> <span class="kn">import</span> <span class="n">urlopen</span><span class="p">,</span> <span class="n">HTTPError</span>
 <span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
@@ -61,6 +60,8 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">SubElement</span><span class="p">,</span> <span class="n">ElementTree</span>
 <span class="kn">import</span> <span class="nn">zipfile</span>
 <span class="kn">import</span> <span class="nn">html5lib</span>
@@ -428,11 +429,14 @@
 			<span class="k">if</span> <span class="n">raise_exception</span><span class="p">:</span>
 				<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
-		<span class="bp">self</span><span class="o">.</span><span class="n">_success</span> <span class="o">=</span> <span class="bp">False</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_success</span>    <span class="o">=</span> <span class="bp">False</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_data</span>       <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_url</span>        <span class="o">=</span> <span class="n">url</span>
 
 		<span class="k">try</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-		<span class="k">except</span> <span class="n">HTTPError</span><span class="p">:</span>
+		<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
 			<span class="n">handle_exception</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> cannot be reached&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
 			<span class="k">return</span>
 
@@ -460,6 +464,13 @@
 <span class="sd">		The returned resource, as a file-like object</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The request URL for this session</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_url</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -559,20 +570,25 @@
 
 <span class="sd">		:param str target: path for the target file</span>
 <span class="sd">		:param session: a :py:class:`.HttpSession` instance whose data must retrieved to be written into the book</span>
+<span class="sd">		:boolean return: the value of session.success</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="c"># Copy the content into the final book</span>
 		<span class="c"># Special care should be taken with html files. Those are supposed to become XHTML:-(</span>
-		<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="s">&#39;text/html&#39;</span><span class="p">:</span>
-			<span class="c"># We have to</span>
-			<span class="c"># 1. parse the source with the html5 parser</span>
-			<span class="c"># 2. add the xhtml namespace to the top and take care of the stupid script issue (no self-closing scripts!)</span>
-			<span class="c"># 3. write the result as xhtml through the write_element method</span>
-			<span class="n">html</span> <span class="o">=</span> <span class="n">html5lib</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">namespaceHTMLElements</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-			<span class="n">Utils</span><span class="o">.</span><span class="n">html_to_xhtml</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.html&#39;</span><span class="p">,</span> <span class="s">&#39;.xhtml&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ElementTree</span><span class="p">(</span><span class="n">html</span><span class="p">))</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+			<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Unsuccessful HTTP session; did not store </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">session</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
 		<span class="k">else</span><span class="p">:</span>
-			<span class="c"># Note that some of the media types are not to be compressed</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_STORED</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="ow">in</span> <span class="n">_NO_COMPRESS</span> <span class="k">else</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="s">&#39;text/html&#39;</span><span class="p">:</span>
+				<span class="c"># We have to</span>
+				<span class="c"># 1. parse the source with the html5 parser</span>
+				<span class="c"># 2. add the xhtml namespace to the top and take care of the stupid script issue (no self-closing scripts!)</span>
+				<span class="c"># 3. write the result as xhtml through the write_element method</span>
+				<span class="n">html</span> <span class="o">=</span> <span class="n">html5lib</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">namespaceHTMLElements</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+				<span class="n">Utils</span><span class="o">.</span><span class="n">html_to_xhtml</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.html&#39;</span><span class="p">,</span> <span class="s">&#39;.xhtml&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ElementTree</span><span class="p">(</span><span class="n">html</span><span class="p">))</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="c"># Note that some of the media types are not to be compressed</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_STORED</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="ow">in</span> <span class="n">_NO_COMPRESS</span> <span class="k">else</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span>
 
 	<span class="c"># noinspection PyPep8Naming</span></div>
 <div class="viewcode-block" id="Book.write_HTTP"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.write_HTTP">[docs]</a>	<span class="k">def</span> <span class="nf">write_HTTP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
@@ -581,10 +597,11 @@
 
 <span class="sd">		:param str target: path for the target file</span>
 <span class="sd">		:param url: URL that has to be retrieved to be written into the book</span>
+<span class="sd">		:boolean return: whether the HTTP session was successful or not</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="c"># Copy the content into the final book.</span>
 		<span class="c"># Note that some of the media types are not to be compressed</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">write_session</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">HttpSession</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_session</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">HttpSession</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="Book._path"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book._path">[docs]</a>	<span class="k">def</span> <span class="nf">_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>

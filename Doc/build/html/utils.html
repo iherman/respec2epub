@@ -119,10 +119,13 @@ directories and create those on the fly if necessary.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>target</strong> (<em>str</em>) &#8211; path for the target file</li>
 <li><strong>url</strong> &#8211; URL that has to be retrieved to be written into the book</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Boolean return:</th><td class="field-body"><p class="first last">whether the HTTP session was successful or not</p>
 </td>
 </tr>
 </tbody>
@@ -156,10 +159,13 @@ it will be converted into XHTML on the fly.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>target</strong> (<em>str</em>) &#8211; path for the target file</li>
 <li><strong>session</strong> &#8211; a <a class="reference internal" href="#rp2epub.utils.HttpSession" title="rp2epub.utils.HttpSession"><code class="xref py py-class docutils literal"><span class="pre">HttpSession</span></code></a> instance whose data must retrieved to be written into the book</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Boolean return:</th><td class="field-body"><p class="first last">the value of session.success</p>
 </td>
 </tr>
 </tbody>
@@ -233,6 +239,12 @@ types.</p>
 <dt id="rp2epub.utils.HttpSession.success">
 <code class="descname">success</code><a class="headerlink" href="#rp2epub.utils.HttpSession.success" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if the HTTP retrieval was successful, False otherwise</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.utils.HttpSession.url">
+<code class="descname">url</code><a class="headerlink" href="#rp2epub.utils.HttpSession.url" title="Permalink to this definition">¶</a></dt>
+<dd><p>The request URL for this session</p>
 </dd></dl>
 
 </dd></dl>
