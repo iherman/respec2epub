@@ -17,6 +17,8 @@ import warnings
 import os
 import os.path
 import shutil
+import sys
+import traceback
 from xml.etree.ElementTree import SubElement, ElementTree
 import zipfile
 import html5lib
@@ -384,11 +386,14 @@ class HttpSession:
 			if raise_exception:
 				raise R2EError(message)
 
-		self._success = False
+		self._success    = False
+		self._media_type = ""
+		self._data       = None
+		self._url        = url
 
 		try:
 			self._data = urlopen(url)
-		except HTTPError:
+		except Exception:
 			handle_exception("%s cannot be reached" % url)
 			return
 
@@ -416,6 +421,13 @@ class HttpSession:
 		The returned resource, as a file-like object
 		"""
 		return self._data
+
+	@property
+	def url(self):
+		"""
+		The request URL for this session
+		"""
+		return self._url
 
 	@property
 	def media_type(self):
@@ -518,6 +530,10 @@ class Book(object):
 		"""
 		# Copy the content into the final book
 		# Special care should be taken with html files. Those are supposed to become XHTML:-(
+		if not session.success:
+			config.logger.info("Unsuccessful HTTP session; did not store %s" % session.url)
+			return
+
 		if session.media_type == 'text/html':
 			# We have to
 			# 1. parse the source with the html5 parser

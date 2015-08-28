@@ -68,7 +68,7 @@ class DocWrapper:
 
 		if logger is not None:
 			config.logger = logger
-			message = "* Handling the '%s' %s source *" % (url, "ReSpec" if is_respec else "HTML")
+			message = "== Handling the '%s' %s source ==" % (url, "ReSpec" if is_respec else "HTML")
 			config.logger.info(message)
 
 		# Get the base URL, ie, remove the possible query parameter and the last portion of the path name
