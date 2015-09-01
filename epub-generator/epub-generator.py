@@ -9,7 +9,7 @@ import traceback
 
 # To ensure the right format for the dates
 import locale
-locale.setlocale(locale.LC_ALL, 'en_us')
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
 ##########################################
 # Global boolean flag to decide whether this is a CGI script or not (the non-cgi case is for debugging)
