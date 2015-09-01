@@ -25,12 +25,16 @@ if cgi is not True:
 # If it is a cgi script then the python distribution may not include what is needed for import... Then import the
 # generator library
 # noinspection PyPep8
+local = not cgi or os.environ['HTTP_HOST'] == 'localhost:8001'
 if cgi:
 	# The import path should include the place where my library resides
 	# Depending on settings and environments, this may have to be adapted to various situations...
-	if os.environ['HTTP_HOST'] == 'localhost:8001':
+	if local:
 		# this is my local machine
 		sys.path.insert(0, "/Users/ivan/Library/Python")
+	else:
+		# this is the deployment platform on labs.w3.org
+		sys.path.insert(0, "/home/ivan/lib/python")
 
 import rp2epub
 
@@ -50,7 +54,11 @@ try:
 
 	# Set the handler; this handler provides a way to limit the file size, and also gives a rollover
 	# TODO: when going for a real deployment, the maxBytes argument should be set to, say, 100000 (or more?) and backupCount to 10
-	handler = logging.handlers.RotatingFileHandler(filename="/tmp/epub_generator_logs/log", maxBytes=3000, backupCount=2)
+
+	maxBytes = 3000 if local else 100000
+	backupCount = 2 if local else 10
+
+	handler = logging.handlers.RotatingFileHandler(filename="/tmp/epub_generator_logs/log", maxBytes=maxBytes, backupCount=backupCount)
 	handler.setLevel(logging.DEBUG)
 
 	# create and add a formatter
@@ -96,13 +104,6 @@ def respond(wrapper, modified):
 		print wrapper.book_file_name
 
 
-def debug_hack(args):
-	if args['respec'] and args['url'].find("localhost") != -1:
-		args['url'] = args['url'].replace("localhost:8001/LocalData/github", "w3c.github.io")
-		if logger is not None:
-			logger.info("Changed 'localhost:8001/LocalData/github' to 'w3c.github.io'")
-
-
 class Generator:
 	# noinspection PyPep8
 	def __init__(self):
@@ -129,8 +130,6 @@ class Generator:
 				self.args['url'] = urllib.unquote(call_args['url'])
 			elif 'uri' in call_args:
 				self.args['url'] = urllib.unquote(call_args['uri'])
-
-		# debug_hack(self.args)
 
 		if cgi and logger is not None:
 			logger.info("==== Handling '%s' via the generator service ====" % self.args['url'])
