@@ -132,7 +132,8 @@ class Generator:
 				self.args['url'] = urllib.unquote(call_args['uri'])
 
 		if cgi and logger is not None:
-			logger.info("==== Handling '%s' via the generator service ====" % self.args['url'])
+			logger.info("**** Handling '%s' via the generator service ****" % self.args['url'])
+			logger.info("File is %s source" % "a respec" if self.args['respec'] else "an html")
 
 	def generate_ebook(self):
 		"""
