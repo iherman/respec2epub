@@ -162,7 +162,10 @@ class Utils(object):
 			pdate = d[-8:]
 			return date(int(pdate[0:4]), int(pdate[4:6]), int(pdate[6:8]))
 		except:
-			raise R2EError("dated URI is not of the expected format")
+			message = "dated URI is not of the expected format"
+			if config.logger is not None:
+				config.logger.error(message)
+			raise R2EError(message)
 	# end retrieve_date
 
 	@staticmethod

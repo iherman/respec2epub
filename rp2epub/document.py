@@ -305,7 +305,7 @@ class Document:
 		if self._doc_type is None:
 			message = "Unrecognized document type, unable to convert (should be ED, WD, CR, PR, PER, REC, or NOTE)"
 			if config.logger is not None:
-				config.logger.exception(message)
+				config.logger.error(message)
 			raise R2EError(message)
 		elif self._doc_type == "ED":
 			self._date = date.today()
