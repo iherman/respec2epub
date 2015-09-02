@@ -296,9 +296,15 @@ class Document:
 		# Short name of the document
 		# Find the official short name of the document
 		for aref in self.html.findall(".//a[@class='u-url']"):
-			self._dated_uri = aref.get('href')
-			dated_name = self._dated_uri[:-1] if self._dated_uri[-1] == '/' else self._dated_uri
-			self._doc_type, self._short_name = Utils.create_shortname(dated_name.split('/')[-1])
+			try:
+				self._dated_uri = aref.get('href')
+				dated_name = self._dated_uri[:-1] if self._dated_uri[-1] == '/' else self._dated_uri
+				self._doc_type, self._short_name = Utils.create_shortname(dated_name.split('/')[-1])
+			except:
+				message = "Could not establish document type and/or short name from '%s'" % self._dated_uri
+				if config.logger is not None:
+					config.logger.error(message)
+				raise R2EError(message)
 			break
 
 		# Date of the document, to be reused in the metadata
