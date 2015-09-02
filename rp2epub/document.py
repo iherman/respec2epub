@@ -223,7 +223,7 @@ class Document:
 		# Extra care should be taken with <a> elements to exclude self references (ie, fragment id-s)
 		for element in self.html.findall(".//a[@href]"):
 			ref = element.get("href")
-			if ref[0] != '#' and ref != ".":
+			if ref is not None and len(ref) != 0 and ref[0] != '#' and ref != ".":
 				self.download_targets.append((element, 'href'))
 
 	###################################################################################################
