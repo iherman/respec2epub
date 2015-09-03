@@ -217,7 +217,7 @@ BOOK_CSS = """
     page-break-before: avoid;
   }
 
-  div.example, div.note {
+  div.example, div.note, pre.idl, .warning, table.parameters, table.exceptions {
     page-break-inside: avoid;
   }
 
