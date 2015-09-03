@@ -9,11 +9,11 @@ by the :py:class:`.Package` instance.
 
 .. py:data:: NAV
 
-  XHTML code for the new type, EPUB3 table of content file
+  XHTML code for the new type EPUB3 table of content file
 
 .. py:data:: TOC
 
-  XML code for the old type, EPUB2 table of content file
+  XML code for the old type EPUB2 table of content file
 
 .. py:data:: PACKAGE
 
@@ -171,7 +171,7 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
       <p class="larger" id="editors"></p>
       <p class="larger">World Wide Web Consortium (W3C)</p>
       <p class="logo"><a href="http://www.w3.org/"><img alt="W3C main logo" src="Assets/w3c_main.png"/></a></p>
-      <p class="disclaimer">Note: this ePub edition does <em>not</em> represent the authoritative text of the specification; please consult the <a id="ref_original">original document</a> on the W3C Web Site.</p>
+      <p class="disclaimer">Note: this EPUB edition does <em>not</em> represent the authoritative text of the specification; please consult the <a id="ref_original">original document</a> on the W3C Web Site.</p>
       <p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a>
       © of the original documents: <span id="cpdate"></span> W3C<sup>®</sup> (<a href="http://www.mit.edu">MIT</a>, <a href="http://www.ercim.eu/">ERCIM</a>,
       <a href="http://www.keio.ac.jp/">Keio</a>, <a href="http://ev.buaa.edu.cn/">Beihang</a>).<br/>
