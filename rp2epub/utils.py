@@ -9,6 +9,7 @@ Module Content
 """
 
 from urllib2 import urlopen, HTTPError
+from urlparse import urlparse
 from StringIO import StringIO
 from datetime import date
 import re
@@ -376,12 +377,12 @@ class HttpSession:
 		types.
 
 		:param str url: the URL to be retrieved
-		:param list accepted_media_types: and array of media type strings giving a list of those that should be added to the book
+		:param boolean check_media_type: whether the media type should be checked against the media type of the resource to see if it is acceptable
 		:param boolean raise_exception: whether an exception should be raised if the document cannot be retrieved (either because the HTTP return is not 200, or not of an acceptable media type)
 		:raises R2EError: in case the file is not an of an acceptable media type, or the HTTP return is not 200
 		"""
 	# noinspection PyPep8,PyPep8
-	def __init__(self, url, accepted_media_types=None, raise_exception=False):
+	def __init__(self, url, check_media_type=False, raise_exception=False):
 		def handle_exception(message):
 			if config.logger is not None:
 				config.logger.error(message)
@@ -404,8 +405,8 @@ class HttpSession:
 			return
 
 		self._media_type = self._data.info().gettype()
-		if accepted_media_types is not None and self._media_type not in accepted_media_types:
-			handle_exception("Received a file of type '%s', which was not listed as acceptable" % self._media_type)
+		if check_media_type and self._media_type not in config.ACCEPTED_MEDIA_TYPES:
+			handle_exception("Received a file of type '%s', which is not defined as acceptable" % self._media_type)
 			return
 
 		self._success = True

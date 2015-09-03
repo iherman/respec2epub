@@ -26,29 +26,6 @@ from .config import TO_TRANSFER
 import config
 
 
-# suffixes and media types for resources that are recognized by EPUB
-# noinspection PyPep8,PyPep8
-extra_media_types = {
-	"text/html"                   : "html",
-	"text/css"                    : "css",
-	"image/svg+xml"               : "svg",
-	"image/png"                   : "png",
-	"image/jpeg"                  : "jpg",
-	"image/gif"                   : "gif",
-	"application/javascript"      : "js",
-	"text/csv"                    : "csv",
-	"text/turtle"                 : "ttl",
-	"application/json"            : "json",
-	"application/ld+json"         : "jsonld",
-	"application/xml"             : "xml",
-	"application/font-woff"       : "woff",
-	"application/vnd.ms-opentype" : "opf",
-	"audio/mpeg"                  : "mp3",
-	"video/mp4"                   : "mp4",
-	"video/webm"                  : "webm",
-	"video/ogg"                   : "ogg"
-}
-
 # Pairs of element names and attributes for content that should be downloaded and referred to
 # noinspection PyPep8
 external_references = [
@@ -133,12 +110,12 @@ class Document:
 			if attr_value is not None and all(map(lambda x: x[2] != attr_value, TO_TRANSFER)):
 				ref = urljoin(self.driver.base, attr_value)
 				if urlparse(ref).netloc == self.driver.domain:
-					session = HttpSession(ref, accepted_media_types=extra_media_types.keys())
+					session = HttpSession(ref, check_media_type=True)
 					if session.success:
 						# Find the right name for the target document
 						path = urlparse(ref).path
 						if path[-1] == '/':
-							target = 'Assets/extras/data%s.%s' % (self._index, extra_media_types[session.media_type])
+							target = 'Assets/extras/data%s.%s' % (self._index, config.ACCEPTED_MEDIA_TYPES[session.media_type])
 							self._index += 1
 						else:
 							target = '%s' % path.split('/')[-1]
@@ -168,7 +145,7 @@ class Document:
 						if not element.get(attr).startswith("Assets/"):
 							element.attrib.pop(attr)
 							if config.logger is not None:
-								config.logger.warning("Link to '%s' removed (non-existing local resource)" % ref)
+								config.logger.warning("Link to '%s' removed (non-existing local resource or of non acceptable type)" % ref)
 
 	###################################################################################################
 	# noinspection PyPep8

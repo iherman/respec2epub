@@ -21,6 +21,10 @@ Various configuration variables.
 
   Array of (url,local_name) pairs of resources that must be transferred and added to the output. This may be expanded run time;
   by default it includes the W3C logos and the base CSS file.
+
+.. py:data:: ACCEPTED_MEDIA_TYPES
+
+  Dictionary of media types that are accepted for inclusion in an epub file, providing also the suffix used
 """
 
 # logger (see the Python logging library for details). May be overwritten by the :py:class:`.DocWrapper` instance)
@@ -58,3 +62,27 @@ TO_TRANSFER = [
 	("http://www.w3.org/Icons/w3c_home.png",      "http://localhost:8001/Icons/w3c_home.png",      "Assets/w3c_home.png"),
 	("http://www.w3.org/StyleSheets/TR/base.css", "http://localhost:8001/StyleSheets/TR/base.css", "Assets/base.css"),
 ]
+
+# suffixes and media types for resources that are recognized by EPUB
+# noinspection PyPep8,PyPep8
+ACCEPTED_MEDIA_TYPES = {
+	"text/html"                   : "html",
+	"application/xhtml+xml"       : "xhtml",
+	"text/css"                    : "css",
+	"image/svg+xml"               : "svg",
+	"image/png"                   : "png",
+	"image/jpeg"                  : "jpg",
+	"image/gif"                   : "gif",
+	"application/javascript"      : "js",
+	"text/csv"                    : "csv",
+	"text/turtle"                 : "ttl",
+	"application/json"            : "json",
+	"application/ld+json"         : "jsonld",
+	"application/xml"             : "xml",
+	"application/font-woff"       : "woff",
+	"application/vnd.ms-opentype" : "opf",
+	"audio/mpeg"                  : "mp3",
+	"video/mp4"                   : "mp4",
+	"video/webm"                  : "webm",
+	"video/ogg"                   : "ogg"
+}
