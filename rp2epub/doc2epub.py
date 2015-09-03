@@ -63,8 +63,6 @@ class DocWrapper:
 		self._domain        = urlparse(url).netloc
 		self._package       = package
 		self._folder        = folder
-		# This list may be locally extended
-		self._To_transfer   = list(TO_TRANSFER)
 
 		if logger is not None:
 			config.logger = logger
@@ -156,14 +154,15 @@ class DocWrapper:
 		# 'short name' will also be used for the name of the final book
 
 		with Book(self.book_file_name, self.document.short_name, self.package, self.folder) as self._book:
+			additional_transfers = []
 			# Add the book.css with the right value set for the background image
 			if self.document.doc_type in CSS_LOGOS:
 				uri, alt_uri, local = CSS_LOGOS[self.document.doc_type]
 				self.book.writestr('Assets/book.css', BOOK_CSS % local[7:])
-				self._To_transfer.append((uri, alt_uri, local))
+				additional_transfers.append((uri, alt_uri, local))
 
 			# Some resources should be added to the book once and for all
-			for uri, alt_uri, local in self._To_transfer:
+			for uri, alt_uri, local in additional_transfers + config.TO_TRANSFER:
 				if not self.book.write_HTTP(local, uri):
 					self.book.write_HTTP(local, alt_uri)
 
