@@ -26,16 +26,6 @@ from .config import TO_TRANSFER
 import config
 
 
-# Pairs of element names and attributes for content that should be downloaded and referred to
-# noinspection PyPep8
-external_references = [
-	("img", "src"),
-	("img", "longdesc"),
-	("script", "src"),
-	("object", "data")
-]
-
-
 # Massage the core document
 class Document:
 	"""
@@ -116,6 +106,9 @@ class Document:
 						path = urlparse(ref).path
 						if path[-1] == '/':
 							target = 'Assets/extras/data%s.%s' % (self._index, config.ACCEPTED_MEDIA_TYPES[session.media_type])
+							print "Adding target '%s' from '%s'" % (target,ref)
+							print "element: '%s'" % element
+							print "attribute '%s'" % attr_value
 							self._index += 1
 						else:
 							target = '%s' % path.split('/')[-1]
@@ -123,7 +116,6 @@ class Document:
 						# yet another complication: if the target is an html file, it will have to become xhtml :-(
 						# this means that the target and the media types should receive a local name, to
 						# be stored and used below
-
 						final_media_type, final_target = final_target_media(session, target)
 
 						# We can now copy the content into the final book.
@@ -193,7 +185,7 @@ class Document:
 		Utils.change_DOM(self.html)
 
 		# Collect the additional download targets
-		for (tag_name, attr) in external_references:
+		for (tag_name, attr) in config.EXTERNAL_REFERENCES:
 			for element in self.html.findall(".//%s" % tag_name):
 				self.download_targets.append((element, attr))
 

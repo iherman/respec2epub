@@ -25,6 +25,11 @@ Various configuration variables.
 .. py:data:: ACCEPTED_MEDIA_TYPES
 
   Dictionary of media types that are accepted for inclusion in an epub file, providing also the suffix used
+
+.. py:data:: EXTERNAL_REFERENCES
+
+   Pairs of element names and attributes for content that should be downloaded and referred to
+
 """
 
 # logger (see the Python logging library for details). May be overwritten by the :py:class:`.DocWrapper` instance)
@@ -86,3 +91,19 @@ ACCEPTED_MEDIA_TYPES = {
 	"video/webm"                  : "webm",
 	"video/ogg"                   : "ogg"
 }
+
+
+# Pairs of element names and attributes for content that should be downloaded and referred to
+# noinspection PyPep8
+EXTERNAL_REFERENCES = [
+	("img", "src"),
+	("img", "longdesc"),
+	("script", "src"),
+	("object", "data"),
+	("iframe", "src"),
+	("embed", "src"),
+	("video", "src"),
+	("audio", "src"),
+	("source", "src"),
+	("track", "src")
+]
