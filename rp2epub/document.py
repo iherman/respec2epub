@@ -99,6 +99,11 @@ class Document:
 			# Bottom line: those references must be filtered out
 			if attr_value is not None and all(map(lambda x: x[2] != attr_value, TO_TRANSFER)):
 				ref = urljoin(self.driver.base, attr_value)
+				# In some cases, primarily in the case of editors drafts, the reference is simply on the file
+				# itself; better avoid a duplication
+				if ref == self.driver.top_uri or ref == self.driver.base:
+					continue
+
 				if urlparse(ref).netloc == self.driver.domain:
 					session = HttpSession(ref, check_media_type=True)
 					if session.success:
