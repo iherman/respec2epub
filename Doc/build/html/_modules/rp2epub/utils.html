@@ -53,6 +53,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">urllib2</span> <span class="kn">import</span> <span class="n">urlopen</span><span class="p">,</span> <span class="n">HTTPError</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span>
 <span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -206,7 +207,10 @@
 			<span class="n">pdate</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">:]</span>
 			<span class="k">return</span> <span class="n">date</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">pdate</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pdate</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pdate</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">]))</span>
 		<span class="k">except</span><span class="p">:</span>
-			<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="s">&quot;dated URI is not of the expected format&quot;</span><span class="p">)</span>
+			<span class="n">message</span> <span class="o">=</span> <span class="s">&quot;dated URI is not of the expected format&quot;</span>
+			<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+			<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 	<span class="c"># end retrieve_date</span>
 </div>
 	<span class="nd">@staticmethod</span>
@@ -417,12 +421,12 @@
 <span class="sd">		types.</span>
 
 <span class="sd">		:param str url: the URL to be retrieved</span>
-<span class="sd">		:param list accepted_media_types: and array of media type strings giving a list of those that should be added to the book</span>
+<span class="sd">		:param boolean check_media_type: whether the media type should be checked against the media type of the resource to see if it is acceptable</span>
 <span class="sd">		:param boolean raise_exception: whether an exception should be raised if the document cannot be retrieved (either because the HTTP return is not 200, or not of an acceptable media type)</span>
 <span class="sd">		:raises R2EError: in case the file is not an of an acceptable media type, or the HTTP return is not 200</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 	<span class="c"># noinspection PyPep8,PyPep8</span>
-	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">accepted_media_types</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">check_media_type</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 		<span class="k">def</span> <span class="nf">handle_exception</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
 			<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
 				<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
@@ -445,8 +449,8 @@
 			<span class="k">return</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">gettype</span><span class="p">()</span>
-		<span class="k">if</span> <span class="n">accepted_media_types</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">accepted_media_types</span><span class="p">:</span>
-			<span class="n">handle_exception</span><span class="p">(</span><span class="s">&quot;Received a file of type &#39;</span><span class="si">%s</span><span class="s">&#39;, which was not listed as acceptable&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">check_media_type</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">ACCEPTED_MEDIA_TYPES</span><span class="p">:</span>
+			<span class="n">handle_exception</span><span class="p">(</span><span class="s">&quot;Received a file of type &#39;</span><span class="si">%s</span><span class="s">&#39;, which is not defined as acceptable&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span><span class="p">)</span>
 			<span class="k">return</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">_success</span> <span class="o">=</span> <span class="bp">True</span>

@@ -70,39 +70,6 @@
 <span class="kn">import</span> <span class="nn">config</span>
 
 
-<span class="c"># suffixes and media types for resources that are recognized by EPUB</span>
-<span class="c"># noinspection PyPep8,PyPep8</span>
-<span class="n">extra_media_types</span> <span class="o">=</span> <span class="p">{</span>
-	<span class="s">&quot;text/html&quot;</span>                   <span class="p">:</span> <span class="s">&quot;html&quot;</span><span class="p">,</span>
-	<span class="s">&quot;text/css&quot;</span>                    <span class="p">:</span> <span class="s">&quot;css&quot;</span><span class="p">,</span>
-	<span class="s">&quot;image/svg+xml&quot;</span>               <span class="p">:</span> <span class="s">&quot;svg&quot;</span><span class="p">,</span>
-	<span class="s">&quot;image/png&quot;</span>                   <span class="p">:</span> <span class="s">&quot;png&quot;</span><span class="p">,</span>
-	<span class="s">&quot;image/jpeg&quot;</span>                  <span class="p">:</span> <span class="s">&quot;jpg&quot;</span><span class="p">,</span>
-	<span class="s">&quot;image/gif&quot;</span>                   <span class="p">:</span> <span class="s">&quot;gif&quot;</span><span class="p">,</span>
-	<span class="s">&quot;application/javascript&quot;</span>      <span class="p">:</span> <span class="s">&quot;js&quot;</span><span class="p">,</span>
-	<span class="s">&quot;text/csv&quot;</span>                    <span class="p">:</span> <span class="s">&quot;csv&quot;</span><span class="p">,</span>
-	<span class="s">&quot;text/turtle&quot;</span>                 <span class="p">:</span> <span class="s">&quot;ttl&quot;</span><span class="p">,</span>
-	<span class="s">&quot;application/json&quot;</span>            <span class="p">:</span> <span class="s">&quot;json&quot;</span><span class="p">,</span>
-	<span class="s">&quot;application/ld+json&quot;</span>         <span class="p">:</span> <span class="s">&quot;jsonld&quot;</span><span class="p">,</span>
-	<span class="s">&quot;application/xml&quot;</span>             <span class="p">:</span> <span class="s">&quot;xml&quot;</span><span class="p">,</span>
-	<span class="s">&quot;application/font-woff&quot;</span>       <span class="p">:</span> <span class="s">&quot;woff&quot;</span><span class="p">,</span>
-	<span class="s">&quot;application/vnd.ms-opentype&quot;</span> <span class="p">:</span> <span class="s">&quot;opf&quot;</span><span class="p">,</span>
-	<span class="s">&quot;audio/mpeg&quot;</span>                  <span class="p">:</span> <span class="s">&quot;mp3&quot;</span><span class="p">,</span>
-	<span class="s">&quot;video/mp4&quot;</span>                   <span class="p">:</span> <span class="s">&quot;mp4&quot;</span><span class="p">,</span>
-	<span class="s">&quot;video/webm&quot;</span>                  <span class="p">:</span> <span class="s">&quot;webm&quot;</span><span class="p">,</span>
-	<span class="s">&quot;video/ogg&quot;</span>                   <span class="p">:</span> <span class="s">&quot;ogg&quot;</span>
-<span class="p">}</span>
-
-<span class="c"># Pairs of element names and attributes for content that should be downloaded and referred to</span>
-<span class="c"># noinspection PyPep8</span>
-<span class="n">external_references</span> <span class="o">=</span> <span class="p">[</span>
-	<span class="p">(</span><span class="s">&quot;img&quot;</span><span class="p">,</span> <span class="s">&quot;src&quot;</span><span class="p">),</span>
-	<span class="p">(</span><span class="s">&quot;img&quot;</span><span class="p">,</span> <span class="s">&quot;longdesc&quot;</span><span class="p">),</span>
-	<span class="p">(</span><span class="s">&quot;script&quot;</span><span class="p">,</span> <span class="s">&quot;src&quot;</span><span class="p">),</span>
-	<span class="p">(</span><span class="s">&quot;object&quot;</span><span class="p">,</span> <span class="s">&quot;data&quot;</span><span class="p">)</span>
-<span class="p">]</span>
-
-
 <span class="c"># Massage the core document</span>
 <div class="viewcode-block" id="Document"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document">[docs]</a><span class="k">class</span> <span class="nc">Document</span><span class="p">:</span>
 	<span class="sd">&quot;&quot;&quot;</span>
@@ -176,13 +143,21 @@
 			<span class="c"># Bottom line: those references must be filtered out</span>
 			<span class="k">if</span> <span class="n">attr_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">attr_value</span><span class="p">,</span> <span class="n">TO_TRANSFER</span><span class="p">)):</span>
 				<span class="n">ref</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">attr_value</span><span class="p">)</span>
+				<span class="c"># In some cases, primarily in the case of editors drafts, the reference is simply on the file</span>
+				<span class="c"># itself; better avoid a duplication</span>
+				<span class="k">if</span> <span class="n">ref</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">top_uri</span> <span class="ow">or</span> <span class="n">ref</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">:</span>
+					<span class="k">continue</span>
+
 				<span class="k">if</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">domain</span><span class="p">:</span>
-					<span class="n">session</span> <span class="o">=</span> <span class="n">HttpSession</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">accepted_media_types</span><span class="o">=</span><span class="n">extra_media_types</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+					<span class="n">session</span> <span class="o">=</span> <span class="n">HttpSession</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">check_media_type</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 					<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
 						<span class="c"># Find the right name for the target document</span>
 						<span class="n">path</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
 						<span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span><span class="p">:</span>
-							<span class="n">target</span> <span class="o">=</span> <span class="s">&#39;Assets/extras/data</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">,</span> <span class="n">extra_media_types</span><span class="p">[</span><span class="n">session</span><span class="o">.</span><span class="n">media_type</span><span class="p">])</span>
+							<span class="n">target</span> <span class="o">=</span> <span class="s">&#39;Assets/extras/data</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">ACCEPTED_MEDIA_TYPES</span><span class="p">[</span><span class="n">session</span><span class="o">.</span><span class="n">media_type</span><span class="p">])</span>
+							<span class="k">print</span> <span class="s">&quot;Adding target &#39;</span><span class="si">%s</span><span class="s">&#39; from &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span><span class="n">ref</span><span class="p">)</span>
+							<span class="k">print</span> <span class="s">&quot;element: &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">element</span>
+							<span class="k">print</span> <span class="s">&quot;attribute &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">attr_value</span>
 							<span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">+=</span> <span class="mi">1</span>
 						<span class="k">else</span><span class="p">:</span>
 							<span class="n">target</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -190,7 +165,6 @@
 						<span class="c"># yet another complication: if the target is an html file, it will have to become xhtml :-(</span>
 						<span class="c"># this means that the target and the media types should receive a local name, to</span>
 						<span class="c"># be stored and used below</span>
-
 						<span class="n">final_media_type</span><span class="p">,</span> <span class="n">final_target</span> <span class="o">=</span> <span class="n">final_target_media</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
 
 						<span class="c"># We can now copy the content into the final book.</span>
@@ -212,7 +186,7 @@
 						<span class="k">if</span> <span class="ow">not</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;Assets/&quot;</span><span class="p">):</span>
 							<span class="n">element</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
 							<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-								<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Link to &#39;</span><span class="si">%s</span><span class="s">&#39; removed (non-existing local resource)&quot;</span> <span class="o">%</span> <span class="n">ref</span><span class="p">)</span>
+								<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Link to &#39;</span><span class="si">%s</span><span class="s">&#39; removed (non-existing local resource or of non acceptable type)&quot;</span> <span class="o">%</span> <span class="n">ref</span><span class="p">)</span>
 
 	<span class="c">###################################################################################################</span>
 	<span class="c"># noinspection PyPep8</span></div>
@@ -260,14 +234,14 @@
 		<span class="n">Utils</span><span class="o">.</span><span class="n">change_DOM</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
 
 		<span class="c"># Collect the additional download targets</span>
-		<span class="k">for</span> <span class="p">(</span><span class="n">tag_name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="ow">in</span> <span class="n">external_references</span><span class="p">:</span>
+		<span class="k">for</span> <span class="p">(</span><span class="n">tag_name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">EXTERNAL_REFERENCES</span><span class="p">:</span>
 			<span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">tag_name</span><span class="p">):</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">element</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
 
 		<span class="c"># Extra care should be taken with &lt;a&gt; elements to exclude self references (ie, fragment id-s)</span>
 		<span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//a[@href]&quot;</span><span class="p">):</span>
 			<span class="n">ref</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">)</span>
-			<span class="k">if</span> <span class="n">ref</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;#&#39;</span> <span class="ow">and</span> <span class="n">ref</span> <span class="o">!=</span> <span class="s">&quot;.&quot;</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">ref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">ref</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;#&#39;</span> <span class="ow">and</span> <span class="n">ref</span> <span class="o">!=</span> <span class="s">&quot;.&quot;</span><span class="p">:</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">element</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">))</span>
 
 	<span class="c">###################################################################################################</span>
@@ -340,16 +314,22 @@
 		<span class="c"># Short name of the document</span>
 		<span class="c"># Find the official short name of the document</span>
 		<span class="k">for</span> <span class="n">aref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//a[@class=&#39;u-url&#39;]&quot;</span><span class="p">):</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span> <span class="o">=</span> <span class="n">aref</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;href&#39;</span><span class="p">)</span>
-			<span class="n">dated_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">create_shortname</span><span class="p">(</span><span class="n">dated_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span> <span class="o">=</span> <span class="n">aref</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;href&#39;</span><span class="p">)</span>
+				<span class="n">dated_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">create_shortname</span><span class="p">(</span><span class="n">dated_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Could not establish document type and/or short name from &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>
+				<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+					<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+				<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 			<span class="k">break</span>
 
 		<span class="c"># Date of the document, to be reused in the metadata</span>
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
 			<span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Unrecognized document type, unable to convert (should be ED, WD, CR, PR, PER, REC, or NOTE)&quot;</span>
 			<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-				<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+				<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 			<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span> <span class="o">==</span> <span class="s">&quot;ED&quot;</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>

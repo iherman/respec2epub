@@ -203,7 +203,7 @@ incarnation of the same file). This method takes care of that through the <cite>
 
 <dl class="class">
 <dt id="rp2epub.utils.HttpSession">
-<em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">HttpSession</code><span class="sig-paren">(</span><em>url</em>, <em>accepted_media_types=None</em>, <em>raise_exception=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#HttpSession"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.HttpSession" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">HttpSession</code><span class="sig-paren">(</span><em>url</em>, <em>check_media_type=False</em>, <em>raise_exception=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#HttpSession"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.HttpSession" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrapper around an HTTP session; the returned media type is compared against accepted media
 types.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -212,7 +212,7 @@ types.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>url</strong> (<em>str</em>) &#8211; the URL to be retrieved</li>
-<li><strong>accepted_media_types</strong> (<em>list</em>) &#8211; and array of media type strings giving a list of those that should be added to the book</li>
+<li><strong>check_media_type</strong> (<em>boolean</em>) &#8211; whether the media type should be checked against the media type of the resource to see if it is acceptable</li>
 <li><strong>raise_exception</strong> (<em>boolean</em>) &#8211; whether an exception should be raised if the document cannot be retrieved (either because the HTTP return is not 200, or not of an acceptable media type)</li>
 </ul>
 </td>
