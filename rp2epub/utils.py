@@ -243,7 +243,7 @@ class Utils(object):
 		 following actions are done:
 
 		 1. Due to the rigidity of the iBook reader, the DOM tree has to be change: all children of the ``<body>`` should be
-		 encapsulated into a top level block element (we use ``<main>``). This is because iBook imposes
+		 encapsulated into a top level block element (we use ``<div id="epubmain">``). This is because iBook imposes
 		 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level
 		 block element allows for suitable CSS adjustments.
 
@@ -259,16 +259,18 @@ class Utils(object):
 		:param html: the object for the whole document
 		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
 		"""
-		# TODO: Remove the hack when a newer version of Readium has been deployed.
 
+		# Hack #1
 		body = html.find(".//body")
-		main = SubElement(body, "main")
+		main = SubElement(body, "div")
+		main.set("id","epubmain")
 
 		# All children of body, except for main, should be re-parented to main and removed from body
-		for child in [x for x in body.findall("*") if x.tag != "main"]:
+		for child in [x for x in body.findall("*") if not (x.tag == "div" and x.get("id", None) == "epubmain")]:
 			main.append(child)
 			body.remove(child)
 
+		# Hack #2
 		# Change the class name
 		# noinspection PyShadowingNames
 		def _change_name(x):
