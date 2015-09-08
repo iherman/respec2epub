@@ -104,12 +104,13 @@ class Document:
 				if ref == self.driver.top_uri or ref == self.driver.base:
 					continue
 
-				if urlparse(ref).netloc == self.driver.domain:
+				if ref.startswith(self.driver.base):
 					session = HttpSession(ref, check_media_type=True)
 					if session.success:
 						# Find the right name for the target document
 						path = urlparse(ref).path
 						if path[-1] == '/':
+							target = 'Assets/extras/data%s.%s' % (self._index, config.ACCEPTED_MEDIA_TYPES[session.media_type])
 							self._index += 1
 						else:
 							target = '%s' % path.split('/')[-1]
