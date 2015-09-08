@@ -43,17 +43,18 @@ short_label_pattern = re.compile("^[1-9][0-9]*\. .*$")
 
 # list of element pairs that lead to a table of content
 # noinspection PyPep8
-# structures for TOC elements in respec: element hierarchy and, if not None, the class name for the <li> element.
-TOC_PAIRS_RESPEC = [
+# structures for TOC elements in ReSpec or Bikeshed: element hierarchy and, if not None,
+# the class name for the <li> element.
+TOC_PAIRS = [
 	("div[@id='toc']", "ul[@class='toc']", None),
 	("div[@id='toc']", "ol[@class='toc']", None),
 	("section[@id='toc']", "ul[@class='toc']", None),
 	("section[@id='toc']", "ol[@class='toc']", None),
 	("div[@class='toc']", "ul[@class='toc']", "tocline1"),
+	("div[@data-fill-with='table-of-contents']", "ul[@class='toc']", None),
 	("body", "ul[@class='toc']", None),
 	("body", "ol[@class='toc']", None)
 ]
-
 
 # noinspection PyPep8Naming
 class TOC_Item(object):
@@ -324,19 +325,16 @@ class Utils(object):
 			retval.append(TOC_Item(ref, label, short_label))
 		# end extract_toc_entry
 
-		def toc_respec():
+		def toc_respec_or_bikeshed():
 			"""
-			Extract the TOC items following respec conventions. There are possible pairs (see the ``TOC_PAIRS``
-			alternatives, they all appear in different respec generated documents...), yielding <li> elements with
-			the toc entry.
+			Extract the TOC items following ReSpec or Bikeshed conventions. There are possible pairs (see the ``TOC_PAIRS``
+			alternatives), yielding <li> elements with the toc entry.
 			"""
 			## respec version
 			# We have to try two different versions, because, in some cases, respec uses 'div' and in other cases 'section'
 			# probably depends on the output format requested (or the version of respec? or both?)
 			# In all cases, the <a> element contains a section number and the chapter title
-			# To make it worse, some documents do even use any of those two...
-			# Would be great if the xpath used allowed for alternatives:-(
-			for pairs in TOC_PAIRS_RESPEC:
+			for pairs in TOC_PAIRS:
 				xpath = ".//{}/{}".format(pairs[0], pairs[1])
 				toc = html.findall(xpath)
 				if len(toc) > 0:
@@ -347,26 +345,14 @@ class Utils(object):
 					return True
 			return False
 
-		def toc_xml_css(top_level, toc_entry):
-			"""
-			Generic TOC extraction: top_level defines the XPATH to get the TOC structure, and toc_entry the
-			tag that has to be found containing the necessary <a> element
-			"""
-			toc = html.findall(top_level)
-			num = 0
-			if len(toc) > 0:
-				for e in toc[0].findall(toc_entry):
-					num += 1
-					extract_toc_entry(e, explicit_num=num)
-			return num > 0
-
 		# Execute the various versions in order
-		if toc_respec() or toc_xml_css(".//ul[@class='toc']", "li") or toc_xml_css(".//p[@class='toc']", "b"):
+		if toc_respec_or_bikeshed():
 			# we are fine, found what is needed
 			return retval
 		else:
 			# if we got here, something is wrong...
-			warnings.warn("Could not extract a table of content from '%s'" % short_name)
+			if config.logger is not None:
+				config.logger.warning("Could not extract a table of content from '%s'" % short_name)
 			return []
 	# end _extract_toc
 
