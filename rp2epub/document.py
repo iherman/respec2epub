@@ -110,10 +110,6 @@ class Document:
 						# Find the right name for the target document
 						path = urlparse(ref).path
 						if path[-1] == '/':
-							target = 'Assets/extras/data%s.%s' % (self._index, config.ACCEPTED_MEDIA_TYPES[session.media_type])
-							print "Adding target '%s' from '%s'" % (target,ref)
-							print "element: '%s'" % element
-							print "attribute '%s'" % attr_value
 							self._index += 1
 						else:
 							target = '%s' % path.split('/')[-1]
