@@ -26,8 +26,8 @@
           EPUB&nbsp;3 file for off-line reading. ResPec “sources” are transformed
           into HTML on the fly using a separate Web Service set up (at W3C) for that
           purpose.&nbsp; Style sheets, images, scripts, etc., are downloaded and
-          included in the book, provided they are on the same Web domain as the
-          original file. The service returns the EPUB&nbsp;3 content that can be
+          included in the book, provided their path is a "subpath" of the original file (ie, they are in the
+          same folder or a subfolder thereof). The service returns the EPUB&nbsp;3 content that can be
           stored locally.</p>
         <p>The package is <span style="font-style: italic;">not</span> a generic
           HTML&#10141;EPUB&nbsp;3 solution.</p>
@@ -58,10 +58,18 @@
         </form>
         <p>Generation may take quite some time. Be patient…</p>
     	<section>
+        <h2>Running the service as an API</h2>
+        <p>To run the service directly as an API (i.e., an HTTP GET service):</p>
+        <dl>
+            <dt>For an HTML file generated from ReSpec:</dt>
+            <dd><code>https://labs.w3.org/epub-generator/cgi-bin/epub-generator.py?type=html&amp;url={URL OF THE FILE}</code></dd>
+            <dt>For an HTML file ReSpec that has toe be transformed first:</dt>
+            <dd><code>https://labs.w3.org/epub-generator/cgi-bin/epub-generator.py?type=respec&amp;url={URL OF THE FILE}</code></dd>
+        </dl>
 	    <h2>Source</h2>
 	    <p>The source code is available on <a href="https://github.com/iherman/respec2epub">GitHub</a>.
 	      It is fully in Python 2.7; the only extra dependency is the Python <a href="https://pypi.python.org/pypi/html5lib">HTML5lib</a>
-	      library.</p>
+	      library. The repository also has a script that can be ran on the command line.</p>
 		</section>
     </main>
 
