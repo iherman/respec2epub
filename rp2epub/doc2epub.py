@@ -46,7 +46,6 @@ class DocWrapper:
 	Top level entry class; receives the URI to be retrieved and generates the folders and the EPUB Package (as required)
 	in the current directory (by default).
 
-
 	:param str url: location of the document source
 	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
 	:param boolean package: whether a real zip file should be created or not

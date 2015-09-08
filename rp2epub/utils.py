@@ -8,17 +8,13 @@ Module Content
 
 """
 
-from urllib2 import urlopen, HTTPError
-from urlparse import urlparse
+from urllib2 import urlopen
 from StringIO import StringIO
 from datetime import date
 import re
-import warnings
 import os
 import os.path
 import shutil
-import sys
-import traceback
 from xml.etree.ElementTree import SubElement, ElementTree
 import zipfile
 import html5lib
@@ -43,13 +39,15 @@ short_label_pattern = re.compile("^[1-9][0-9]*\. .*$")
 
 # list of element pairs that lead to a table of content
 # noinspection PyPep8
-# structures for TOC elements in respec: element hierarchy and, if not None, the class name for the <li> element.
-TOC_PAIRS_RESPEC = [
+# structures for TOC elements in ReSpec or Bikeshed: element hierarchy and, if not None,
+# the class name for the <li> element.
+TOC_PAIRS = [
 	("div[@id='toc']", "ul[@class='toc']", None),
 	("div[@id='toc']", "ol[@class='toc']", None),
 	("section[@id='toc']", "ul[@class='toc']", None),
 	("section[@id='toc']", "ol[@class='toc']", None),
 	("div[@class='toc']", "ul[@class='toc']", "tocline1"),
+	("div[@data-fill-with='table-of-contents']", "ul[@class='toc']", None),
 	("body", "ul[@class='toc']", None),
 	("body", "ol[@class='toc']", None)
 ]
@@ -243,7 +241,7 @@ class Utils(object):
 		 following actions are done:
 
 		 1. Due to the rigidity of the iBook reader, the DOM tree has to be change: all children of the ``<body>`` should be
-		 encapsulated into a top level block element (we use ``<main>``). This is because iBook imposes
+		 encapsulated into a top level block element (we use ``<div id="epubmain">``). This is because iBook imposes
 		 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level
 		 block element allows for suitable CSS adjustments.
 
@@ -259,16 +257,18 @@ class Utils(object):
 		:param html: the object for the whole document
 		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
 		"""
-		# TODO: Remove the hack when a newer version of Readium has been deployed.
 
+		# Hack #1
 		body = html.find(".//body")
-		main = SubElement(body, "main")
+		main = SubElement(body, "div")
+		main.set("id", "epubmain")
 
 		# All children of body, except for main, should be re-parented to main and removed from body
-		for child in [x for x in body.findall("*") if x.tag != "main"]:
+		for child in [x for x in body.findall("*") if not (x.tag == "div" and x.get("id", None) == "epubmain")]:
 			main.append(child)
 			body.remove(child)
 
+		# Hack #2
 		# Change the class name
 		# noinspection PyShadowingNames
 		def _change_name(x):
@@ -322,19 +322,16 @@ class Utils(object):
 			retval.append(TOC_Item(ref, label, short_label))
 		# end extract_toc_entry
 
-		def toc_respec():
+		def toc_respec_or_bikeshed():
 			"""
-			Extract the TOC items following respec conventions. There are possible pairs (see the ``TOC_PAIRS``
-			alternatives, they all appear in different respec generated documents...), yielding <li> elements with
-			the toc entry.
+			Extract the TOC items following ReSpec or Bikeshed conventions. There are possible pairs (see the ``TOC_PAIRS``
+			alternatives), yielding <li> elements with the toc entry.
 			"""
 			## respec version
 			# We have to try two different versions, because, in some cases, respec uses 'div' and in other cases 'section'
 			# probably depends on the output format requested (or the version of respec? or both?)
 			# In all cases, the <a> element contains a section number and the chapter title
-			# To make it worse, some documents do even use any of those two...
-			# Would be great if the xpath used allowed for alternatives:-(
-			for pairs in TOC_PAIRS_RESPEC:
+			for pairs in TOC_PAIRS:
 				xpath = ".//{}/{}".format(pairs[0], pairs[1])
 				toc = html.findall(xpath)
 				if len(toc) > 0:
@@ -345,26 +342,14 @@ class Utils(object):
 					return True
 			return False
 
-		def toc_xml_css(top_level, toc_entry):
-			"""
-			Generic TOC extraction: top_level defines the XPATH to get the TOC structure, and toc_entry the
-			tag that has to be found containing the necessary <a> element
-			"""
-			toc = html.findall(top_level)
-			num = 0
-			if len(toc) > 0:
-				for e in toc[0].findall(toc_entry):
-					num += 1
-					extract_toc_entry(e, explicit_num=num)
-			return num > 0
-
 		# Execute the various versions in order
-		if toc_respec() or toc_xml_css(".//ul[@class='toc']", "li") or toc_xml_css(".//p[@class='toc']", "b"):
+		if toc_respec_or_bikeshed():
 			# we are fine, found what is needed
 			return retval
 		else:
 			# if we got here, something is wrong...
-			warnings.warn("Could not extract a table of content from '%s'" % short_name)
+			if config.logger is not None:
+				config.logger.warning("Could not extract a table of content from '%s'" % short_name)
 			return []
 	# end _extract_toc
 
@@ -394,6 +379,7 @@ class HttpSession:
 		self._data       = None
 		self._url        = url
 
+		# noinspection PyBroadException
 		try:
 			self._data = urlopen(url)
 		except Exception:

@@ -28,7 +28,7 @@ This script that can be invoked from the command as follows::
 
     optional arguments:
       -h, --help      show this help message and exit
-      -r, --respec    The source is a respec file, transform it before processing
+      -r, --respec    The source is a ReSpec file, transform it before processing
       -b, --book      Create an EPUB3 package
       -f, --folder    Create a folder with the book content
       -t, --tempfile  Create a one-time, temporary name for the EPUB3 file
