@@ -87,17 +87,18 @@
 
 <span class="c"># list of element pairs that lead to a table of content</span>
 <span class="c"># noinspection PyPep8</span>
-<span class="c"># structures for TOC elements in respec: element hierarchy and, if not None, the class name for the &lt;li&gt; element.</span>
-<span class="n">TOC_PAIRS_RESPEC</span> <span class="o">=</span> <span class="p">[</span>
+<span class="c"># structures for TOC elements in ReSpec or Bikeshed: element hierarchy and, if not None,</span>
+<span class="c"># the class name for the &lt;li&gt; element.</span>
+<span class="n">TOC_PAIRS</span> <span class="o">=</span> <span class="p">[</span>
 	<span class="p">(</span><span class="s">&quot;div[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
 	<span class="p">(</span><span class="s">&quot;div[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;ol[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
 	<span class="p">(</span><span class="s">&quot;section[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
 	<span class="p">(</span><span class="s">&quot;section[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;ol[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
 	<span class="p">(</span><span class="s">&quot;div[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;tocline1&quot;</span><span class="p">),</span>
+	<span class="p">(</span><span class="s">&quot;div[@data-fill-with=&#39;table-of-contents&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
 	<span class="p">(</span><span class="s">&quot;body&quot;</span><span class="p">,</span> <span class="s">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
 	<span class="p">(</span><span class="s">&quot;body&quot;</span><span class="p">,</span> <span class="s">&quot;ol[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 <span class="p">]</span>
-
 
 <span class="c"># noinspection PyPep8Naming</span>
 <div class="viewcode-block" id="TOC_Item"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.TOC_Item">[docs]</a><span class="k">class</span> <span class="nc">TOC_Item</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -287,7 +288,7 @@
 <span class="sd">		 following actions are done:</span>
 
 <span class="sd">		 1. Due to the rigidity of the iBook reader, the DOM tree has to be change: all children of the ``&lt;body&gt;`` should be</span>
-<span class="sd">		 encapsulated into a top level block element (we use ``&lt;main&gt;``). This is because iBook imposes</span>
+<span class="sd">		 encapsulated into a top level block element (we use ``&lt;div id=&quot;epubmain&quot;&gt;``). This is because iBook imposes</span>
 <span class="sd">		 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level</span>
 <span class="sd">		 block element allows for suitable CSS adjustments.</span>
 
@@ -303,16 +304,18 @@
 <span class="sd">		:param html: the object for the whole document</span>
 <span class="sd">		:type html: :py:class:`xml.etree.ElementTree.ElementTree`</span>
 <span class="sd">		&quot;&quot;&quot;</span>
-		<span class="c"># TODO: Remove the hack when a newer version of Readium has been deployed.</span>
 
+		<span class="c"># Hack #1</span>
 		<span class="n">body</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//body&quot;</span><span class="p">)</span>
-		<span class="n">main</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">)</span>
+		<span class="n">main</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s">&quot;div&quot;</span><span class="p">)</span>
+		<span class="n">main</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span><span class="s">&quot;epubmain&quot;</span><span class="p">)</span>
 
 		<span class="c"># All children of body, except for main, should be re-parented to main and removed from body</span>
-		<span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">body</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;*&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s">&quot;main&quot;</span><span class="p">]:</span>
+		<span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">body</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;*&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s">&quot;div&quot;</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;epubmain&quot;</span><span class="p">)]:</span>
 			<span class="n">main</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
 			<span class="n">body</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
 
+		<span class="c"># Hack #2</span>
 		<span class="c"># Change the class name</span>
 		<span class="c"># noinspection PyShadowingNames</span>
 		<span class="k">def</span> <span class="nf">_change_name</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
@@ -366,19 +369,16 @@
 			<span class="n">retval</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TOC_Item</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">short_label</span><span class="p">))</span>
 		<span class="c"># end extract_toc_entry</span>
 
-		<span class="k">def</span> <span class="nf">toc_respec</span><span class="p">():</span>
+		<span class="k">def</span> <span class="nf">toc_respec_or_bikeshed</span><span class="p">():</span>
 			<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">			Extract the TOC items following respec conventions. There are possible pairs (see the ``TOC_PAIRS``</span>
-<span class="sd">			alternatives, they all appear in different respec generated documents...), yielding &lt;li&gt; elements with</span>
-<span class="sd">			the toc entry.</span>
+<span class="sd">			Extract the TOC items following ReSpec or Bikeshed conventions. There are possible pairs (see the ``TOC_PAIRS``</span>
+<span class="sd">			alternatives), yielding &lt;li&gt; elements with the toc entry.</span>
 <span class="sd">			&quot;&quot;&quot;</span>
 			<span class="c">## respec version</span>
 			<span class="c"># We have to try two different versions, because, in some cases, respec uses &#39;div&#39; and in other cases &#39;section&#39;</span>
 			<span class="c"># probably depends on the output format requested (or the version of respec? or both?)</span>
 			<span class="c"># In all cases, the &lt;a&gt; element contains a section number and the chapter title</span>
-			<span class="c"># To make it worse, some documents do even use any of those two...</span>
-			<span class="c"># Would be great if the xpath used allowed for alternatives:-(</span>
-			<span class="k">for</span> <span class="n">pairs</span> <span class="ow">in</span> <span class="n">TOC_PAIRS_RESPEC</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">pairs</span> <span class="ow">in</span> <span class="n">TOC_PAIRS</span><span class="p">:</span>
 				<span class="n">xpath</span> <span class="o">=</span> <span class="s">&quot;.//{}/{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pairs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pairs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 				<span class="n">toc</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">xpath</span><span class="p">)</span>
 				<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -389,26 +389,14 @@
 					<span class="k">return</span> <span class="bp">True</span>
 			<span class="k">return</span> <span class="bp">False</span>
 
-		<span class="k">def</span> <span class="nf">toc_xml_css</span><span class="p">(</span><span class="n">top_level</span><span class="p">,</span> <span class="n">toc_entry</span><span class="p">):</span>
-			<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">			Generic TOC extraction: top_level defines the XPATH to get the TOC structure, and toc_entry the</span>
-<span class="sd">			tag that has to be found containing the necessary &lt;a&gt; element</span>
-<span class="sd">			&quot;&quot;&quot;</span>
-			<span class="n">toc</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">top_level</span><span class="p">)</span>
-			<span class="n">num</span> <span class="o">=</span> <span class="mi">0</span>
-			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-				<span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">toc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">toc_entry</span><span class="p">):</span>
-					<span class="n">num</span> <span class="o">+=</span> <span class="mi">1</span>
-					<span class="n">extract_toc_entry</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">explicit_num</span><span class="o">=</span><span class="n">num</span><span class="p">)</span>
-			<span class="k">return</span> <span class="n">num</span> <span class="o">&gt;</span> <span class="mi">0</span>
-
 		<span class="c"># Execute the various versions in order</span>
-		<span class="k">if</span> <span class="n">toc_respec</span><span class="p">()</span> <span class="ow">or</span> <span class="n">toc_xml_css</span><span class="p">(</span><span class="s">&quot;.//ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;li&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">toc_xml_css</span><span class="p">(</span><span class="s">&quot;.//p[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">toc_respec_or_bikeshed</span><span class="p">():</span>
 			<span class="c"># we are fine, found what is needed</span>
 			<span class="k">return</span> <span class="n">retval</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="c"># if we got here, something is wrong...</span>
-			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Could not extract a table of content from &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">short_name</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Could not extract a table of content from &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">short_name</span><span class="p">)</span>
 			<span class="k">return</span> <span class="p">[]</span>
 	<span class="c"># end _extract_toc</span>
 

@@ -279,7 +279,7 @@ types.</p>
 <div><p>Changes on the DOM to ensure a proper interoperability of the display among EPUB readers. At the moment, the
 following actions are done:</p>
 <p>1. Due to the rigidity of the iBook reader, the DOM tree has to be change: all children of the <code class="docutils literal"><span class="pre">&lt;body&gt;</span></code> should be
-encapsulated into a top level block element (we use <code class="docutils literal"><span class="pre">&lt;main&gt;</span></code>). This is because iBook imposes
+encapsulated into a top level block element (we use <code class="docutils literal"><span class="pre">&lt;div</span> <span class="pre">id=&quot;epubmain&quot;&gt;</span></code>). This is because iBook imposes
 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level
 block element allows for suitable CSS adjustments.</p>
 <p>2. For some unknown reasons, if a <code class="docutils literal"><span class="pre">&lt;pre&gt;</span></code> element has the class <code class="docutils literal"><span class="pre">highlight</span></code>, the Readium extension to
