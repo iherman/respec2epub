@@ -8,17 +8,13 @@ Module Content
 
 """
 
-from urllib2 import urlopen, HTTPError
-from urlparse import urlparse
+from urllib2 import urlopen
 from StringIO import StringIO
 from datetime import date
 import re
-import warnings
 import os
 import os.path
 import shutil
-import sys
-import traceback
 from xml.etree.ElementTree import SubElement, ElementTree
 import zipfile
 import html5lib
@@ -55,6 +51,7 @@ TOC_PAIRS = [
 	("body", "ul[@class='toc']", None),
 	("body", "ol[@class='toc']", None)
 ]
+
 
 # noinspection PyPep8Naming
 class TOC_Item(object):
@@ -264,7 +261,7 @@ class Utils(object):
 		# Hack #1
 		body = html.find(".//body")
 		main = SubElement(body, "div")
-		main.set("id","epubmain")
+		main.set("id", "epubmain")
 
 		# All children of body, except for main, should be re-parented to main and removed from body
 		for child in [x for x in body.findall("*") if not (x.tag == "div" and x.get("id", None) == "epubmain")]:
@@ -382,6 +379,7 @@ class HttpSession:
 		self._data       = None
 		self._url        = url
 
+		# noinspection PyBroadException
 		try:
 			self._data = urlopen(url)
 		except Exception:
