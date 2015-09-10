@@ -257,6 +257,9 @@ class Utils(object):
 		 **Note**: the second issue is an `acknowledged bug in Readium <https://github.com/readium/readium-shared-js/issues/203>`__.
 		 When a newer release of Readium is deployed, this hack should be removed from the code.
 
+		 3. Some readers *require* to have a ``type="text/css"`` on the the link element for a CSS; otherwise the CSS
+		 is ignored.
+
 		:param html: the object for the whole document
 		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
 		"""
@@ -282,6 +285,12 @@ class Utils(object):
 			cl_names = pre.get("class").split()
 			new_cl_names = map(_change_name, cl_names)
 			pre.set("class", " ".join(new_cl_names))
+
+		# Hack #3
+		# Add the type="text/css" for stylesheet elements
+		for lnk in html.findall(".//link[@rel='stylesheet']"):
+			if "type" not in lnk.keys():
+				lnk.set("type", "text/css")
 
 	@staticmethod
 	def extract_toc(html, short_name):
