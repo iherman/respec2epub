@@ -387,7 +387,7 @@ class HttpSession:
 			return
 
 		if self._data.getcode() != '200' and self._data.getcode() != 200:
-			handle_exception("Received a '%s' status code instead of '200'" % self._data.getcode() % url)
+			handle_exception("Received a '%s' status code instead of '200'" % self._data.getcode())
 			return
 
 		self._media_type = self._data.info().gettype()
