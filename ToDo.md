@@ -1,7 +1,6 @@
 # To-Dos
 
 * Utils.py contains the `change_DOM` method that implements a hack around a Readium bug. When the newer version of Readium is deployed, that hack should be removed.
-* Add a possibility to read a file locally instead of relying solely on a URL; useful for the command line.
 * If ReSpec produces the configuration data as part of an embedded JSON, the code should recognize that. 
 	* Caveat: the current approach should also remain in the code for older documents... 
 
