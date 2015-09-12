@@ -189,7 +189,7 @@ BOOK_CSS = """
     padding: 0 0 0 0 !important;
   }
 
-  div#epubmain {
+  div[role~="main"] {
     padding: 2em 1em 2em 70px;
   }
 

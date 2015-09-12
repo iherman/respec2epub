@@ -267,10 +267,10 @@ class Utils(object):
 		# Hack #1
 		body = html.find(".//body")
 		main = SubElement(body, "div")
-		main.set("id", "epubmain")
+		main.set("role", "main")
 
 		# All children of body, except for main, should be re-parented to main and removed from body
-		for child in [x for x in body.findall("*") if not (x.tag == "div" and x.get("id", None) == "epubmain")]:
+		for child in [x for x in body.findall("*") if not (x.tag == "div" and x.get("role", None) == "main")]:
 			main.append(child)
 			body.remove(child)
 
