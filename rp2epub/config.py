@@ -105,5 +105,6 @@ EXTERNAL_REFERENCES = [
 	("video", "src"),
 	("audio", "src"),
 	("source", "src"),
-	("track", "src")
+	("track", "src"),
+	("area", "href")
 ]
