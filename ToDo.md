@@ -2,7 +2,8 @@
 
 * Utils.py contains the `change_DOM` method that implements a hack around a Readium bug. When the newer version of Readium is deployed, that hack should be removed.
 * If ReSpec produces the configuration data as part of an embedded JSON, the code should recognize that. 
-	* Caveat: the current approach should also remain in the code for older documents... 
+	* Caveat: the current approach should also remain in the code for older documents...
+* If ReSpec comes with its own ``<div role=main>``, this should be checked before the wrapping is done. Also, it has to be checked whether the appendices are part of the wrap and the css part may have to be adjusted, too
 
 
 # Possible improvements (mainly if there is demand)

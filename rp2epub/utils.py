@@ -266,16 +266,21 @@ class Utils(object):
 
 		# Hack #1
 		body = html.find(".//body")
-		main = SubElement(body, "div")
-		main.set("id", "epubmain")
 
-		# All children of body, except for main, should be re-parented to main and removed from body
-		for child in [x for x in body.findall("*") if not (x.tag == "div" and x.get("id", None) == "epubmain")]:
-			main.append(child)
-			body.remove(child)
+		if len(html.findall(".//div[@main='role']")) == 0:
+			main = SubElement(body, "div")
+			main.set("role", "main")
+
+			# All children of body, except for main, should be re-parented to main and removed from body
+			# Note: this is a workaround around what seems to be a bug in the html5parser. Indeed,
+			# the direct creation of an Element object does not work; the SubElement method must be used
+			# but this means that element should be avoided in the cycle below. Sigh...
+			for child in [x for x in body.findall("*") if not (x.tag == "div" and x.get("role", None) == "main")]:
+				main.append(child)
+				body.remove(child)
 
 		# Hack #2
-		# Change the class name
+		# Change the "highlight" class name
 		# noinspection PyShadowingNames
 		def _change_name(x):
 			return x if x != "highlight" else "book_highlight"
