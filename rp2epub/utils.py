@@ -135,7 +135,7 @@ class Utils(object):
 		:rtype: tuple
 		"""
 		# This is very W3C specific...
-		for cat in ["REC", "NOTE", "PR", "WD", "CR", "PER"]:
+		for cat in config.DOC_TYPES:
 			if name.startswith(cat + "-"):
 				name = name[len(cat)+1:]
 				return cat, name[:-9]
