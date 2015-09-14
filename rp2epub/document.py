@@ -18,6 +18,7 @@ Module content
 
 
 from urlparse import urlparse, urljoin
+import json
 from xml.etree.ElementTree import SubElement
 from .utils import HttpSession, Utils
 from datetime import date, datetime
@@ -49,6 +50,7 @@ class Document:
 		self._dated_uri  = None
 		self._date       = None
 		self._editors    = None
+		self._authors    = None
 		self._toc		 = []
 		self._issued_as  = None
 		self._get_document_metadata()
@@ -236,6 +238,11 @@ class Document:
 		return self._editors
 
 	@property
+	def authors(self):
+		"""List of authors (as a string)"""
+		return self._authors
+
+	@property
 	def toc(self):
 		"""Table of content, an array of ``TOC_Item`` objects"""
 		return self._toc
@@ -249,59 +256,22 @@ class Document:
 		def _get_people(key, suffix_sing="", suffix_plur=""):
 			people = [p["name"] for p in dict_config[key]]
 			if len(people) == 0:
-				return []
+				return ""
 			elif len(people) == 1:
 				return people[0] + suffix_sing
 			else:
 				return ", ".join(people) + suffix_plur
 
-		retval = {}
-
-		retval["dated_uri"]  = dict_config["thisVersion"]
+		self._dated_uri  = dict_config["thisVersion"]
 		status = dict_config["specStatus"]
-		retval["doc_type"]   = "ED" if status not in config.DOC_TYPES else status
-		retval["short_name"] = dict_config["shortName"]
-		retval["date"]       = datetime.strptime(dict_config["dashDate"], "%Y-%m-%d").date()
-		retval["editors"]    = [] if "editors" not in dict_config else _get_people("editors", ", (ed.)", ", (eds.)")
-		retval["authors"]    = [] if "authors" not in dict_config else _get_people("authors")
+		self._doc_type   = "ED" if status not in config.DOC_TYPES else status
+		self._short_name = dict_config["shortName"]
+		self._date       = datetime.strptime(dict_config["dashDate"], "%Y-%m-%d").date()
+		self._editors    = "" if "editors" not in dict_config else _get_people("editors", ", (ed.)", ", (eds.)")
+		self._authors    = "" if "authors" not in dict_config else _get_people("authors")
+		self._issued_as  = dict_config["publishHumanDate"]
 
-
-		print retval
-
-
-
-	def _get_document_metadata(self):
-		"""
-		Extract metadata from the source, stored as attribute for this class (date, title, editors, etc.)
-
-		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)
-		"""
-
-		# Get the title of the document
-		for title_element in self.html.findall(".//title"):
-			self._title = ""
-			for t in title_element.itertext():
-				self._title += t
-			break
-
-		# Properties, to be added to the manifest
-		props = Utils.get_document_properties(self.html)
-		props.add("remote-resources")
-		if len(props) > 0:
-			self._properties = reduce(lambda x, y: x + ' ' + y, props)
-
-
-		# see if the embedded config is in the file, if so, retrieve it in the form of a directory, and then
-		# remove the script from the DOM tree not to pollute the output unnecessarily
-		head = self.html.find(".//head")
-		respec_config_element = head.find(".//script[@id='respecFinalConfig']")
-		if respec_config_element is not None:
-			import json
-			self._get_metadata_from_respec(json.loads(" ".join([t for t in respec_config_element.itertext()])))
-			head.remove(respec_config_element)
-
-		#### This should/will be an "else"
-
+	def _get_metadata_from_source(self):
 		# Short name of the document
 		# Find the official short name of the document
 		for aref in self.html.findall(".//a[@class='u-url']"):
@@ -330,15 +300,11 @@ class Document:
 		# Extract the editors
 		editor_set = Utils.extract_editors(self.html)
 		if len(editor_set) == 0:
-			self._editors = []
+			self._editors = ""
 		elif len(editor_set) == 1:
 			self._editors = list(editor_set)[0] + ", (ed.)"
 		else:
 			self._editors = ", ".join(list(editor_set)) + ", (eds.)"
-			# self._editors = reduce(lambda x, y: x + ', ' + y, editor_set) + ", (eds.)"
-
-		# Extract the table of content
-		self._toc = Utils.extract_toc(self.html, self.short_name)
 
 		# Add the right subtitle to the cover page
 		for issued in self.html.findall(".//h2[@property='dcterms:issued']"):
@@ -346,4 +312,35 @@ class Document:
 			for t in issued.itertext():
 				self._issued_as += t
 
+	def _get_document_metadata(self):
+		"""
+		Extract metadata from the source, stored as attribute for this class (date, title, editors, etc.)
+
+		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)
+		"""
+		# Get the title of the document
+		for title_element in self.html.findall(".//title"):
+			self._title = ""
+			for t in title_element.itertext():
+				self._title += t
+			break
+
+		# Properties, to be added to the manifest
+		props = Utils.get_document_properties(self.html)
+		props.add("remote-resources")
+		if len(props) > 0:
+			self._properties = reduce(lambda x, y: x + ' ' + y, props)
+
+		# see if the embedded config is in the file, if so, retrieve it in the form of a directory, and then
+		# remove the script from the DOM tree not to pollute the output unnecessarily
+		head = self.html.find(".//head")
+		respec_config_element = head.find(".//script[@id='respecFinalConfig']")
+		if respec_config_element is not None:
+			self._get_metadata_from_respec(json.loads(" ".join([t for t in respec_config_element.itertext()])))
+			head.remove(respec_config_element)
+		else:
+			self._get_metadata_from_source()
+
+		# Extract the table of content
+		self._toc = Utils.extract_toc(self.html, self.short_name)
 
