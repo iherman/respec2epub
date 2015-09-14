@@ -108,3 +108,6 @@ EXTERNAL_REFERENCES = [
 	("track", "src"),
 	("area", "href")
 ]
+
+# Document types that are managed by this tool
+DOC_TYPES = ["REC", "NOTE", "PR", "WD", "CR", "PER"]
