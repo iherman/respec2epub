@@ -19,6 +19,8 @@ Module content
 
 from urlparse import urlparse, urljoin
 import json
+import sys
+import traceback
 from xml.etree.ElementTree import SubElement
 from .utils import HttpSession, Utils
 from datetime import date, datetime
@@ -269,6 +271,8 @@ class Document:
 		"""
 		Extract metadata (date, title, editors, etc.) making use of the stored ReSpec configuration structure (this
 		structure includes the data set by the user plus some data added by the ReSpec process itself).
+
+		:returns: True or False, depending on whether the right keys are available or not
 		"""
 		def _get_people(key, suffix_sing="", suffix_plur=""):
 			def _get_person(person_struct):
@@ -286,14 +290,24 @@ class Document:
 		# store the full configuration for possible later reuse
 		self._respec_config = dict_config
 
-		self._dated_uri  = dict_config["thisVersion"]
-		status = dict_config["specStatus"]
-		self._doc_type   = "ED" if status not in config.DOC_TYPES else status
-		self._short_name = dict_config["shortName"]
-		self._date       = datetime.strptime(dict_config["dashDate"], "%Y-%m-%d").date()
-		self._editors    = "" if "editors" not in dict_config else _get_people("editors", ", (ed.)", ", (eds.)")
-		self._authors    = "" if "authors" not in dict_config else _get_people("authors")
-		self._issued_as  = dict_config["publishHumanDate"]
+		# Check if all the necessary keys are missing
+		necessary_keys = ["thisVersion", "specStatus", "shortName", "dashDate", "publishHumanDate"]
+		if all(map(lambda x: x in dict_config, necessary_keys)):
+			self._dated_uri  = dict_config["thisVersion"]
+			status = dict_config["specStatus"]
+			self._doc_type   = "ED" if status not in config.DOC_TYPES else status
+			self._short_name = dict_config["shortName"]
+			self._editors    = "" if "editors" not in dict_config else _get_people("editors", ", (ed.)", ", (eds.)")
+			self._authors    = "" if "authors" not in dict_config else _get_people("authors")
+
+			self._date       = datetime.strptime(dict_config["dashDate"], "%Y-%m-%d").date()
+			self._issued_as  = dict_config["publishHumanDate"]
+			return True
+		else:
+			if config.logger is not None:
+				config.logger.warning("One of the respec keys missing (expecting %s)" % necessary_keys)
+				config.logger.warning("Falling back to generated content for metadata")
+			return False
 
 	def _get_metadata_from_source(self):
 		"""
@@ -348,6 +362,32 @@ class Document:
 
 		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)
 		"""
+		def _handle_respec_config():
+			"""
+			:return: True or False, depending on whether the metadata could be extracted via the respec config or not
+			"""
+			head = self.html.find(".//head")
+			respec_config_element = head.find(".//script[@id='initialUserConfig']")
+			if respec_config_element is not None:
+				respec_config = None
+				try:
+					respec_config = json.loads(" ".join([t for t in respec_config_element.itertext()]))
+				except:
+					if config.logger is not None:
+						config.logger.warning("Embedded ReSpec Configuration could not be parsed; falling back to generated content")
+						config.logger.warning("Falling back to generated content for metadata")
+					return False
+
+				if self._get_metadata_from_respec(respec_config):
+					head.remove(respec_config_element)
+					return True
+				else:
+					return False
+			else:
+				if config.logger is not None:
+					config.logger.warning("No embedded ReSpec configuration; falling back to generated content for metadata")
+				return False
+
 		# Get the title of the document
 		for title_element in self.html.findall(".//title"):
 			self._title = ""
@@ -355,7 +395,7 @@ class Document:
 				self._title += t
 			break
 
-		# Properties, to be added to the manifest
+		# Properties to be added to the manifest
 		props = Utils.get_document_properties(self.html)
 		props.add("remote-resources")
 		if len(props) > 0:
@@ -363,12 +403,7 @@ class Document:
 
 		# see if the embedded config is in the file, if so, retrieve it in the form of a directory, and then
 		# remove the script from the DOM tree not to pollute the output unnecessarily
-		head = self.html.find(".//head")
-		respec_config_element = head.find(".//script[@id='respecFinalConfig']")
-		if respec_config_element is not None:
-			self._get_metadata_from_respec(json.loads(" ".join([t for t in respec_config_element.itertext()])))
-			head.remove(respec_config_element)
-		else:
+		if _handle_respec_config() is not True:
 			self._get_metadata_from_source()
 
 		# Extract the table of content
