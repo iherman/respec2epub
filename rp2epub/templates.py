@@ -131,9 +131,13 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
     <meta name="author" content="" />
     <link type="text/css" rel="stylesheet" href="Assets/base.css" />
     <style type="text/css">
-      body {
-        padding: 2em 2em 2em 2em !important;
-      }
+	  body {
+		padding: 0 0 0 0 !important;
+	  }
+
+	  div[role~="main"] {
+		padding: 2em 2em 2em 2em;
+	  }
       h1 {
         text-align: center !important;
         font-size: 250%;
@@ -165,7 +169,7 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
     </style>
   </head>
   <body>
-    <div id="title">
+    <div id="title" role="main">
       <h1 id="btitle"></h1>
       <h2 id="subtitle">W3C Recommendation</h2>
       <p class="larger" id="editors"></p>
