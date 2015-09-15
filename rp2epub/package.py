@@ -253,7 +253,8 @@ class Package:
 
 		# Set the authors in the meta
 		editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}meta[@name='author']")[0]
-		editors.set("content", self.document.editors)
+		editors_list = self.document.editors if len(self.document.authors) == 0 else self.document.editors + "; " + self.document.authors
+		editors.set("content", editors_list)
 
 		# Set the title in the text
 		title      = cover.findall(".//{http://www.w3.org/1999/xhtml}h1[@id='btitle']")[0]
@@ -264,8 +265,14 @@ class Package:
 		subtitle.text = SUBTITLE[self.document.doc_type]
 
 		# Set the editors
-		editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='editors']")[0]
-		editors.text = self.document.editors
+		if len(self.document.editors) != 0:
+			editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='editors']")[0]
+			editors.text = self.document.editors
+
+		# Set the authors
+		if len(self.document.authors) != 0:
+			authors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='authors']")[0]
+			authors.text = self.document.authors
 
 		# Set a pointer to the original
 		orig      = cover.findall(".//{http://www.w3.org/1999/xhtml}a[@id='ref_original']")[0]

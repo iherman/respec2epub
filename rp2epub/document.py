@@ -49,8 +49,8 @@ class Document:
 		self._doc_type   = None
 		self._dated_uri  = None
 		self._date       = None
-		self._editors    = None
-		self._authors    = None
+		self._editors    = ""
+		self._authors    = ""
 		self._toc		 = []
 		self._issued_as  = None
 		self._get_document_metadata()
@@ -254,7 +254,11 @@ class Document:
 
 	def _get_metadata_from_respec(self, dict_config):
 		def _get_people(key, suffix_sing="", suffix_plur=""):
-			people = [p["name"] for p in dict_config[key]]
+			def _get_person(person_struct):
+				retval = person_struct["name"]
+				return retval + (" (%s)" % person_struct["company"]) if "company" in person_struct else retval
+
+			people = [_get_person(p) for p in dict_config[key]]
 			if len(people) == 0:
 				return ""
 			elif len(people) == 1:
