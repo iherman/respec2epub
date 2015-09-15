@@ -43,16 +43,17 @@ class Document:
 		self._driver               = driver
 		self.download_targets      = []
 
-		self._title      = None
-		self._properties = None
-		self._short_name = None
-		self._doc_type   = None
-		self._dated_uri  = None
-		self._date       = None
-		self._editors    = ""
-		self._authors    = ""
-		self._toc		 = []
-		self._issued_as  = None
+		self._title         = None
+		self._properties    = None
+		self._short_name    = None
+		self._doc_type      = None
+		self._dated_uri     = None
+		self._date          = None
+		self._editors       = ""
+		self._authors       = ""
+		self._respec_config = None
+		self._toc		    = []
+		self._issued_as     = None
 		self._get_document_metadata()
 		self._massage_html()
 
@@ -213,6 +214,17 @@ class Document:
 		return self._properties
 
 	@property
+	def respec_config(self):
+		"""The full respec configuration as a Python mapping type. This is available for newer releases
+		of ReSpec, but not in older. And, of course, not available for Bikeshed sources. The value is None
+		if was not made available.
+
+		Note that the rest of the code retrieves some of the common properties (e.g., short_name), i.e.,
+		the rest of the code does not make use of this property. But it may be used in the future.
+		"""
+		return self._respec_config
+
+	@property
 	def short_name(self):
 		"""'Short Name', in the W3C jargon"""
 		return self._short_name
@@ -252,7 +264,12 @@ class Document:
 		""" "W3C Note/Recommendation/Draft/ etc.": the text to be reused as a subtitle on the cover page. """
 		return self._issued_as
 
+	# noinspection PyPep8
 	def _get_metadata_from_respec(self, dict_config):
+		"""
+		Extract metadata (date, title, editors, etc.) making use of the stored ReSpec configuration structure (this
+		structure includes the data set by the user plus some data added by the ReSpec process itself).
+		"""
 		def _get_people(key, suffix_sing="", suffix_plur=""):
 			def _get_person(person_struct):
 				retval = person_struct["name"]
@@ -266,6 +283,9 @@ class Document:
 			else:
 				return ", ".join(people) + suffix_plur
 
+		# store the full configuration for possible later reuse
+		self._respec_config = dict_config
+
 		self._dated_uri  = dict_config["thisVersion"]
 		status = dict_config["specStatus"]
 		self._doc_type   = "ED" if status not in config.DOC_TYPES else status
@@ -276,6 +296,12 @@ class Document:
 		self._issued_as  = dict_config["publishHumanDate"]
 
 	def _get_metadata_from_source(self):
+		"""
+		Extract metadata (date, title, editors, etc.) 'scraping' the source, i.e., by
+		extracting the data based on class names, URI patterns, etc.
+
+		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)
+		"""
 		# Short name of the document
 		# Find the official short name of the document
 		for aref in self.html.findall(".//a[@class='u-url']"):
@@ -318,7 +344,7 @@ class Document:
 
 	def _get_document_metadata(self):
 		"""
-		Extract metadata from the source, stored as attribute for this class (date, title, editors, etc.)
+		Extract metadata (date, title, editors, etc.)
 
 		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)
 		"""

@@ -30,7 +30,7 @@ from .templates import BOOK_CSS
 from .document import Document
 from .package import Package
 import config
-from .config import CSS_LOGOS, TO_TRANSFER
+from .config import CSS_LOGOS
 from .utils import HttpSession, Book
 
 
