@@ -12,4 +12,7 @@ class R2EError(Exception):
 	"""
 	pass
 
+import locale
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+
 from .doc2epub import DocWrapper
