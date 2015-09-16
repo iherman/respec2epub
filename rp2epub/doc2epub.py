@@ -30,7 +30,7 @@ from .templates import BOOK_CSS
 from .document import Document
 from .package import Package
 import config
-from .config import CSS_LOGOS
+from .config import DOCTYPE_INFO
 from .utils import HttpSession, Book
 
 
@@ -73,6 +73,14 @@ class DocWrapper:
 		base_path  = url_tuples.path if url_tuples.path[-1] == '/' else url_tuples.path.rsplit('/', 1)[0] + '/'
 		self._base = urlunparse((url_tuples.scheme, url_tuples.netloc, base_path, "", "", ""))
 
+		# Get the possible re-write of the ReSpec config file; this will become important when the respec config
+		# data is used
+		self._url_respec_setting = {}
+		if len(url_tuples.query) != 0:
+			for setting in url_tuples.query.split(';'):
+				to_set = setting.split('=')
+				self._url_respec_setting[to_set[0]] = to_set[1]
+
 		# Get the data, possibly converting from respec on the fly
 		if config.logger is not None and is_respec:
 			config.logger.info("Generating HTML via the spec generator service from %s" % url)
@@ -100,6 +108,11 @@ class DocWrapper:
 	def folder(self):
 		"""Flag whether a folder, containing the package content, is created"""
 		return self._folder
+
+	@property
+	def url_respec_setting(self):
+		"""Possible ReSpec configuration setting via a URI"""
+		return self._url_respec_setting
 
 	@property
 	def book_file_name(self):
@@ -155,10 +168,14 @@ class DocWrapper:
 		with Book(self.book_file_name, self.document.short_name, self.package, self.folder) as self._book:
 			additional_transfers = []
 			# Add the book.css with the right value set for the background image
-			if self.document.doc_type in CSS_LOGOS:
-				uri, alt_uri, local = CSS_LOGOS[self.document.doc_type]
-				self.book.writestr('Assets/book.css', BOOK_CSS % local[7:])
-				additional_transfers.append((uri, alt_uri, local))
+			# background-image: url(%s);
+			if self.document.doc_type in DOCTYPE_INFO and DOCTYPE_INFO[self.document.doc_type]["logo"] is not None:
+				type_struct = DOCTYPE_INFO[self.document.doc_type]
+				css_background = "background-image: url(%s);" % type_struct["logo_asset"][7:]
+				additional_transfers = [(type_struct["logo"], type_struct["logo_local"], type_struct["logo_asset"])]
+			else:
+				css_background = ""
+			self.book.writestr('Assets/book.css', BOOK_CSS % css_background)
 
 			# Some resources should be added to the book once and for all
 			for uri, alt_uri, local in additional_transfers + config.TO_TRANSFER:

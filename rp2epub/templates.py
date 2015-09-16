@@ -143,6 +143,11 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
         font-size: 180%;
         font-style: italic;
       }
+      h3 {
+        text-align: center !important;
+        font-size: 140%;
+        font-style: italic;
+      }
       p.larger {
         font-size: 120%;
       }
@@ -154,11 +159,6 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
       p.disclaimer {
         font-style:italic;
       }
-      h3 {
-         page-break-before:always;
-         margin-top:4em;
-         text-align: left !important;
-      }
       ol { text-align: left !important;}
       a { text-decoration: none !important}
 
@@ -167,7 +167,8 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
   <body>
     <div id="title">
       <h1 id="btitle"></h1>
-      <h2 id="subtitle">W3C Recommendation</h2>
+      <h2 id="subtitle"></h2>
+      <h3 id="date"></h3>
       <p class="larger" id="editors"></p>
       <p class="larger" id="authors"></p>
       <p class="larger">World Wide Web Consortium (W3C)</p>
@@ -186,7 +187,7 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
 
 BOOK_CSS = """
   body {
-    background-image: url(%s);
+    %s
     padding: 0 0 0 0 !important;
   }
 

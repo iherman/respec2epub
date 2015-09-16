@@ -50,7 +50,7 @@ class Document:
 		self._title         = None
 		self._properties    = None
 		self._short_name    = None
-		self._doc_type      = None
+		self._doc_type      = "base"
 		self._dated_uri     = None
 		self._date          = None
 		self._editors       = ""
@@ -231,16 +231,16 @@ class Document:
 	@property
 	def short_name(self):
 		"""'Short Name', in the W3C jargon"""
-		return self._short_name
+		return self._short_name if self._short_name is not None else "index"
 
 	@property
 	def dated_uri(self):
-		"""'Dated URI', in the W3C jargon"""
-		return self._dated_uri
+		"""'Dated URI', in the W3C jargon. As a fall back, this may be set to the top URI of the document if the dated uri has not been set """
+		return self._dated_uri if self._dated_uri is not None else self.driver.top_uri
 
 	@property
 	def doc_type(self):
-		"""Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``, or ``ED``"""
+		"""Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``, or ``ED``, or the values set in ReSpec"""
 		return self._doc_type
 
 	@property
@@ -292,25 +292,23 @@ class Document:
 		# store the full configuration for possible later reuse
 		self._respec_config = dict_config
 
-		# Check if any of the necessary keys are missing
-		necessary_keys = ["specStatus", "shortName"]
-		if all(map(lambda x: x in dict_config, necessary_keys)):
-			status = dict_config["specStatus"]
-			self._doc_type   = "ED" if status not in config.DOC_TYPES else ("WD" if status == "FPWD" else status)
-			self._short_name = dict_config["shortName"]
+		if "specStatus" in dict_config :
+			self._doc_type   = dict_config["specStatus"]
+			self._short_name = dict_config["shortName"] if "shortName" in dict_config else None
 			self._editors    = "" if "editors" not in dict_config else _get_people("editors", ", (ed.)", ", (eds.)")
 			self._authors    = "" if "authors" not in dict_config else _get_people("authors")
 			if "publishDate" in dict_config:
 				self._date = datetime.strptime(dict_config["publishDate"], "%Y-%m-%d").date()
 			else:
 				self._date = date.today()
-			self._dated_uri = "http://www.w3.org/TR/%s/%s-%s-%s/" % (self.date.year, self.doc_type, self.short_name, self.date.strftime("%Y%m%d"))
 			self._issued_as = self.date.strftime("%d %B, %Y")
+			aref = self.html.find(".//a[@class='u-url']")
+			if aref is not None:
+				self._dated_uri = aref.get('href')
 			return True
 		else:
 			if config.logger is not None:
-				config.logger.warning("One of the respec keys missing (expecting %s)" % necessary_keys)
-				config.logger.warning("Falling back to generated content for metadata")
+				config.logger.warning("Spec Status is not in the ReSpec config; falling back to generated content for metadata")
 			return False
 
 	def _get_metadata_from_source(self):
@@ -328,10 +326,9 @@ class Document:
 				dated_name = self._dated_uri[:-1] if self._dated_uri[-1] == '/' else self._dated_uri
 				self._doc_type, self._short_name = Utils.create_shortname(dated_name.split('/')[-1])
 			except:
-				message = "Could not establish document type and/or short name from '%s'" % self._dated_uri
+				message = "Could not establish document type and/or short name from '%s' (remains \"base\")" % self._dated_uri
 				if config.logger is not None:
-					config.logger.error(message)
-				raise R2EError(message)
+					config.logger.warning(message)
 			break
 
 		# Date of the document, to be reused in the metadata
@@ -367,7 +364,7 @@ class Document:
 		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)
 		"""
 		# noinspection PyBroadException
-		def _handle_respec_config():
+		def _retrieve_from_respec_config():
 			"""
 			:return: True or False, depending on whether the metadata could be extracted via the respec config or not
 			"""
@@ -376,6 +373,9 @@ class Document:
 			if respec_config_element is not None:
 				try:
 					respec_config = json.loads(" ".join([j for j in respec_config_element.itertext()]))
+					# The respec config extracted from the file may have been overwritten on the URL
+					for key in self.driver.url_respec_setting:
+						respec_config[key] = self.driver.url_respec_setting[key]
 				except:
 					exc_type, exc_value, exc_traceback = sys.exc_info()
 					err = StringIO()
@@ -423,7 +423,7 @@ class Document:
 
 		# see if the embedded config is in the file, if so, retrieve it in the form of a directory, and then
 		# remove the script from the DOM tree not to pollute the output unnecessarily
-		if _handle_respec_config() is not True:
+		if _retrieve_from_respec_config() is not True:
 			self._get_metadata_from_source()
 
 		# Extract the table of content
