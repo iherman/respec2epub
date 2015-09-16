@@ -301,7 +301,10 @@ class Document:
 				self._date = datetime.strptime(dict_config["publishDate"], "%Y-%m-%d").date()
 			else:
 				self._date = date.today()
-			self._issued_as = self.date.strftime("%d %B, %Y")
+
+			self._issued_as = config.DOCTYPE_INFO[self._doc_type]["subtitle"] if self._doc_type in config.DOCTYPE_INFO else ""
+			self._issued_as += ", " + self.date.strftime("%d %B, %Y")
+
 			aref = self.html.find(".//a[@class='u-url']")
 			if aref is not None:
 				self._dated_uri = aref.get('href')
