@@ -56,6 +56,7 @@ CSS_LOGOS = {
 	"PR"   : ("http://www.w3.org/StyleSheets/TR/logo-PR.png",   "http://localhost:8001/StyleSheets/TR/logo-PR.png",   "Assets/logo-PR.png"),
 	"CR"   : ("http://www.w3.org/StyleSheets/TR/logo-CR.png",   "http://localhost:8001/StyleSheets/TR/logo-CR.png",   "Assets/logo-CR.png"),
 	"WD"   : ("http://www.w3.org/StyleSheets/TR/logo-WD.png",   "http://localhost:8001/StyleSheets/TR/logo-WD.png",   "Assets/logo-WD.png"),
+	"FPWD" : ("http://www.w3.org/StyleSheets/TR/logo-WD.png",   "http://localhost:8001/StyleSheets/TR/logo-WD.png",   "Assets/logo-WD.png"),
 	"ED"   : ("http://www.w3.org/StyleSheets/TR/logo-ED.png",   "http://localhost:8001/StyleSheets/TR/logo-ED.png",   "Assets/logo-ED.png"),
 }
 
@@ -110,4 +111,4 @@ EXTERNAL_REFERENCES = [
 ]
 
 # Document types that are managed by this tool
-DOC_TYPES = ["REC", "NOTE", "PR", "WD", "CR", "PER"]
+DOC_TYPES = ["REC", "FPWD", "NOTE", "PR", "WD", "CR", "PER"]
