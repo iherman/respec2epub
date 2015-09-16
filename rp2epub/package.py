@@ -261,11 +261,6 @@ class Package:
 		title      = cover.findall(".//{http://www.w3.org/1999/xhtml}h1[@id='btitle']")[0]
 		title.text = self.document.title
 
-		# Set the subtitle in the text
-		if self.document.doc_type in DOCTYPE_INFO:
-			subtitle      = cover.findall(".//{http://www.w3.org/1999/xhtml}h2[@id='subtitle']")[0]
-			subtitle.text = DOCTYPE_INFO[self.document.doc_type]["subtitle"]
-
 		# Set the editors
 		if len(self.document.editors) != 0:
 			editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='editors']")[0]
@@ -282,8 +277,8 @@ class Package:
 
 		# Set the subtitle
 		if self.document.issued_as is not None:
-			subtitle_date = cover.findall(".//{http://www.w3.org/1999/xhtml}h3[@id='date']")[0]
-			subtitle_date.text = self.document.issued_as
+			subtitle      = cover.findall(".//{http://www.w3.org/1999/xhtml}h2[@id='subtitle']")[0]
+			subtitle.text = self.document.issued_as
 
 		# Set the correct copyright date
 		span      = cover.findall(".//{http://www.w3.org/1999/xhtml}span[@id='cpdate']")[0]

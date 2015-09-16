@@ -140,7 +140,7 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
       }
       h2 {
         text-align: center !important;
-        font-size: 180%;
+        font-size: 140%;
         font-style: italic;
       }
       h3 {
@@ -168,7 +168,6 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
     <div id="title">
       <h1 id="btitle"></h1>
       <h2 id="subtitle"></h2>
-      <h3 id="date"></h3>
       <p class="larger" id="editors"></p>
       <p class="larger" id="authors"></p>
       <p class="larger">World Wide Web Consortium (W3C)</p>
