@@ -90,6 +90,14 @@ is changed to fit the HTML5 requirements, link references may be updated for, e.
 <code class="descname">_get_metadata_from_respec</code><span class="sig-paren">(</span><em>dict_config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/document.html#Document._get_metadata_from_respec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document._get_metadata_from_respec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract metadata (date, title, editors, etc.) making use of the stored ReSpec configuration structure (this
 structure includes the data set by the user plus some data added by the ReSpec process itself).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True or False, depending on whether the right keys are available or not</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -137,13 +145,13 @@ file of the book.</p>
 <dl class="attribute">
 <dt id="rp2epub.document.Document.dated_uri">
 <code class="descname">dated_uri</code><a class="headerlink" href="#rp2epub.document.Document.dated_uri" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#8216;Dated URI&#8217;, in the W3C jargon</p>
+<dd><p>&#8216;Dated URI&#8217;, in the W3C jargon. As a fall back, this may be set to the top URI of the document if the dated uri has not been set</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rp2epub.document.Document.doc_type">
 <code class="descname">doc_type</code><a class="headerlink" href="#rp2epub.document.Document.doc_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Document type, ie, one of <code class="docutils literal"><span class="pre">REC</span></code>, <code class="docutils literal"><span class="pre">NOTE</span></code>, <code class="docutils literal"><span class="pre">PR</span></code>, <code class="docutils literal"><span class="pre">PER</span></code>, <code class="docutils literal"><span class="pre">CR</span></code>, <code class="docutils literal"><span class="pre">WD</span></code>, or <code class="docutils literal"><span class="pre">ED</span></code></p>
+<dd><p>Document type, ie, one of <code class="docutils literal"><span class="pre">REC</span></code>, <code class="docutils literal"><span class="pre">NOTE</span></code>, <code class="docutils literal"><span class="pre">PR</span></code>, <code class="docutils literal"><span class="pre">PER</span></code>, <code class="docutils literal"><span class="pre">CR</span></code>, <code class="docutils literal"><span class="pre">WD</span></code>, or <code class="docutils literal"><span class="pre">ED</span></code>, or the values set in ReSpec</p>
 </dd></dl>
 
 <dl class="attribute">

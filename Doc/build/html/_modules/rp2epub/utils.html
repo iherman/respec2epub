@@ -172,20 +172,21 @@
 <div class="viewcode-block" id="Utils.create_shortname"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.create_shortname">[docs]</a>	<span class="k">def</span> <span class="nf">create_shortname</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Create the short name, in W3C jargon, based on the dated name. Returns a tuple with the category of the</span>
-<span class="sd">		publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, ``ED``, or ``PER``), and the short name itself.</span>
+<span class="sd">		publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, ``ED``, &quot;RSCND&quot;, or ``PER``), and the short name itself.</span>
 
 <span class="sd">		:param str name: dated name</span>
-<span class="sd">		:return: tuple of with the category of the publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, ``ED``, or ``PER``), and the short name itself.</span>
+<span class="sd">		:return: tuple of with the category of the publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, ``ED``, &quot;RSCND&quot;, or ``PER``), and the short name itself.</span>
 <span class="sd">		:rtype: tuple</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="c"># This is very W3C specific...</span>
-		<span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">DOC_TYPES</span><span class="p">:</span>
-			<span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">cat</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span><span class="p">):</span>
-				<span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">cat</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
-				<span class="k">return</span> <span class="n">cat</span><span class="p">,</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">9</span><span class="p">]</span>
+		<span class="k">for</span> <span class="n">doc_type</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">DOCTYPE_INFO</span><span class="p">:</span>
+			<span class="n">doc_info</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">DOCTYPE_INFO</span><span class="p">[</span><span class="n">doc_type</span><span class="p">]</span>
+			<span class="k">if</span> <span class="n">doc_info</span><span class="p">[</span><span class="s">&quot;uri_prefix&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">doc_info</span><span class="p">[</span><span class="s">&quot;uri_prefix&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span><span class="p">):</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">doc_type</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+				<span class="k">return</span> <span class="n">doc_type</span><span class="p">,</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">9</span><span class="p">]</span>
 
 		<span class="c"># If we get here, the name does not abide to any pattern; it is taken to be an ED</span>
-		<span class="k">return</span> <span class="s">&quot;ED&quot;</span><span class="p">,</span> <span class="n">name</span>
+		<span class="k">return</span> <span class="s">&quot;base&quot;</span><span class="p">,</span> <span class="n">name</span>
 	<span class="c"># end create_shortname</span>
 </div>
 	<span class="nd">@staticmethod</span>

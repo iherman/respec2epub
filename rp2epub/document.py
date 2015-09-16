@@ -314,6 +314,7 @@ class Document:
 				config.logger.warning("Spec Status is not in the ReSpec config; falling back to generated content for metadata")
 			return False
 
+	# noinspection PyBroadException
 	def _get_metadata_from_source(self):
 		"""
 		Extract metadata (date, title, editors, etc.) 'scraping' the source, i.e., by

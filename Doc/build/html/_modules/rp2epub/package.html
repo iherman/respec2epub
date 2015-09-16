@@ -57,6 +57,8 @@
 <span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">as</span> <span class="nn">ET</span>
 <span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">ElementTree</span><span class="p">,</span> <span class="n">SubElement</span>
 <span class="kn">from</span> <span class="nn">.templates</span> <span class="kn">import</span> <span class="n">PACKAGE</span><span class="p">,</span> <span class="n">TOC</span><span class="p">,</span> <span class="n">NAV</span><span class="p">,</span> <span class="n">COVER</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">DEFAULT_FILES</span><span class="p">,</span> <span class="n">DOCTYPE_INFO</span>
+
 
 <span class="c"># noinspection PyPep8</span>
 <span class="n">SUBTITLE</span> <span class="o">=</span> <span class="p">{</span>
@@ -104,7 +106,6 @@
 <span class="sd">		Create the manifest file. Includes the list of resources, book metadata, and the spine. The manifest</span>
 <span class="sd">		file is added to the book as ``package.opf``</span>
 <span class="sd">		&quot;&quot;&quot;</span>
-		<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">DEFAULT_FILES</span><span class="p">,</span> <span class="n">CSS_LOGOS</span>
 		<span class="c"># Last step: the manifest file must be created</span>
 		<span class="c"># Parse the raw manifest file</span>
 		<span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&quot;http://www.idpf.org/2007/opf&quot;</span><span class="p">)</span>
@@ -124,10 +125,10 @@
 			<span class="n">item</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">    &quot;</span>
 
 		<span class="c"># Add the type-specific logo</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">doc_type</span> <span class="ow">in</span> <span class="n">CSS_LOGOS</span><span class="p">:</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">doc_type</span> <span class="ow">in</span> <span class="n">DOCTYPE_INFO</span> <span class="ow">and</span> <span class="n">DOCTYPE_INFO</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">doc_type</span><span class="p">][</span><span class="s">&quot;logo&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
 			<span class="n">item</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="s">&quot;{http://www.idpf.org/2007/opf}item&quot;</span><span class="p">)</span>
 			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="s">&quot;css-logo&quot;</span><span class="p">)</span>
-			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="n">CSS_LOGOS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">doc_type</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="n">DOCTYPE_INFO</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">doc_type</span><span class="p">][</span><span class="s">&quot;logo_asset&quot;</span><span class="p">])</span>
 			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;media-type&quot;</span><span class="p">,</span> <span class="s">&quot;image/png&quot;</span><span class="p">)</span>
 			<span class="n">item</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">    &quot;</span>
 
@@ -304,10 +305,6 @@
 		<span class="n">title</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}h1[@id=&#39;btitle&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 		<span class="n">title</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">title</span>
 
-		<span class="c"># Set the subtitle in the text</span>
-		<span class="n">subtitle</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}h2[@id=&#39;subtitle&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-		<span class="n">subtitle</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">SUBTITLE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">doc_type</span><span class="p">]</span>
-
 		<span class="c"># Set the editors</span>
 		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">editors</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
 			<span class="n">editors</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}p[@id=&#39;editors&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -324,7 +321,7 @@
 
 		<span class="c"># Set the subtitle</span>
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">issued_as</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-			<span class="n">subtitle</span> <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}h2[@id=&#39;subtitle&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+			<span class="n">subtitle</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}h2[@id=&#39;subtitle&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 			<span class="n">subtitle</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">issued_as</span>
 
 		<span class="c"># Set the correct copyright date</span>
