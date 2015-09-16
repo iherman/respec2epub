@@ -63,9 +63,13 @@
 
 <span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">urljoin</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">SubElement</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Utils</span>
+<span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Utils</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">R2EError</span>
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">TO_TRANSFER</span>
 <span class="kn">import</span> <span class="nn">config</span>
@@ -90,7 +94,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_title</span>         <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_properties</span>    <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span>    <span class="o">=</span> <span class="bp">None</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>      <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>      <span class="o">=</span> <span class="s">&quot;base&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>     <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_date</span>          <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>       <span class="o">=</span> <span class="s">&quot;&quot;</span>
@@ -271,16 +275,16 @@
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">short_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;&#39;Short Name&#39;, in the W3C jargon&quot;&quot;&quot;</span>
-		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&quot;index&quot;</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">dated_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;&#39;Dated URI&#39;, in the W3C jargon&quot;&quot;&quot;</span>
-		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>
+		<span class="sd">&quot;&quot;&quot;&#39;Dated URI&#39;, in the W3C jargon. As a fall back, this may be set to the top URI of the document if the dated uri has not been set &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">top_uri</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">doc_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``, or ``ED``&quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``, or ``ED``, or the values set in ReSpec&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>
 
 	<span class="nd">@property</span>
@@ -308,10 +312,13 @@
 		<span class="sd">&quot;&quot;&quot; &quot;W3C Note/Recommendation/Draft/ etc.&quot;: the text to be reused as a subtitle on the cover page. &quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_issued_as</span>
 
+	<span class="c"># noinspection PyPep8</span>
 <div class="viewcode-block" id="Document._get_metadata_from_respec"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._get_metadata_from_respec">[docs]</a>	<span class="k">def</span> <span class="nf">_get_metadata_from_respec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_config</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Extract metadata (date, title, editors, etc.) making use of the stored ReSpec configuration structure (this</span>
 <span class="sd">		structure includes the data set by the user plus some data added by the ReSpec process itself).</span>
+
+<span class="sd">		:returns: True or False, depending on whether the right keys are available or not</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">def</span> <span class="nf">_get_people</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">suffix_sing</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">suffix_plur</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
 			<span class="k">def</span> <span class="nf">_get_person</span><span class="p">(</span><span class="n">person_struct</span><span class="p">):</span>
@@ -329,15 +336,29 @@
 		<span class="c"># store the full configuration for possible later reuse</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_respec_config</span> <span class="o">=</span> <span class="n">dict_config</span>
 
-		<span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>  <span class="o">=</span> <span class="n">dict_config</span><span class="p">[</span><span class="s">&quot;thisVersion&quot;</span><span class="p">]</span>
-		<span class="n">status</span> <span class="o">=</span> <span class="n">dict_config</span><span class="p">[</span><span class="s">&quot;specStatus&quot;</span><span class="p">]</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>   <span class="o">=</span> <span class="s">&quot;ED&quot;</span> <span class="k">if</span> <span class="n">status</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">DOC_TYPES</span> <span class="k">else</span> <span class="n">status</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span> <span class="o">=</span> <span class="n">dict_config</span><span class="p">[</span><span class="s">&quot;shortName&quot;</span><span class="p">]</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_date</span>       <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dict_config</span><span class="p">[</span><span class="s">&quot;dashDate&quot;</span><span class="p">],</span> <span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>    <span class="o">=</span> <span class="s">&quot;&quot;</span> <span class="k">if</span> <span class="s">&quot;editors&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dict_config</span> <span class="k">else</span> <span class="n">_get_people</span><span class="p">(</span><span class="s">&quot;editors&quot;</span><span class="p">,</span> <span class="s">&quot;, (ed.)&quot;</span><span class="p">,</span> <span class="s">&quot;, (eds.)&quot;</span><span class="p">)</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_authors</span>    <span class="o">=</span> <span class="s">&quot;&quot;</span> <span class="k">if</span> <span class="s">&quot;authors&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dict_config</span> <span class="k">else</span> <span class="n">_get_people</span><span class="p">(</span><span class="s">&quot;authors&quot;</span><span class="p">)</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_issued_as</span>  <span class="o">=</span> <span class="n">dict_config</span><span class="p">[</span><span class="s">&quot;publishHumanDate&quot;</span><span class="p">]</span>
-</div>
+		<span class="k">if</span> <span class="s">&quot;specStatus&quot;</span> <span class="ow">in</span> <span class="n">dict_config</span> <span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>   <span class="o">=</span> <span class="n">dict_config</span><span class="p">[</span><span class="s">&quot;specStatus&quot;</span><span class="p">]</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span> <span class="o">=</span> <span class="n">dict_config</span><span class="p">[</span><span class="s">&quot;shortName&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s">&quot;shortName&quot;</span> <span class="ow">in</span> <span class="n">dict_config</span> <span class="k">else</span> <span class="bp">None</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>    <span class="o">=</span> <span class="s">&quot;&quot;</span> <span class="k">if</span> <span class="s">&quot;editors&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dict_config</span> <span class="k">else</span> <span class="n">_get_people</span><span class="p">(</span><span class="s">&quot;editors&quot;</span><span class="p">,</span> <span class="s">&quot;, (ed.)&quot;</span><span class="p">,</span> <span class="s">&quot;, (eds.)&quot;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_authors</span>    <span class="o">=</span> <span class="s">&quot;&quot;</span> <span class="k">if</span> <span class="s">&quot;authors&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dict_config</span> <span class="k">else</span> <span class="n">_get_people</span><span class="p">(</span><span class="s">&quot;authors&quot;</span><span class="p">)</span>
+			<span class="k">if</span> <span class="s">&quot;publishDate&quot;</span> <span class="ow">in</span> <span class="n">dict_config</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dict_config</span><span class="p">[</span><span class="s">&quot;publishDate&quot;</span><span class="p">],</span> <span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+
+			<span class="bp">self</span><span class="o">.</span><span class="n">_issued_as</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">DOCTYPE_INFO</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span><span class="p">][</span><span class="s">&quot;subtitle&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">DOCTYPE_INFO</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_issued_as</span> <span class="o">+=</span> <span class="s">&quot;, &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%d</span><span class="s"> %B, %Y&quot;</span><span class="p">)</span>
+
+			<span class="n">aref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//a[@class=&#39;u-url&#39;]&quot;</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">aref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span> <span class="o">=</span> <span class="n">aref</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;href&#39;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="bp">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Spec Status is not in the ReSpec config; falling back to generated content for metadata&quot;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="bp">False</span>
+
+	<span class="c"># noinspection PyBroadException</span></div>
 <div class="viewcode-block" id="Document._get_metadata_from_source"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._get_metadata_from_source">[docs]</a>	<span class="k">def</span> <span class="nf">_get_metadata_from_source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Extract metadata (date, title, editors, etc.) &#39;scraping&#39; the source, i.e., by</span>
@@ -353,10 +374,9 @@
 				<span class="n">dated_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">create_shortname</span><span class="p">(</span><span class="n">dated_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 			<span class="k">except</span><span class="p">:</span>
-				<span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Could not establish document type and/or short name from &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>
+				<span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Could not establish document type and/or short name from &#39;</span><span class="si">%s</span><span class="s">&#39; (remains </span><span class="se">\&quot;</span><span class="s">base</span><span class="se">\&quot;</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>
 				<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-					<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-				<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+					<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 			<span class="k">break</span>
 
 		<span class="c"># Date of the document, to be reused in the metadata</span>
@@ -391,6 +411,51 @@
 
 <span class="sd">		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)</span>
 <span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c"># noinspection PyBroadException</span>
+		<span class="k">def</span> <span class="nf">_retrieve_from_respec_config</span><span class="p">():</span>
+			<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			:return: True or False, depending on whether the metadata could be extracted via the respec config or not</span>
+<span class="sd">			&quot;&quot;&quot;</span>
+			<span class="n">head</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//head&quot;</span><span class="p">)</span>
+			<span class="n">respec_config_element</span> <span class="o">=</span> <span class="n">head</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//script[@id=&#39;initialUserConfig&#39;]&quot;</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">respec_config_element</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="k">try</span><span class="p">:</span>
+					<span class="n">respec_config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">respec_config_element</span><span class="o">.</span><span class="n">itertext</span><span class="p">()]))</span>
+					<span class="c"># The respec config extracted from the file may have been overwritten on the URL</span>
+					<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">url_respec_setting</span><span class="p">:</span>
+						<span class="n">respec_config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">url_respec_setting</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+				<span class="k">except</span><span class="p">:</span>
+					<span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+					<span class="n">err</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+					<span class="n">traceback</span><span class="o">.</span><span class="n">print_exception</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">err</span><span class="p">)</span>
+					<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+						<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Embedded ReSpec Configuration could not be parsed as JSON</span><span class="se">\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">err</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+						<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Falling back to generated content for metadata&quot;</span><span class="p">)</span>
+					<span class="n">err</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+					<span class="k">return</span> <span class="bp">False</span>
+
+				<span class="k">try</span><span class="p">:</span>
+					<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_metadata_from_respec</span><span class="p">(</span><span class="n">respec_config</span><span class="p">):</span>
+						<span class="n">head</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">respec_config_element</span><span class="p">)</span>
+						<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+							<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Using the embedded ReSpec Configuration&quot;</span><span class="p">)</span>
+						<span class="k">return</span> <span class="bp">True</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="k">return</span> <span class="bp">False</span>
+				<span class="k">except</span><span class="p">:</span>
+					<span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+					<span class="n">err</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+					<span class="n">traceback</span><span class="o">.</span><span class="n">print_exception</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">err</span><span class="p">)</span>
+					<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+						<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Embedded ReSpec Configuration couldn&#39;t be handled due to an error </span><span class="se">\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">err</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+						<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Falling back to generated content for metadata&quot;</span><span class="p">)</span>
+					<span class="n">err</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+					<span class="k">return</span> <span class="bp">False</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+					<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;No embedded ReSpec configuration; falling back to generated content for metadata&quot;</span><span class="p">)</span>
+				<span class="k">return</span> <span class="bp">False</span>
+
 		<span class="c"># Get the title of the document</span>
 		<span class="k">for</span> <span class="n">title_element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//title&quot;</span><span class="p">):</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
@@ -398,7 +463,7 @@
 				<span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">+=</span> <span class="n">t</span>
 			<span class="k">break</span>
 
-		<span class="c"># Properties, to be added to the manifest</span>
+		<span class="c"># Properties to be added to the manifest</span>
 		<span class="n">props</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">get_document_properties</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
 		<span class="n">props</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;remote-resources&quot;</span><span class="p">)</span>
 		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">props</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -406,12 +471,7 @@
 
 		<span class="c"># see if the embedded config is in the file, if so, retrieve it in the form of a directory, and then</span>
 		<span class="c"># remove the script from the DOM tree not to pollute the output unnecessarily</span>
-		<span class="n">head</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//head&quot;</span><span class="p">)</span>
-		<span class="n">respec_config_element</span> <span class="o">=</span> <span class="n">head</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//script[@id=&#39;respecFinalConfig&#39;]&quot;</span><span class="p">)</span>
-		<span class="k">if</span> <span class="n">respec_config_element</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">_get_metadata_from_respec</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">respec_config_element</span><span class="o">.</span><span class="n">itertext</span><span class="p">()])))</span>
-			<span class="n">head</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">respec_config_element</span><span class="p">)</span>
-		<span class="k">else</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">_retrieve_from_respec_config</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">True</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_get_metadata_from_source</span><span class="p">()</span>
 
 		<span class="c"># Extract the table of content</span>
