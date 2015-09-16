@@ -296,7 +296,7 @@ class Document:
 		necessary_keys = ["specStatus", "shortName"]
 		if all(map(lambda x: x in dict_config, necessary_keys)):
 			status = dict_config["specStatus"]
-			self._doc_type   = "ED" if status not in config.DOC_TYPES else status
+			self._doc_type   = "ED" if status not in config.DOC_TYPES else ("WD" if status == "FPWD" else status)
 			self._short_name = dict_config["shortName"]
 			self._editors    = "" if "editors" not in dict_config else _get_people("editors", ", (ed.)", ", (eds.)")
 			self._authors    = "" if "authors" not in dict_config else _get_people("authors")
@@ -389,6 +389,8 @@ class Document:
 				try:
 					if self._get_metadata_from_respec(respec_config):
 						head.remove(respec_config_element)
+						if config.logger is not None:
+							config.logger.info("Using the embedded ReSpec Configuration")
 						return True
 					else:
 						return False
