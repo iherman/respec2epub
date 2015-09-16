@@ -163,9 +163,8 @@ class Utils(object):
 			return date(int(pdate[0:4]), int(pdate[4:6]), int(pdate[6:8]))
 		except:
 			message = "dated URI is not of the expected format"
-			if config.logger is not None:
-				config.logger.error(message)
-			raise R2EError(message)
+			Logger.error(message)
+			return date.today()
 	# end retrieve_date
 
 	@staticmethod
@@ -366,8 +365,7 @@ class Utils(object):
 			return retval
 		else:
 			# if we got here, something is wrong...
-			if config.logger is not None:
-				config.logger.warning("Could not extract a table of content from '%s'" % short_name)
+			Logger.warning("Could not extract a table of content from '%s'" % short_name)
 			return []
 	# end _extract_toc
 
@@ -387,8 +385,7 @@ class HttpSession:
 	# noinspection PyPep8,PyPep8
 	def __init__(self, url, check_media_type=False, raise_exception=False):
 		def handle_exception(message):
-			if config.logger is not None:
-				config.logger.error(message)
+			Logger.error(message)
 			if raise_exception:
 				raise R2EError(message)
 
@@ -539,7 +536,7 @@ class Book(object):
 		# Copy the content into the final book
 		# Special care should be taken with html files. Those are supposed to become XHTML:-(
 		if not session.success:
-			config.logger.info("Unsuccessful HTTP session; did not store %s" % session.url)
+			Logger.info("Unsuccessful HTTP session; did not store %s" % session.url)
 		else:
 			if session.media_type == 'text/html':
 				# We have to
@@ -595,3 +592,23 @@ class Book(object):
 	# noinspection PyUnusedLocal
 	def __exit__(self, exc_type, exc_value, traceback):
 		self.close()
+
+#####################################################################################
+
+
+# noinspection PyPep8
+class Logger(object):
+	@staticmethod
+	def warning(message):
+		if config.logger is not None:
+			config.logger.warning(message)
+
+	@staticmethod
+	def error(message):
+		if config.logger is not None:
+			config.logger.error(message)
+
+	@staticmethod
+	def info(message):
+		if config.logger is not None:
+			config.logger.info(message)
