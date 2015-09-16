@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -59,11 +59,13 @@
 </dd></dl>
 
 <dl class="data">
-<dt id="rp2epub.config.CSS_LOGOS">
-<code class="descclassname">rp2epub.config.</code><code class="descname">CSS_LOGOS</code><a class="headerlink" href="#rp2epub.config.CSS_LOGOS" title="Permalink to this definition">¶</a></dt>
-<dd><p>The URL-s to the pictures on the upper left hand side of the front page, denoting the document status, as well as the
-local names of the same images. It is a dictionary with keys set to the possible document status; used to download
-the right image into the book.</p>
+<dt id="rp2epub.config.DOCTYPE_INFO">
+<code class="descclassname">rp2epub.config.</code><code class="descname">DOCTYPE_INFO</code><a class="headerlink" href="#rp2epub.config.DOCTYPE_INFO" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary keyed by document types (as accepted by ReSpec); each value is a dictionary again with keys <code class="docutils literal"><span class="pre">logo</span></code> for the
+logo URI that has to be extracted from the W3C site, <code class="docutils literal"><span class="pre">logo_local</span></code> for the logo URI that may be available locally (used
+if the script is run locally; these values may have to be adapted for local use), <code class="docutils literal"><span class="pre">logo_asset</span></code> for the URI to be used
+in the generated <code class="docutils literal"><span class="pre">book.css</span></code> file, <code class="docutils literal"><span class="pre">uri_prefix</span></code> for the string that may be used as a prefix in the document
+short name URI (as used at W3C), and <code class="docutils literal"><span class="pre">subtitle</span></code> for the name of the document type in human term</p>
 </dd></dl>
 
 <dl class="data">

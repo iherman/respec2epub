@@ -13,6 +13,8 @@ Module Content
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
 from .templates import PACKAGE, TOC, NAV, COVER
+from .config import DEFAULT_FILES, DOCTYPE_INFO
+
 
 # noinspection PyPep8
 SUBTITLE = {
@@ -60,7 +62,6 @@ class Package:
 		Create the manifest file. Includes the list of resources, book metadata, and the spine. The manifest
 		file is added to the book as ``package.opf``
 		"""
-		from .config import DEFAULT_FILES, CSS_LOGOS
 		# Last step: the manifest file must be created
 		# Parse the raw manifest file
 		ET.register_namespace('', "http://www.idpf.org/2007/opf")
@@ -80,10 +81,10 @@ class Package:
 			item.tail = "\n    "
 
 		# Add the type-specific logo
-		if self.document.doc_type in CSS_LOGOS:
+		if self.document.doc_type in DOCTYPE_INFO and DOCTYPE_INFO[self.document.doc_type]["logo"] is not None:
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
 			item.set("id", "css-logo")
-			item.set("href", CSS_LOGOS[self.document.doc_type][2])
+			item.set("href", DOCTYPE_INFO[self.document.doc_type]["logo_asset"])
 			item.set("media-type", "image/png")
 			item.tail = "\n    "
 
@@ -253,19 +254,22 @@ class Package:
 
 		# Set the authors in the meta
 		editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}meta[@name='author']")[0]
-		editors.set("content", self.document.editors)
+		editors_list = self.document.editors if len(self.document.authors) == 0 else self.document.editors + "; " + self.document.authors
+		editors.set("content", editors_list)
 
 		# Set the title in the text
 		title      = cover.findall(".//{http://www.w3.org/1999/xhtml}h1[@id='btitle']")[0]
 		title.text = self.document.title
 
-		# Set the subtitle in the text
-		subtitle      = cover.findall(".//{http://www.w3.org/1999/xhtml}h2[@id='subtitle']")[0]
-		subtitle.text = SUBTITLE[self.document.doc_type]
-
 		# Set the editors
-		editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='editors']")[0]
-		editors.text = self.document.editors
+		if len(self.document.editors) != 0:
+			editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='editors']")[0]
+			editors.text = self.document.editors
+
+		# Set the authors
+		if len(self.document.authors) != 0:
+			authors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='authors']")[0]
+			authors.text = self.document.authors
 
 		# Set a pointer to the original
 		orig      = cover.findall(".//{http://www.w3.org/1999/xhtml}a[@id='ref_original']")[0]
@@ -273,7 +277,7 @@ class Package:
 
 		# Set the subtitle
 		if self.document.issued_as is not None:
-			subtitle = cover.findall(".//{http://www.w3.org/1999/xhtml}h2[@id='subtitle']")[0]
+			subtitle      = cover.findall(".//{http://www.w3.org/1999/xhtml}h2[@id='subtitle']")[0]
 			subtitle.text = self.document.issued_as
 
 		# Set the correct copyright date

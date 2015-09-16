@@ -144,7 +144,12 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
       }
       h2 {
         text-align: center !important;
-        font-size: 180%;
+        font-size: 140%;
+        font-style: italic;
+      }
+      h3 {
+        text-align: center !important;
+        font-size: 140%;
         font-style: italic;
       }
       p.larger {
@@ -158,11 +163,6 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
       p.disclaimer {
         font-style:italic;
       }
-      h3 {
-         page-break-before:always;
-         margin-top:4em;
-         text-align: left !important;
-      }
       ol { text-align: left !important;}
       a { text-decoration: none !important}
 
@@ -171,8 +171,9 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
   <body>
     <div id="title" role="main">
       <h1 id="btitle"></h1>
-      <h2 id="subtitle">W3C Recommendation</h2>
+      <h2 id="subtitle"></h2>
       <p class="larger" id="editors"></p>
+      <p class="larger" id="authors"></p>
       <p class="larger">World Wide Web Consortium (W3C)</p>
       <p class="logo"><a href="http://www.w3.org/"><img alt="W3C main logo" src="Assets/w3c_main.png"/></a></p>
       <p class="disclaimer">Note: this EPUB edition does <em>not</em> represent the authoritative text of the specification; please consult the <a id="ref_original">original document</a> on the W3C Web Site.</p>
@@ -189,7 +190,7 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
 
 BOOK_CSS = """
   body {
-    background-image: url(%s);
+    %s
     padding: 0 0 0 0 !important;
   }
 

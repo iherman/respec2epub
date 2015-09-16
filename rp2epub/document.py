@@ -18,9 +18,14 @@ Module content
 
 
 from urlparse import urlparse, urljoin
+import json
+import sys
+import traceback
 from xml.etree.ElementTree import SubElement
+from StringIO import StringIO
+from datetime import date, datetime
+
 from .utils import HttpSession, Utils
-from datetime import date
 from . import R2EError
 from .config import TO_TRANSFER
 import config
@@ -42,15 +47,17 @@ class Document:
 		self._driver               = driver
 		self.download_targets      = []
 
-		self._title      = None
-		self._properties = None
-		self._short_name = None
-		self._doc_type   = None
-		self._dated_uri  = None
-		self._date       = None
-		self._editors    = None
-		self._toc		 = []
-		self._issued_as  = None
+		self._title         = None
+		self._properties    = None
+		self._short_name    = None
+		self._doc_type      = "base"
+		self._dated_uri     = None
+		self._date          = None
+		self._editors       = ""
+		self._authors       = ""
+		self._respec_config = None
+		self._toc		    = []
+		self._issued_as     = None
 		self._get_document_metadata()
 		self._massage_html()
 
@@ -211,18 +218,29 @@ class Document:
 		return self._properties
 
 	@property
+	def respec_config(self):
+		"""The full respec configuration as a Python mapping type. This is available for newer releases
+		of ReSpec, but not in older. And, of course, not available for Bikeshed sources. The value is None
+		if was not made available.
+
+		Note that the rest of the code retrieves some of the common properties (e.g., short_name), i.e.,
+		the rest of the code does not make use of this property. But it may be used in the future.
+		"""
+		return self._respec_config
+
+	@property
 	def short_name(self):
 		"""'Short Name', in the W3C jargon"""
-		return self._short_name
+		return self._short_name if self._short_name is not None else "index"
 
 	@property
 	def dated_uri(self):
-		"""'Dated URI', in the W3C jargon"""
-		return self._dated_uri
+		"""'Dated URI', in the W3C jargon. As a fall back, this may be set to the top URI of the document if the dated uri has not been set """
+		return self._dated_uri if self._dated_uri is not None else self.driver.top_uri
 
 	@property
 	def doc_type(self):
-		"""Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``, or ``ED``"""
+		"""Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``, or ``ED``, or the values set in ReSpec"""
 		return self._doc_type
 
 	@property
@@ -236,6 +254,11 @@ class Document:
 		return self._editors
 
 	@property
+	def authors(self):
+		"""List of authors (as a string)"""
+		return self._authors
+
+	@property
 	def toc(self):
 		"""Table of content, an array of ``TOC_Item`` objects"""
 		return self._toc
@@ -245,25 +268,60 @@ class Document:
 		""" "W3C Note/Recommendation/Draft/ etc.": the text to be reused as a subtitle on the cover page. """
 		return self._issued_as
 
-	def _get_document_metadata(self):
+	# noinspection PyPep8
+	def _get_metadata_from_respec(self, dict_config):
 		"""
-		Extract metadata from the source, stored as attribute for this class (date, title, editors, etc.)
+		Extract metadata (date, title, editors, etc.) making use of the stored ReSpec configuration structure (this
+		structure includes the data set by the user plus some data added by the ReSpec process itself).
+
+		:returns: True or False, depending on whether the right keys are available or not
+		"""
+		def _get_people(key, suffix_sing="", suffix_plur=""):
+			def _get_person(person_struct):
+				retval = person_struct["name"]
+				return retval + (" (%s)" % person_struct["company"]) if "company" in person_struct else retval
+
+			people = [_get_person(p) for p in dict_config[key]]
+			if len(people) == 0:
+				return ""
+			elif len(people) == 1:
+				return people[0] + suffix_sing
+			else:
+				return ", ".join(people) + suffix_plur
+
+		# store the full configuration for possible later reuse
+		self._respec_config = dict_config
+
+		if "specStatus" in dict_config :
+			self._doc_type   = dict_config["specStatus"]
+			self._short_name = dict_config["shortName"] if "shortName" in dict_config else None
+			self._editors    = "" if "editors" not in dict_config else _get_people("editors", ", (ed.)", ", (eds.)")
+			self._authors    = "" if "authors" not in dict_config else _get_people("authors")
+			if "publishDate" in dict_config:
+				self._date = datetime.strptime(dict_config["publishDate"], "%Y-%m-%d").date()
+			else:
+				self._date = date.today()
+
+			self._issued_as = config.DOCTYPE_INFO[self._doc_type]["subtitle"] if self._doc_type in config.DOCTYPE_INFO else ""
+			self._issued_as += ", " + self.date.strftime("%d %B, %Y")
+
+			aref = self.html.find(".//a[@class='u-url']")
+			if aref is not None:
+				self._dated_uri = aref.get('href')
+			return True
+		else:
+			if config.logger is not None:
+				config.logger.warning("Spec Status is not in the ReSpec config; falling back to generated content for metadata")
+			return False
+
+	# noinspection PyBroadException
+	def _get_metadata_from_source(self):
+		"""
+		Extract metadata (date, title, editors, etc.) 'scraping' the source, i.e., by
+		extracting the data based on class names, URI patterns, etc.
 
 		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)
 		"""
-		# Get the title of the document
-		for title_element in self.html.findall(".//title"):
-			self._title = ""
-			for t in title_element.itertext():
-				self._title += t
-			break
-
-		# Properties, to be added to the manifest
-		props = Utils.get_document_properties(self.html)
-		props.add("remote-resources")
-		if len(props) > 0:
-			self._properties = reduce(lambda x, y: x + ' ' + y, props)
-
 		# Short name of the document
 		# Find the official short name of the document
 		for aref in self.html.findall(".//a[@class='u-url']"):
@@ -272,10 +330,9 @@ class Document:
 				dated_name = self._dated_uri[:-1] if self._dated_uri[-1] == '/' else self._dated_uri
 				self._doc_type, self._short_name = Utils.create_shortname(dated_name.split('/')[-1])
 			except:
-				message = "Could not establish document type and/or short name from '%s'" % self._dated_uri
+				message = "Could not establish document type and/or short name from '%s' (remains \"base\")" % self._dated_uri
 				if config.logger is not None:
-					config.logger.error(message)
-				raise R2EError(message)
+					config.logger.warning(message)
 			break
 
 		# Date of the document, to be reused in the metadata
@@ -292,14 +349,11 @@ class Document:
 		# Extract the editors
 		editor_set = Utils.extract_editors(self.html)
 		if len(editor_set) == 0:
-			self._editors = []
+			self._editors = ""
 		elif len(editor_set) == 1:
 			self._editors = list(editor_set)[0] + ", (ed.)"
 		else:
-			self._editors = reduce(lambda x, y: x + ', ' + y, editor_set) + ", (eds.)"
-
-		# Extract the table of content
-		self._toc = Utils.extract_toc(self.html, self.short_name)
+			self._editors = ", ".join(list(editor_set)) + ", (eds.)"
 
 		# Add the right subtitle to the cover page
 		for issued in self.html.findall(".//h2[@property='dcterms:issued']"):
@@ -307,4 +361,75 @@ class Document:
 			for t in issued.itertext():
 				self._issued_as += t
 
+	def _get_document_metadata(self):
+		"""
+		Extract metadata (date, title, editors, etc.)
+
+		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)
+		"""
+		# noinspection PyBroadException
+		def _retrieve_from_respec_config():
+			"""
+			:return: True or False, depending on whether the metadata could be extracted via the respec config or not
+			"""
+			head = self.html.find(".//head")
+			respec_config_element = head.find(".//script[@id='initialUserConfig']")
+			if respec_config_element is not None:
+				try:
+					respec_config = json.loads(" ".join([j for j in respec_config_element.itertext()]))
+					# The respec config extracted from the file may have been overwritten on the URL
+					for key in self.driver.url_respec_setting:
+						respec_config[key] = self.driver.url_respec_setting[key]
+				except:
+					exc_type, exc_value, exc_traceback = sys.exc_info()
+					err = StringIO()
+					traceback.print_exception(exc_type, exc_value, exc_traceback, file=err)
+					if config.logger is not None:
+						config.logger.warning("Embedded ReSpec Configuration could not be parsed as JSON\n%s" % err.getvalue())
+						config.logger.warning("Falling back to generated content for metadata")
+					err.close()
+					return False
+
+				try:
+					if self._get_metadata_from_respec(respec_config):
+						head.remove(respec_config_element)
+						if config.logger is not None:
+							config.logger.info("Using the embedded ReSpec Configuration")
+						return True
+					else:
+						return False
+				except:
+					exc_type, exc_value, exc_traceback = sys.exc_info()
+					err = StringIO()
+					traceback.print_exception(exc_type, exc_value, exc_traceback, file=err)
+					if config.logger is not None:
+						config.logger.warning("Embedded ReSpec Configuration couldn't be handled due to an error \n%s" % err.getvalue())
+						config.logger.warning("Falling back to generated content for metadata")
+					err.close()
+					return False
+			else:
+				if config.logger is not None:
+					config.logger.warning("No embedded ReSpec configuration; falling back to generated content for metadata")
+				return False
+
+		# Get the title of the document
+		for title_element in self.html.findall(".//title"):
+			self._title = ""
+			for t in title_element.itertext():
+				self._title += t
+			break
+
+		# Properties to be added to the manifest
+		props = Utils.get_document_properties(self.html)
+		props.add("remote-resources")
+		if len(props) > 0:
+			self._properties = reduce(lambda x, y: x + ' ' + y, props)
+
+		# see if the embedded config is in the file, if so, retrieve it in the form of a directory, and then
+		# remove the script from the DOM tree not to pollute the output unnecessarily
+		if _retrieve_from_respec_config() is not True:
+			self._get_metadata_from_source()
+
+		# Extract the table of content
+		self._toc = Utils.extract_toc(self.html, self.short_name)
 
