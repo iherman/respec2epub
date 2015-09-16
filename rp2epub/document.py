@@ -25,7 +25,7 @@ from xml.etree.ElementTree import SubElement
 from StringIO import StringIO
 from datetime import date, datetime
 
-from .utils import HttpSession, Utils
+from .utils import HttpSession, Utils, Logger
 from . import R2EError
 from .config import TO_TRANSFER
 import config
@@ -145,8 +145,7 @@ class Document:
 						# Take out those situations that are under the control of this script
 						if not element.get(attr).startswith("Assets/"):
 							element.attrib.pop(attr)
-							if config.logger is not None:
-								config.logger.warning("Link to '%s' removed (non-existing local resource or of non acceptable type)" % ref)
+							Logger.warning("Link to '%s' removed (non-existing local resource or of non acceptable type)" % ref)
 
 	###################################################################################################
 	# noinspection PyPep8
@@ -310,8 +309,7 @@ class Document:
 				self._dated_uri = aref.get('href')
 			return True
 		else:
-			if config.logger is not None:
-				config.logger.warning("Spec Status is not in the ReSpec config; falling back to generated content for metadata")
+			Logger.warning("Spec Status is not in the ReSpec config; falling back to generated content for metadata")
 			return False
 
 	# noinspection PyBroadException
@@ -331,15 +329,13 @@ class Document:
 				self._doc_type, self._short_name = Utils.create_shortname(dated_name.split('/')[-1])
 			except:
 				message = "Could not establish document type and/or short name from '%s' (remains \"base\")" % self._dated_uri
-				if config.logger is not None:
-					config.logger.warning(message)
+				Logger.warning(message)
 			break
 
 		# Date of the document, to be reused in the metadata
 		if self._doc_type is None:
 			message = "Unrecognized document type, unable to convert (should be ED, WD, CR, PR, PER, REC, or NOTE)"
-			if config.logger is not None:
-				config.logger.error(message)
+			Logger.error(message)
 			raise R2EError(message)
 		elif self._doc_type == "ED":
 			self._date = date.today()
@@ -384,17 +380,15 @@ class Document:
 					exc_type, exc_value, exc_traceback = sys.exc_info()
 					err = StringIO()
 					traceback.print_exception(exc_type, exc_value, exc_traceback, file=err)
-					if config.logger is not None:
-						config.logger.warning("Embedded ReSpec Configuration could not be parsed as JSON\n%s" % err.getvalue())
-						config.logger.warning("Falling back to generated content for metadata")
+					Logger.warning("Embedded ReSpec Configuration could not be parsed as JSON\n%s" % err.getvalue())
+					Logger.warning("Falling back to generated content for metadata")
 					err.close()
 					return False
 
 				try:
 					if self._get_metadata_from_respec(respec_config):
 						head.remove(respec_config_element)
-						if config.logger is not None:
-							config.logger.info("Using the embedded ReSpec Configuration")
+						Logger.info("Using the embedded ReSpec Configuration")
 						return True
 					else:
 						return False
@@ -402,14 +396,12 @@ class Document:
 					exc_type, exc_value, exc_traceback = sys.exc_info()
 					err = StringIO()
 					traceback.print_exception(exc_type, exc_value, exc_traceback, file=err)
-					if config.logger is not None:
-						config.logger.warning("Embedded ReSpec Configuration couldn't be handled due to an error \n%s" % err.getvalue())
-						config.logger.warning("Falling back to generated content for metadata")
+					Logger.warning("Embedded ReSpec Configuration couldn't be handled due to an error \n%s" % err.getvalue())
+					Logger.warning("Falling back to generated content for metadata")
 					err.close()
 					return False
 			else:
-				if config.logger is not None:
-					config.logger.warning("No embedded ReSpec configuration; falling back to generated content for metadata")
+				Logger.warning("No embedded ReSpec configuration; falling back to generated content for metadata")
 				return False
 
 		# Get the title of the document

@@ -31,7 +31,7 @@ from .document import Document
 from .package import Package
 import config
 from .config import DOCTYPE_INFO
-from .utils import HttpSession, Book
+from .utils import HttpSession, Book, Logger
 
 
 #: URI of the service used to convert a ReSpec source onto an HTML file on the fly. This service is used
@@ -82,8 +82,8 @@ class DocWrapper:
 				self._url_respec_setting[to_set[0]] = to_set[1]
 
 		# Get the data, possibly converting from respec on the fly
-		if config.logger is not None and is_respec:
-			config.logger.info("Generating HTML via the spec generator service from %s" % url)
+		if is_respec:
+			Logger.info("Generating HTML via the spec generator service from %s" % url)
 		session = HttpSession(CONVERTER + url if is_respec else url, raise_exception=True)
 
 		# Parse the generated document
