@@ -57,7 +57,7 @@ class Document:
 		self._authors       = ""
 		self._respec_config = None
 		self._toc		    = []
-		self._issued_as     = None
+		self._subtitle     = None
 		self._get_document_metadata()
 		self._massage_html()
 
@@ -263,9 +263,9 @@ class Document:
 		return self._toc
 
 	@property
-	def issued_as(self):
+	def subtitle(self):
 		""" "W3C Note/Recommendation/Draft/ etc.": the text to be reused as a subtitle on the cover page. """
-		return self._issued_as
+		return self._subtitle
 
 	# noinspection PyPep8
 	def _get_metadata_from_respec(self, dict_config):
@@ -301,9 +301,6 @@ class Document:
 			else:
 				self._date = date.today()
 
-			self._issued_as = config.DOCTYPE_INFO[self._doc_type]["subtitle"] if self._doc_type in config.DOCTYPE_INFO else ""
-			self._issued_as += ", " + self.date.strftime("%d %B, %Y")
-
 			aref = self.html.find(".//a[@class='u-url']")
 			if aref is not None:
 				self._dated_uri = aref.get('href')
@@ -323,24 +320,12 @@ class Document:
 		# Short name of the document
 		# Find the official short name of the document
 		for aref in self.html.findall(".//a[@class='u-url']"):
-			try:
-				self._dated_uri = aref.get('href')
-				dated_name = self._dated_uri[:-1] if self._dated_uri[-1] == '/' else self._dated_uri
-				self._doc_type, self._short_name = Utils.create_shortname(dated_name.split('/')[-1])
-			except:
-				message = "Could not establish document type and/or short name from '%s' (remains \"base\")" % self._dated_uri
-				Logger.warning(message)
+			self._dated_uri = aref.get('href')
+			dated_name = self._dated_uri[:-1] if self._dated_uri[-1] == '/' else self._dated_uri
+			self._doc_type, self._short_name = Utils.create_shortname(dated_name.split('/')[-1])
 			break
 
-		# Date of the document, to be reused in the metadata
-		if self._doc_type is None:
-			message = "Unrecognized document type, unable to convert (should be ED, WD, CR, PR, PER, REC, or NOTE)"
-			Logger.error(message)
-			raise R2EError(message)
-		elif self._doc_type == "ED":
-			self._date = date.today()
-		else:
-			self._date = Utils.retrieve_date(self.dated_uri)
+		self._date = Utils.retrieve_date(self.dated_uri)
 
 		# Extract the editors
 		editor_set = Utils.extract_editors(self.html)
@@ -353,15 +338,13 @@ class Document:
 
 		# Add the right subtitle to the cover page
 		for issued in self.html.findall(".//h2[@property='dcterms:issued']"):
-			self._issued_as = ""
+			self._subtitle = ""
 			for t in issued.itertext():
-				self._issued_as += t
+				self._subtitle += t
 
 	def _get_document_metadata(self):
 		"""
 		Extract metadata (date, title, editors, etc.)
-
-		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)
 		"""
 		# noinspection PyBroadException
 		def _retrieve_from_respec_config():
@@ -377,12 +360,14 @@ class Document:
 					for key in self.driver.url_respec_setting:
 						respec_config[key] = self.driver.url_respec_setting[key]
 				except:
-					exc_type, exc_value, exc_traceback = sys.exc_info()
-					err = StringIO()
-					traceback.print_exception(exc_type, exc_value, exc_traceback, file=err)
-					Logger.warning("Embedded ReSpec Configuration could not be parsed as JSON\n%s" % err.getvalue())
-					Logger.warning("Falling back to generated content for metadata")
-					err.close()
+					# The error message of the parse does not seem to be all to useful:-(
+					# Logger.warning("Embedded ReSpec Configuration could not be parsed as JSON\n%s" % err.getvalue())
+					# exc_type, exc_value, exc_traceback = sys.exc_info()
+					# err = StringIO()
+					# traceback.print_exception(exc_type, exc_value, exc_traceback, file=err)
+					# err.close()
+					# Logger.warning("Falling back to generated content for metadata")
+					Logger.warning("Embedded ReSpec Configuration could not be parsed as JSON; Falling back to generated content for metadata")
 					return False
 
 				try:
@@ -422,6 +407,11 @@ class Document:
 		if _retrieve_from_respec_config() is not True:
 			self._get_metadata_from_source()
 
+		# Get the 'issued_as' text that will be used as a subtitle
+		self._subtitle = config.DOCTYPE_INFO[self._doc_type]["subtitle"] if self._doc_type in config.DOCTYPE_INFO else ""
+		self._subtitle += ", " + self.date.strftime("%d %B, %Y")
+
 		# Extract the table of content
 		self._toc = Utils.extract_toc(self.html, self.short_name)
+
 

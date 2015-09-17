@@ -320,9 +320,9 @@
 		<span class="n">orig</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">dated_uri</span><span class="p">)</span>
 
 		<span class="c"># Set the subtitle</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">issued_as</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">subtitle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
 			<span class="n">subtitle</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}h2[@id=&#39;subtitle&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-			<span class="n">subtitle</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">issued_as</span>
+			<span class="n">subtitle</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">subtitle</span>
 
 		<span class="c"># Set the correct copyright date</span>
 		<span class="n">span</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}span[@id=&#39;cpdate&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>

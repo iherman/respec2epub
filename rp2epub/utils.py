@@ -141,7 +141,9 @@ class Utils(object):
 				name = name[len(doc_type)+1:]
 				return doc_type, name[:-9]
 
-		# If we get here, the name does not abide to any pattern; it is taken to be an ED
+		# If we get here, the name does not abide to any pattern; it is taken to be a base document
+		message = "Could not establish document type and/or short name from '%s' (remains \"base\")" % name
+		Logger.warning(message)
 		return "base", name
 	# end create_shortname
 
@@ -156,6 +158,7 @@ class Utils(object):
 		:raises R2EError: the dated URI is not of an expected format
 		"""
 		# remove the last '/' if any
+
 		try:
 			d = duri[:-1] if duri[-1] == '/' else duri
 			# Date in compact format:

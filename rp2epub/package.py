@@ -276,9 +276,9 @@ class Package:
 		orig.set("href", self.document.dated_uri)
 
 		# Set the subtitle
-		if self.document.issued_as is not None:
+		if self.document.subtitle is not None:
 			subtitle      = cover.findall(".//{http://www.w3.org/1999/xhtml}h2[@id='subtitle']")[0]
-			subtitle.text = self.document.issued_as
+			subtitle.text = self.document.subtitle
 
 		# Set the correct copyright date
 		span      = cover.findall(".//{http://www.w3.org/1999/xhtml}span[@id='cpdate']")[0]
