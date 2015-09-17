@@ -75,7 +75,7 @@
 <span class="kn">from</span> <span class="nn">.package</span> <span class="kn">import</span> <span class="n">Package</span>
 <span class="kn">import</span> <span class="nn">config</span>
 <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">DOCTYPE_INFO</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Book</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Logger</span>
 
 
 <span class="c">#: URI of the service used to convert a ReSpec source onto an HTML file on the fly. This service is used</span>
@@ -126,8 +126,8 @@
 				<span class="bp">self</span><span class="o">.</span><span class="n">_url_respec_setting</span><span class="p">[</span><span class="n">to_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">to_set</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
 		<span class="c"># Get the data, possibly converting from respec on the fly</span>
-		<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">is_respec</span><span class="p">:</span>
-			<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Generating HTML via the spec generator service from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">is_respec</span><span class="p">:</span>
+			<span class="n">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Generating HTML via the spec generator service from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
 		<span class="n">session</span> <span class="o">=</span> <span class="n">HttpSession</span><span class="p">(</span><span class="n">CONVERTER</span> <span class="o">+</span> <span class="n">url</span> <span class="k">if</span> <span class="n">is_respec</span> <span class="k">else</span> <span class="n">url</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 		<span class="c"># Parse the generated document</span>

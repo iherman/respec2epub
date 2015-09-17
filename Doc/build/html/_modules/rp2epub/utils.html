@@ -185,7 +185,9 @@
 				<span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">doc_type</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
 				<span class="k">return</span> <span class="n">doc_type</span><span class="p">,</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">9</span><span class="p">]</span>
 
-		<span class="c"># If we get here, the name does not abide to any pattern; it is taken to be an ED</span>
+		<span class="c"># If we get here, the name does not abide to any pattern; it is taken to be a base document</span>
+		<span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Could not establish document type and/or short name from &#39;</span><span class="si">%s</span><span class="s">&#39; (remains </span><span class="se">\&quot;</span><span class="s">base</span><span class="se">\&quot;</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="n">name</span>
+		<span class="n">Logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 		<span class="k">return</span> <span class="s">&quot;base&quot;</span><span class="p">,</span> <span class="n">name</span>
 	<span class="c"># end create_shortname</span>
 </div>
@@ -200,6 +202,7 @@
 <span class="sd">		:raises R2EError: the dated URI is not of an expected format</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="c"># remove the last &#39;/&#39; if any</span>
+
 		<span class="k">try</span><span class="p">:</span>
 			<span class="n">d</span> <span class="o">=</span> <span class="n">duri</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">duri</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="n">duri</span>
 			<span class="c"># Date in compact format:</span>
@@ -207,9 +210,8 @@
 			<span class="k">return</span> <span class="n">date</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">pdate</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pdate</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pdate</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">]))</span>
 		<span class="k">except</span><span class="p">:</span>
 			<span class="n">message</span> <span class="o">=</span> <span class="s">&quot;dated URI is not of the expected format&quot;</span>
-			<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-				<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-			<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+			<span class="n">Logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
 	<span class="c"># end retrieve_date</span>
 </div>
 	<span class="nd">@staticmethod</span>
@@ -410,8 +412,7 @@
 			<span class="k">return</span> <span class="n">retval</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="c"># if we got here, something is wrong...</span>
-			<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-				<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Could not extract a table of content from &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">short_name</span><span class="p">)</span>
+			<span class="n">Logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Could not extract a table of content from &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">short_name</span><span class="p">)</span>
 			<span class="k">return</span> <span class="p">[]</span>
 	<span class="c"># end _extract_toc</span>
 
@@ -431,8 +432,7 @@
 	<span class="c"># noinspection PyPep8,PyPep8</span>
 	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">check_media_type</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 		<span class="k">def</span> <span class="nf">handle_exception</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-			<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-				<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+			<span class="n">Logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 			<span class="k">if</span> <span class="n">raise_exception</span><span class="p">:</span>
 				<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
@@ -583,7 +583,7 @@
 		<span class="c"># Copy the content into the final book</span>
 		<span class="c"># Special care should be taken with html files. Those are supposed to become XHTML:-(</span>
 		<span class="k">if</span> <span class="ow">not</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
-			<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Unsuccessful HTTP session; did not store </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">session</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+			<span class="n">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Unsuccessful HTTP session; did not store </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">session</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="s">&#39;text/html&#39;</span><span class="p">:</span>
 				<span class="c"># We have to</span>
@@ -638,7 +638,27 @@
 
 	<span class="c"># noinspection PyUnusedLocal</span>
 	<span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+		<span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c">#####################################################################################</span>
+
+
+<span class="c"># noinspection PyPep8</span></div>
+<span class="k">class</span> <span class="nc">Logger</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </pre></div>
 
       </div>
