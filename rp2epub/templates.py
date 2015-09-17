@@ -195,7 +195,7 @@ BOOK_CSS = """
   }
 
   div[role~="main"] {
-    padding: 2em 1em 2em 70px;
+    padding: %s
   }
 
   h2 {

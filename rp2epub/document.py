@@ -26,8 +26,6 @@ from StringIO import StringIO
 from datetime import date, datetime
 
 from .utils import HttpSession, Utils, Logger
-from . import R2EError
-from .config import TO_TRANSFER
 import config
 
 
@@ -104,7 +102,8 @@ class Document:
 			# earlier manipulation on the DOM may have already set the external references to those, the
 			# HTTPSession is unnecessary (and sometimes leads to 404 anyway)
 			# Bottom line: those references must be filtered out
-			if attr_value is not None and all(map(lambda x: x[2] != attr_value, TO_TRANSFER)):
+			to_transfer = self.doc_type_info["transfer"]
+			if attr_value is not None and all(map(lambda x: x[2] != attr_value, to_transfer)):
 				ref = urljoin(self.driver.base, attr_value)
 				# In some cases, primarily in the case of editors drafts, the reference is simply on the file
 				# itself; better avoid a duplication
@@ -167,7 +166,7 @@ class Document:
 		# handle stylesheet references
 		for lnk in self.html.findall(".//link[@rel='stylesheet']"):
 			ref_details = urlparse(lnk.get("href"))
-			if ref_details.netloc == "www.w3.org" and ref_details.path.startswith("/StyleSheets"):
+			if ref_details.netloc == "www.w3.org" and (ref_details.path.startswith("/StyleSheets") or ref_details.path.startswith("/community/src/css/spec")):
 				# This is the local, W3C, style sheet. Actions to be taken:
 				# 1. This is exchanged against the general 'base.css'
 				# 2. Below, after all the stylesheets are handled, the reference to a separate 'book.css' is added
@@ -241,6 +240,13 @@ class Document:
 	def doc_type(self):
 		"""Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``, or ``ED``, or the values set in ReSpec"""
 		return self._doc_type
+
+	@property
+	def doc_type_info(self):
+		"""Structure reflecting the various aspects of documents by doc type. This is just a shorthand for
+		```config.DOCTYPE_INFO[self.doc_type]
+		"""
+		return config.DOCTYPE_INFO[self.doc_type] if self.doc_type is not None else None
 
 	@property
 	def date(self):

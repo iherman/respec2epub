@@ -81,10 +81,10 @@ class Package:
 			item.tail = "\n    "
 
 		# Add the type-specific logo
-		if self.document.doc_type in DOCTYPE_INFO and DOCTYPE_INFO[self.document.doc_type]["logo"] is not None:
+		if self.document.doc_type in DOCTYPE_INFO and self.document.doc_type_info["logo_transfer"] is not None:
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
 			item.set("id", "css-logo")
-			item.set("href", DOCTYPE_INFO[self.document.doc_type]["logo_asset"])
+			item.set("href", self.document.doc_type_info["logo_transfer"][2])
 			item.set("media-type", "image/png")
 			item.tail = "\n    "
 

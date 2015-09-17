@@ -167,18 +167,19 @@ class DocWrapper:
 
 		with Book(self.book_file_name, self.document.short_name, self.package, self.folder) as self._book:
 			additional_transfers = []
-			# Add the book.css with the right value set for the background image
-			# background-image: url(%s);
-			if self.document.doc_type in DOCTYPE_INFO and DOCTYPE_INFO[self.document.doc_type]["logo"] is not None:
-				type_struct = DOCTYPE_INFO[self.document.doc_type]
-				css_background = "background-image: url(%s);" % type_struct["logo_asset"][7:]
-				additional_transfers = [(type_struct["logo"], type_struct["logo_local"], type_struct["logo_asset"])]
-			else:
-				css_background = ""
-			self.book.writestr('Assets/book.css', BOOK_CSS % css_background)
+			css_background       = ""
+			padding              = "2em 1em 2em 70px;"
+
+			# Add the book.css with the right value set for the background image and the padding
+			if self.document.doc_type in DOCTYPE_INFO and self.document.doc_type_info["logo_transfer"] is not None:
+				additional_transfers = [self.document.doc_type_info["logo_transfer"]]
+				css_background       = "background-image: url(%s);" % self.document.doc_type_info["logo_transfer"][2][7:]
+				padding              = self.document.doc_type_info["padding"]
+
+			self.book.writestr('Assets/book.css', BOOK_CSS % (css_background, padding))
 
 			# Some resources should be added to the book once and for all
-			for uri, alt_uri, local in additional_transfers + config.TO_TRANSFER:
+			for uri, alt_uri, local in additional_transfers + self.document.doc_type_info["transfer"]:
 				if not self.book.write_HTTP(local, uri):
 					self.book.write_HTTP(local, alt_uri)
 

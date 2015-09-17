@@ -147,6 +147,7 @@ class Utils(object):
 		return "base", name
 	# end create_shortname
 
+	# noinspection PyBroadException
 	@staticmethod
 	def retrieve_date(duri):
 		"""
