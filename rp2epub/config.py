@@ -45,8 +45,6 @@ DEFAULT_FILES = [
 	("cover.xhtml", "application/xhtml+xml", "start", "")
 ]
 
-
-
 # suffixes and media types for resources that are recognized by EPUB
 # noinspection PyPep8,PyPep8
 ACCEPTED_MEDIA_TYPES = {
@@ -131,7 +129,7 @@ DOCTYPE_INFO = {
 		"subtitle"		: "W3C Member-Only Document"
 	},
 	"unofficial": {
-		"logo_transfer" : ("http://www.w3.org/StyleSheets/TR/unofficial.png", "http://localhost:8001/StyleSheets/TR/unofficial.png", "Assets/unofficial.png"),
+		"logo_transfer" : ("http://www.w3.org/StyleSheets/TR/logo-unofficial.png", "http://localhost:8001/StyleSheets/TR/logo-unofficial.png", "Assets/logo-unofficial.png"),
 		"uri_prefix"	: None,
 		"transfer"		: TO_TRANSFER,
 		"padding"		: "2em 1em 2em 70px;",

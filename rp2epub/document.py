@@ -158,10 +158,14 @@ class Document:
 		# Change the value of @about to the dated URI, which is what counts...
 		self.html.set("about", self.dated_uri)
 
-		# The reference to the W3C logo should be localized
-		for img in self.html.findall(".//img[@alt='W3C']"):
-			img.set('src', 'Assets/w3c_home.png')
-			break
+		# The reference to the W3C and submission logos should be localized
+		def localize_logo(alt, name):
+			img = self.html.find(".//img[@alt='%s']" % alt)
+			if img is not None:
+				img.set('src', "Assets/" + name)
+		localize_logo("W3C", "w3c_home.png")
+		localize_logo("W3C Member Submission", "member_subm.png")
+		localize_logo("W3C Team Submission", "team_subm.png")
 
 		# handle stylesheet references
 		for lnk in self.html.findall(".//link[@rel='stylesheet']"):
@@ -244,7 +248,7 @@ class Document:
 	@property
 	def doc_type_info(self):
 		"""Structure reflecting the various aspects of documents by doc type. This is just a shorthand for
-		```config.DOCTYPE_INFO[self.doc_type]
+		```config.DOCTYPE_INFO[self.doc_type]```
 		"""
 		return config.DOCTYPE_INFO[self.doc_type] if self.doc_type is not None else None
 

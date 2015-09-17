@@ -70,8 +70,6 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span>
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Utils</span><span class="p">,</span> <span class="n">Logger</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">R2EError</span>
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">TO_TRANSFER</span>
 <span class="kn">import</span> <span class="nn">config</span>
 
 
@@ -148,7 +146,8 @@
 			<span class="c"># earlier manipulation on the DOM may have already set the external references to those, the</span>
 			<span class="c"># HTTPSession is unnecessary (and sometimes leads to 404 anyway)</span>
 			<span class="c"># Bottom line: those references must be filtered out</span>
-			<span class="k">if</span> <span class="n">attr_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">attr_value</span><span class="p">,</span> <span class="n">TO_TRANSFER</span><span class="p">)):</span>
+			<span class="n">to_transfer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_type_info</span><span class="p">[</span><span class="s">&quot;transfer&quot;</span><span class="p">]</span>
+			<span class="k">if</span> <span class="n">attr_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">attr_value</span><span class="p">,</span> <span class="n">to_transfer</span><span class="p">)):</span>
 				<span class="n">ref</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">attr_value</span><span class="p">)</span>
 				<span class="c"># In some cases, primarily in the case of editors drafts, the reference is simply on the file</span>
 				<span class="c"># itself; better avoid a duplication</span>
@@ -203,15 +202,19 @@
 		<span class="c"># Change the value of @about to the dated URI, which is what counts...</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;about&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dated_uri</span><span class="p">)</span>
 
-		<span class="c"># The reference to the W3C logo should be localized</span>
-		<span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//img[@alt=&#39;W3C&#39;]&quot;</span><span class="p">):</span>
-			<span class="n">img</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;src&#39;</span><span class="p">,</span> <span class="s">&#39;Assets/w3c_home.png&#39;</span><span class="p">)</span>
-			<span class="k">break</span>
+		<span class="c"># The reference to the W3C and submission logos should be localized</span>
+		<span class="k">def</span> <span class="nf">localize_logo</span><span class="p">(</span><span class="n">alt</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+			<span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//img[@alt=&#39;</span><span class="si">%s</span><span class="s">&#39;]&quot;</span> <span class="o">%</span> <span class="n">alt</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">img</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="n">img</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;src&#39;</span><span class="p">,</span> <span class="s">&quot;Assets/&quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+		<span class="n">localize_logo</span><span class="p">(</span><span class="s">&quot;W3C&quot;</span><span class="p">,</span> <span class="s">&quot;w3c_home.png&quot;</span><span class="p">)</span>
+		<span class="n">localize_logo</span><span class="p">(</span><span class="s">&quot;W3C Member Submission&quot;</span><span class="p">,</span> <span class="s">&quot;member_subm.png&quot;</span><span class="p">)</span>
+		<span class="n">localize_logo</span><span class="p">(</span><span class="s">&quot;W3C Team Submission&quot;</span><span class="p">,</span> <span class="s">&quot;team_subm.png&quot;</span><span class="p">)</span>
 
 		<span class="c"># handle stylesheet references</span>
 		<span class="k">for</span> <span class="n">lnk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//link[@rel=&#39;stylesheet&#39;]&quot;</span><span class="p">):</span>
 			<span class="n">ref_details</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">lnk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">))</span>
-			<span class="k">if</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span> <span class="ow">and</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;/StyleSheets&quot;</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">ref_details</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;/StyleSheets&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;/community/src/css/spec&quot;</span><span class="p">)):</span>
 				<span class="c"># This is the local, W3C, style sheet. Actions to be taken:</span>
 				<span class="c"># 1. This is exchanged against the general &#39;base.css&#39;</span>
 				<span class="c"># 2. Below, after all the stylesheets are handled, the reference to a separate &#39;book.css&#39; is added</span>
@@ -285,6 +288,13 @@
 	<span class="k">def</span> <span class="nf">doc_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``, or ``ED``, or the values set in ReSpec&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">doc_type_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Structure reflecting the various aspects of documents by doc type. This is just a shorthand for</span>
+<span class="sd">		```config.DOCTYPE_INFO[self.doc_type]```</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">DOCTYPE_INFO</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_type</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">None</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

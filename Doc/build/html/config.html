@@ -65,14 +65,9 @@
 logo URI that has to be extracted from the W3C site, <code class="docutils literal"><span class="pre">logo_local</span></code> for the logo URI that may be available locally (used
 if the script is run locally; these values may have to be adapted for local use), <code class="docutils literal"><span class="pre">logo_asset</span></code> for the URI to be used
 in the generated <code class="docutils literal"><span class="pre">book.css</span></code> file, <code class="docutils literal"><span class="pre">uri_prefix</span></code> for the string that may be used as a prefix in the document
-short name URI (as used at W3C), and <code class="docutils literal"><span class="pre">subtitle</span></code> for the name of the document type in human term</p>
-</dd></dl>
-
-<dl class="data">
-<dt id="rp2epub.config.TO_TRANSFER">
-<code class="descclassname">rp2epub.config.</code><code class="descname">TO_TRANSFER</code><a class="headerlink" href="#rp2epub.config.TO_TRANSFER" title="Permalink to this definition">¶</a></dt>
-<dd><p>Array of (url,local_name) pairs of resources that must be transferred and added to the output. This may be expanded run time;
-by default it includes the W3C logos and the base CSS file.</p>
+short name URI (as used at W3C), and <code class="docutils literal"><span class="pre">subtitle</span></code> for the name of the document type in human term. The structure also
+includes a key <code class="docutils literal"><span class="pre">transfer</span></code> for the some files to be automatically transferred to the book (<code class="docutils literal"><span class="pre">base.css</span></code>, w3c logos),
+and the <code class="docutils literal"><span class="pre">padding</span></code> value providing the value for the corresponding CSS setting (for the full content).</p>
 </dd></dl>
 
 <dl class="data">
