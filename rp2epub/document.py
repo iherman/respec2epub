@@ -288,15 +288,15 @@ class Document:
 		def _get_people(key, suffix_sing="", suffix_plur=""):
 			def _get_person(person_struct):
 				retval = person_struct["name"]
-				return retval + (" (%s)" % person_struct["company"]) if "company" in person_struct else retval
+				return retval + (", %s" % person_struct["company"]) if "company" in person_struct else retval
 
 			people = [_get_person(p) for p in dict_config[key]]
 			if len(people) == 0:
 				return ""
 			elif len(people) == 1:
-				return people[0] + suffix_sing
+				return people[0] + (" (%s)" % suffix_sing)
 			else:
-				return ", ".join(people) + suffix_plur
+				return "; ".join(people) + (" (%s)" % suffix_plur)
 
 		# store the full configuration for possible later reuse
 		self._respec_config = dict_config
@@ -304,8 +304,8 @@ class Document:
 		if "specStatus" in dict_config :
 			self._doc_type   = dict_config["specStatus"]
 			self._short_name = dict_config["shortName"] if "shortName" in dict_config else None
-			self._editors    = "" if "editors" not in dict_config else _get_people("editors", ", (ed.)", ", (eds.)")
-			self._authors    = "" if "authors" not in dict_config else _get_people("authors")
+			self._editors    = "" if "editors" not in dict_config else _get_people("editors", "editor", "editors")
+			self._authors    = "" if "authors" not in dict_config else _get_people("authors", "author", "authors")
 			if "publishDate" in dict_config:
 				self._date = datetime.strptime(dict_config["publishDate"], "%Y-%m-%d").date()
 			else:
