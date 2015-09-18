@@ -61,6 +61,7 @@ DEFAULT_FILES = [
 # suffixes and media types for resources that are recognized by EPUB
 # noinspection PyPep8,PyPep8
 ACCEPTED_MEDIA_TYPES = {
+	"text/plain"                  : "txt",
 	"text/html"                   : "html",
 	"application/xhtml+xml"       : "xhtml",
 	"text/css"                    : "css",
