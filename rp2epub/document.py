@@ -81,7 +81,7 @@ class Document:
 	def extract_external_references(self):
 		"""Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is
 
-		- on the same domain as the original file
+		- the URL begins with the same bas
 		- is one of the 'accepted' media types for epub
 
 		then the file is copied and stored in the book, the reference is changed in the document,
@@ -232,23 +232,23 @@ class Document:
 
 	@property
 	def short_name(self):
-		"""'Short Name', in the W3C jargon"""
+		"""'Short Name', in W3C jargon"""
 		return self._short_name if self._short_name is not None else "index"
 
 	@property
 	def dated_uri(self):
-		"""'Dated URI', in the W3C jargon. As a fall back, this may be set to the top URI of the document if the dated uri has not been set """
+		"""'Dated URI', in the jargon. As a fall back, this may be set to the top URI of the document if the dated uri has not been set """
 		return self._dated_uri if self._dated_uri is not None else self.driver.top_uri
 
 	@property
 	def doc_type(self):
-		"""Document type, ie, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``, or ``ED``, or the values set in ReSpec"""
+		"""Document type, eg, one of ``REC``, ``NOTE``, ``PR``, ``PER``, ``CR``, ``WD``, or ``ED``, or the values set in ReSpec"""
 		return self._doc_type
 
 	@property
 	def doc_type_info(self):
 		"""Structure reflecting the various aspects of documents by doc type. This is just a shorthand for
-		```config.DOCTYPE_INFO[self.doc_type]```
+		``config.DOCTYPE_INFO[self.doc_type]``
 		"""
 		return config.DOCTYPE_INFO[self.doc_type] if self.doc_type is not None else None
 

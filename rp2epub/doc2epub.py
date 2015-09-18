@@ -29,9 +29,9 @@ import tempfile
 from .templates import BOOK_CSS
 from .document import Document
 from .package import Package
-import config
 from .config import DOCTYPE_INFO
 from .utils import HttpSession, Book, Logger
+import utils
 
 
 #: URI of the service used to convert a ReSpec source onto an HTML file on the fly. This service is used
@@ -62,11 +62,9 @@ class DocWrapper:
 		self._domain        = urlparse(url).netloc
 		self._package       = package
 		self._folder        = folder
+		utils.logger 		= logger
 
-		if logger is not None:
-			config.logger = logger
-			message = "== Handling the '%s' %s source ==" % (url, "ReSpec" if is_respec else "HTML")
-			config.logger.info(message)
+		Logger.info("== Handling the '%s' %s source ==" % (url, "ReSpec" if is_respec else "HTML"))
 
 		# Get the base URL, ie, remove the possible query parameter and the last portion of the path name
 		url_tuples = urlparse(url)
@@ -84,7 +82,9 @@ class DocWrapper:
 		# Get the data, possibly converting from respec on the fly
 		if is_respec:
 			Logger.info("Generating HTML via the spec generator service from %s" % url)
-		session = HttpSession(CONVERTER + url if is_respec else url, raise_exception=True)
+		session = HttpSession(CONVERTER + url if is_respec else url, raise_exception=True, is_respec=is_respec)
+		if is_respec:
+			Logger.info("ReSpec generation successful, continuing with the result")
 
 		# Parse the generated document
 		self._html          = html5lib.parse(session.data, namespaceHTMLElements=False)

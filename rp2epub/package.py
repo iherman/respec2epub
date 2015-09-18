@@ -17,18 +17,6 @@ from .config import DEFAULT_FILES, DOCTYPE_INFO
 
 
 # noinspection PyPep8
-SUBTITLE = {
-	'REC'  : "W3C Recommendation",
-	'NOTE' : "W3C Note",
-	"PR"   : "W3C Proposed Recommendation",
-	"PER"  : "W3C Proposed Edited Recommendation",
-	"CR"   : "W3C Candidate Recommendation",
-	"WD"   : "W3C Working Draft",
-	"ED"   : "W3C Editor's Draft"
-}
-
-
-# noinspection PyPep8
 class Package:
 	"""
 	Collection of methods to generate the manifest, TOC in different formats, and the cover pages

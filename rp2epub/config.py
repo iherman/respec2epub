@@ -9,25 +9,38 @@ Various configuration variables.
 
 .. py:data:: DEFAULT_FILES
 
-  Items that have to be added to the book's manifest, no matter what; an array tuples of the form ``(file,media-type,id,properties)``
+  Items that have to be added to the book's manifest, no matter what; an array tuples of the form ``(file,media-type,id,properties)``.
+  Typical example: entry for the table of content file
 
 .. py:data:: DOCTYPE_INFO
 
-  A dictionary keyed by document types (as accepted by ReSpec); each value is a dictionary again with keys ``logo`` for the
-  logo URI that has to be extracted from the W3C site, ``logo_local`` for the logo URI that may be available locally (used
-  if the script is run locally; these values may have to be adapted for local use), ``logo_asset`` for the URI to be used
-  in the generated ``book.css`` file, ``uri_prefix`` for the string that may be used as a prefix in the document
-  short name URI (as used at W3C), and ``subtitle`` for the name of the document type in human term. The structure also
-  includes a key ``transfer`` for the some files to be automatically transferred to the book (``base.css``, w3c logos),
-  and the ``padding`` value providing the value for the corresponding CSS setting (for the full content).
+  A dictionary keyed by document types (as accepted by ReSpec); each value is a also a dictionary of the form:
+
+  ``logo_transfer``
+  	A tuple containing the URL of the logo to be copied into the book, a URL (typically ``http://localhost``
+  	for a local version thereof, and the name in the final book, of the form ``Assets/XXXX``
+  ``uri_prefix``
+  	String that may be used as a prefix in the document short name URI (as used at W3C), e.g., ``WD``
+  ``subtitle``
+    The name of the document in Human term, e.g., ``W3C Working Draft``
+  ``transfer``
+    Pointer to an array of tuple (of the same structures as the one in ``logo_transfer``) providing references
+    to files that must be copied to the book additionally to the logo.
+  ``padding``
+    Padding CSS specification (ie, value of a ``padding`` CSS directives) that must be applied to the whole content of the file.
 
 .. py:data:: ACCEPTED_MEDIA_TYPES
 
-  Dictionary of media types that are accepted for inclusion in an epub file, providing also the suffix used
+  Dictionary of media types that are accepted for inclusion in an epub file. The media types are used as keys, pointing
+  at the suffix usually used (if needed)
 
 .. py:data:: EXTERNAL_REFERENCES
 
-   Pairs of element names and attributes for content that should be downloaded and referred to
+   Pairs of HTML element names and corresponding attributes that should be looked for in the source for content that
+   may have to be downloaded to the book. (In general, only essentially relative references are considered for download, global
+   references are not. There are some exceptions, e.g., W3C specific stylesheets or images.)
+
+**Source code:** `utils.py <https://github.com/iherman/respec2epub/blob/master/rp2epub/utils.py>`_
 
 """
 

@@ -136,20 +136,20 @@ file of the book.</p>
 <dl class="attribute">
 <dt id="rp2epub.document.Document.dated_uri">
 <code class="descname">dated_uri</code><a class="headerlink" href="#rp2epub.document.Document.dated_uri" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#8216;Dated URI&#8217;, in the W3C jargon. As a fall back, this may be set to the top URI of the document if the dated uri has not been set</p>
+<dd><p>&#8216;Dated URI&#8217;, in the jargon. As a fall back, this may be set to the top URI of the document if the dated uri has not been set</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rp2epub.document.Document.doc_type">
 <code class="descname">doc_type</code><a class="headerlink" href="#rp2epub.document.Document.doc_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Document type, ie, one of <code class="docutils literal"><span class="pre">REC</span></code>, <code class="docutils literal"><span class="pre">NOTE</span></code>, <code class="docutils literal"><span class="pre">PR</span></code>, <code class="docutils literal"><span class="pre">PER</span></code>, <code class="docutils literal"><span class="pre">CR</span></code>, <code class="docutils literal"><span class="pre">WD</span></code>, or <code class="docutils literal"><span class="pre">ED</span></code>, or the values set in ReSpec</p>
+<dd><p>Document type, eg, one of <code class="docutils literal"><span class="pre">REC</span></code>, <code class="docutils literal"><span class="pre">NOTE</span></code>, <code class="docutils literal"><span class="pre">PR</span></code>, <code class="docutils literal"><span class="pre">PER</span></code>, <code class="docutils literal"><span class="pre">CR</span></code>, <code class="docutils literal"><span class="pre">WD</span></code>, or <code class="docutils literal"><span class="pre">ED</span></code>, or the values set in ReSpec</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rp2epub.document.Document.doc_type_info">
 <code class="descname">doc_type_info</code><a class="headerlink" href="#rp2epub.document.Document.doc_type_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Structure reflecting the various aspects of documents by doc type. This is just a shorthand for
-<code class="docutils literal"><span class="pre">`config.DOCTYPE_INFO[self.doc_type]`</span></code></p>
+<code class="docutils literal"><span class="pre">config.DOCTYPE_INFO[self.doc_type]</span></code></p>
 </dd></dl>
 
 <dl class="attribute">
@@ -169,7 +169,7 @@ file of the book.</p>
 <code class="descname">extract_external_references</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/document.html#Document.extract_external_references"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.extract_external_references" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is</p>
 <ul class="simple">
-<li>on the same domain as the original file</li>
+<li>the URL begins with the same bas</li>
 <li>is one of the &#8216;accepted&#8217; media types for epub</li>
 </ul>
 <p>then the file is copied and stored in the book, the reference is changed in the document,
@@ -201,7 +201,7 @@ the rest of the code does not make use of this property. But it may be used in t
 <dl class="attribute">
 <dt id="rp2epub.document.Document.short_name">
 <code class="descname">short_name</code><a class="headerlink" href="#rp2epub.document.Document.short_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#8216;Short Name&#8217;, in the W3C jargon</p>
+<dd><p>&#8216;Short Name&#8217;, in W3C jargon</p>
 </dd></dl>
 
 <dl class="attribute">

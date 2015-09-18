@@ -53,8 +53,6 @@ try:
 		os.mkdir('/tmp/epub_generator_logs')
 
 	# Set the handler; this handler provides a way to limit the file size, and also gives a rollover
-	# TODO: when going for a real deployment, the maxBytes argument should be set to, say, 100000 (or more?) and backupCount to 10
-
 	maxBytes = 3000 if local else 100000
 	backupCount = 2 if local else 10
 
@@ -99,7 +97,7 @@ def respond(wrapper, modified):
 		with open(wrapper.book_file_name) as book:
 			print book.read()
 		if cgi and logger is not None:
-			logger.info("==== The '%s' EPUB 3 file has been generated and has been returned to caller ====" % (wrapper.document.short_name + ".epub"))
+			logger.info("**** The '%s' EPUB 3 file has been generated and has been returned to caller ****" % (wrapper.document.short_name + ".epub"))
 	else:
 		print wrapper.book_file_name
 

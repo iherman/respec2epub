@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Templates &mdash; ReSpec to EPUB Utility</title>
+    <title>Configuration data &mdash; ReSpec to EPUB Utility</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -29,7 +29,7 @@
   <body role="document">
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
           <span>ReSpec to EPUB Utility</span></a></h1>
-        <h2 class="heading"><span>Templates</span></h2>
+        <h2 class="heading"><span>Configuration data</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
       
@@ -44,7 +44,7 @@
         
         
   <div class="section" id="module-rp2epub.config">
-<span id="templates"></span><h1>Templates<a class="headerlink" href="#module-rp2epub.config" title="Permalink to this headline">¶</a></h1>
+<span id="configuration-data"></span><h1>Configuration data<a class="headerlink" href="#module-rp2epub.config" title="Permalink to this headline">¶</a></h1>
 <p>Various configuration variables.</p>
 <dl class="data">
 <dt id="rp2epub.config.logger">
@@ -55,33 +55,46 @@
 <dl class="data">
 <dt id="rp2epub.config.DEFAULT_FILES">
 <code class="descclassname">rp2epub.config.</code><code class="descname">DEFAULT_FILES</code><a class="headerlink" href="#rp2epub.config.DEFAULT_FILES" title="Permalink to this definition">¶</a></dt>
-<dd><p>Items that have to be added to the book&#8217;s manifest, no matter what; an array tuples of the form <code class="docutils literal"><span class="pre">(file,media-type,id,properties)</span></code></p>
+<dd><p>Items that have to be added to the book&#8217;s manifest, no matter what; an array tuples of the form <code class="docutils literal"><span class="pre">(file,media-type,id,properties)</span></code>.
+Typical example: entry for the table of content file</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="rp2epub.config.DOCTYPE_INFO">
 <code class="descclassname">rp2epub.config.</code><code class="descname">DOCTYPE_INFO</code><a class="headerlink" href="#rp2epub.config.DOCTYPE_INFO" title="Permalink to this definition">¶</a></dt>
-<dd><p>A dictionary keyed by document types (as accepted by ReSpec); each value is a dictionary again with keys <code class="docutils literal"><span class="pre">logo</span></code> for the
-logo URI that has to be extracted from the W3C site, <code class="docutils literal"><span class="pre">logo_local</span></code> for the logo URI that may be available locally (used
-if the script is run locally; these values may have to be adapted for local use), <code class="docutils literal"><span class="pre">logo_asset</span></code> for the URI to be used
-in the generated <code class="docutils literal"><span class="pre">book.css</span></code> file, <code class="docutils literal"><span class="pre">uri_prefix</span></code> for the string that may be used as a prefix in the document
-short name URI (as used at W3C), and <code class="docutils literal"><span class="pre">subtitle</span></code> for the name of the document type in human term. The structure also
-includes a key <code class="docutils literal"><span class="pre">transfer</span></code> for the some files to be automatically transferred to the book (<code class="docutils literal"><span class="pre">base.css</span></code>, w3c logos),
-and the <code class="docutils literal"><span class="pre">padding</span></code> value providing the value for the corresponding CSS setting (for the full content).</p>
+<dd><p>A dictionary keyed by document types (as accepted by ReSpec); each value is a also a dictionary of the form:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">logo_transfer</span></code></dt>
+<dd>A tuple containing the URL of the logo to be copied into the book, a URL (typically <code class="docutils literal"><span class="pre">http://localhost</span></code>
+for a local version thereof, and the name in the final book, of the form <code class="docutils literal"><span class="pre">Assets/XXXX</span></code></dd>
+<dt><code class="docutils literal"><span class="pre">uri_prefix</span></code></dt>
+<dd>String that may be used as a prefix in the document short name URI (as used at W3C), e.g., <code class="docutils literal"><span class="pre">WD</span></code></dd>
+<dt><code class="docutils literal"><span class="pre">subtitle</span></code></dt>
+<dd>The name of the document in Human term, e.g., <code class="docutils literal"><span class="pre">W3C</span> <span class="pre">Working</span> <span class="pre">Draft</span></code></dd>
+<dt><code class="docutils literal"><span class="pre">transfer</span></code></dt>
+<dd>Pointer to an array of tuple (of the same structures as the one in <code class="docutils literal"><span class="pre">logo_transfer</span></code>) providing references
+to files that must be copied to the book additionally to the logo.</dd>
+<dt><code class="docutils literal"><span class="pre">padding</span></code></dt>
+<dd>Padding CSS specification (ie, value of a <code class="docutils literal"><span class="pre">padding</span></code> CSS directives) that must be applied to the whole content of the file.</dd>
+</dl>
 </dd></dl>
 
 <dl class="data">
 <dt id="rp2epub.config.ACCEPTED_MEDIA_TYPES">
 <code class="descclassname">rp2epub.config.</code><code class="descname">ACCEPTED_MEDIA_TYPES</code><a class="headerlink" href="#rp2epub.config.ACCEPTED_MEDIA_TYPES" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dictionary of media types that are accepted for inclusion in an epub file, providing also the suffix used</p>
+<dd><p>Dictionary of media types that are accepted for inclusion in an epub file. The media types are used as keys, pointing
+at the suffix usually used (if needed)</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="rp2epub.config.EXTERNAL_REFERENCES">
 <code class="descclassname">rp2epub.config.</code><code class="descname">EXTERNAL_REFERENCES</code><a class="headerlink" href="#rp2epub.config.EXTERNAL_REFERENCES" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pairs of element names and attributes for content that should be downloaded and referred to</p>
+<dd><p>Pairs of HTML element names and corresponding attributes that should be looked for in the source for content that
+may have to be downloaded to the book. (In general, only essentially relative references are considered for download, global
+references are not. There are some exceptions, e.g., W3C specific stylesheets or images.)</p>
 </dd></dl>
 
+<p><strong>Source code:</strong> <a class="reference external" href="https://github.com/iherman/respec2epub/blob/master/rp2epub/utils.py">utils.py</a></p>
 </div>
 
 

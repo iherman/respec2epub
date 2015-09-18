@@ -51,6 +51,21 @@
 <p>Various utility classes and methods.</p>
 <div class="section" id="module-content">
 <h2>Module Content<a class="headerlink" href="#module-content" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="rp2epub.utils.logger">
+<code class="descclassname">rp2epub.utils.</code><code class="descname">logger</code><a class="headerlink" href="#rp2epub.utils.logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logger instance (see the Python logging library for details). May be overwritten by the <a class="reference internal" href="driver.html#rp2epub.doc2epub.DocWrapper" title="rp2epub.doc2epub.DocWrapper"><code class="xref py py-class docutils literal"><span class="pre">DocWrapper</span></code></a> instance). Defaults to <code class="docutils literal"><span class="pre">None</span></code>.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.utils.TOC_PAIRS">
+<code class="descclassname">rp2epub.utils.</code><code class="descname">TOC_PAIRS</code><a class="headerlink" href="#rp2epub.utils.TOC_PAIRS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of tuples to help selecting the (top level) TOC entries; these are strings to be used in an XPath find. Because there
+has been several versions over the past, including Bikeshed and ReSpec versions, the array contains quite a number of
+variants. The tuple may contain a third string, denoting a specific class name on the target element that can be
+used to narrow the filter.</p>
+</dd></dl>
+
 <dl class="class">
 <dt id="rp2epub.utils.Book">
 <em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">Book</code><span class="sig-paren">(</span><em>book_name</em>, <em>folder_name</em>, <em>package=True</em>, <em>folder=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Book"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Book" title="Permalink to this definition">¶</a></dt>
@@ -203,7 +218,7 @@ incarnation of the same file). This method takes care of that through the <cite>
 
 <dl class="class">
 <dt id="rp2epub.utils.HttpSession">
-<em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">HttpSession</code><span class="sig-paren">(</span><em>url</em>, <em>check_media_type=False</em>, <em>raise_exception=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#HttpSession"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.HttpSession" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">HttpSession</code><span class="sig-paren">(</span><em>url</em>, <em>check_media_type=False</em>, <em>raise_exception=False</em>, <em>is_respec=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#HttpSession"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.HttpSession" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrapper around an HTTP session; the returned media type is compared against accepted media
 types.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -214,6 +229,7 @@ types.</p>
 <li><strong>url</strong> (<em>str</em>) &#8211; the URL to be retrieved</li>
 <li><strong>check_media_type</strong> (<em>boolean</em>) &#8211; whether the media type should be checked against the media type of the resource to see if it is acceptable</li>
 <li><strong>raise_exception</strong> (<em>boolean</em>) &#8211; whether an exception should be raised if the document cannot be retrieved (either because the HTTP return is not 200, or not of an acceptable media type)</li>
+<li><strong>is_respec</strong> (<em>boolean</em>) &#8211; if True, the URL is a callout to the spec generator service; if so, and there is a problem, the corresponding error message is different</li>
 </ul>
 </td>
 </tr>
@@ -250,6 +266,14 @@ types.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="rp2epub.utils.Logger">
+<em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">Logger</code><a class="reference internal" href="_modules/rp2epub/utils.html#Logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around the logger calls, simply checking whether the logger in the configuration file has been
+set to a real value or whether it is None (in the latter case nothing happens). Saves a repeated
+set of checks elsewhere in the code.</p>
+</dd></dl>
+
+<dl class="class">
 <dt id="rp2epub.utils.TOC_Item">
 <em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">TOC_Item</code><span class="sig-paren">(</span><em>href</em>, <em>label</em>, <em>short_label</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#TOC_Item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.TOC_Item" title="Permalink to this definition">¶</a></dt>
 <dd><p>A single Table of Content (TOC) item.</p>
@@ -279,20 +303,23 @@ types.</p>
 <div><p>Changes on the DOM to ensure a proper interoperability of the display among EPUB readers. At the moment, the
 following actions are done:</p>
 <p>1. Due to the rigidity of the iBook reader, the DOM tree has to change: all children of the <code class="docutils literal"><span class="pre">&lt;body&gt;</span></code> should be
-encapsulated into a top level block element (we use <code class="docutils literal"><span class="pre">&lt;div</span> <span class="pre">id=&quot;epubmain&quot;&gt;</span></code>). This is because iBook imposes
+encapsulated into a top level block element (we use <code class="docutils literal"><span class="pre">&lt;div</span> <span class="pre">role=&quot;main&quot;&gt;</span></code>). This is because iBook imposes
 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level
 block element allows for suitable CSS adjustments.</p>
-<p>Note that using simply a &#8220;main&#8221; element is not a good approach, because some files (e.g., generated by
-bikeshed) already use that element, and there can be only one...</p>
-<p>2. For some unknown reasons, if a <code class="docutils literal"><span class="pre">&lt;pre&gt;</span></code> element has the class <code class="docutils literal"><span class="pre">highlight</span></code>, the Readium extension to
-Chrome goes wild. On the other hand, that class name is used only for an internal processing of ReSpec; it is
-unused in the various, default CSS content. As a an emergency measure this is simply removed from the code, although,
-clearly, this is not the optimal way of doing this:-( But hopefully this will disappear and this hack can be
+<p>The CSS adjustment is done as follows: the <a class="reference internal" href="templates.html#rp2epub.templates.BOOK_CSS" title="rp2epub.templates.BOOK_CSS"><code class="xref py py-data docutils literal"><span class="pre">templates.BOOK_CSS</span></code></a> is extended with the exact
+padding values; these are retrieved (depending on the document type) from <a class="reference internal" href="config.html#rp2epub.config.DOCTYPE_INFO" title="rp2epub.config.DOCTYPE_INFO"><code class="xref py py-data docutils literal"><span class="pre">config.DOCTYPE_INFO</span></code></a>. The
+expansion of <a class="reference internal" href="templates.html#rp2epub.templates.BOOK_CSS" title="rp2epub.templates.BOOK_CSS"><code class="xref py py-data docutils literal"><span class="pre">templates.BOOK_CSS</span></code></a> itself happens in the <a class="reference internal" href="driver.html#rp2epub.doc2epub.DocWrapper.process" title="rp2epub.doc2epub.DocWrapper.process"><code class="xref py py-meth docutils literal"><span class="pre">doc2epub.DocWrapper.process()</span></code></a> method.</p>
+<p>Note that using simply a &#8220;main&#8221; element as a top level encapsulation is not a good approach, because some files (e.g., generated by
+bikeshed) already use that element, and there can be only one of those...</p>
+<p>2. If a <code class="docutils literal"><span class="pre">&lt;pre&gt;</span></code> element has the class name <code class="docutils literal"><span class="pre">highlight</span></code>, the Readium extension to
+Chrome goes wild. That class name is used only for an internal processing of ReSpec; it is
+unused in the various, default CSS content. As a an emergency measure this class name is simply removed from the code, although,
+clearly, this is not the optimal way:-( But hopefully this will disappear and this hack can be
 removed, eventually.</p>
-<p><strong>Note</strong>: the second issue is an <a class="reference external" href="https://github.com/readium/readium-shared-js/issues/203">acknowledged bug in Readium</a>.
+<p><strong>Note</strong>: this is an <a class="reference external" href="https://github.com/readium/readium-shared-js/issues/203">acknowledged bug in Readium</a>.
 When a newer release of Readium is deployed, this hack should be removed from the code.</p>
 <p>3. Some readers <em>require</em> to have a <code class="docutils literal"><span class="pre">type=&quot;text/css&quot;</span></code> on the the link element for a CSS; otherwise the CSS
-is ignored.</p>
+is ignored. It is added (doesn&#8217;t do any harm...)</p>
 </div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -386,10 +413,22 @@ document as a whole (used in possible warnings).</p>
 <dt id="rp2epub.utils.Utils.html_to_xhtml">
 <em class="property">static </em><code class="descname">html_to_xhtml</code><span class="sig-paren">(</span><em>html</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.html_to_xhtml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.html_to_xhtml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make the minimum changes necessary in the DOM tree so that the XHTML output is valid and accepted
-by epub readers
-:param html: the object for the whole document
-:type html: <code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.ElementTree</span></code>
-:return: the input object</p>
+by epub readers. This means:</p>
+<p>1. The <code class="docutils literal"><span class="pre">http://www.w3.org/1999/xhtml</span></code> namespace is <em>required</em> but not generated properly by the
+XML serialization of Python&#8217;s ElementTree (or the <code class="docutils literal"><span class="pre">HTML5Lib</span></code> implementation thereof?). It is
+therefore added explicitly.</p>
+<p>2. XHTML5 does not work with <code class="docutils literal"><span class="pre">&lt;script</span> <span class="pre">src=&quot;...&quot;/&gt;</span></code>, ie, with a self-closing element.
+Such elements are modified by adding a space to the content of the element.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>html</strong> (<code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.ElementTree</span></code>) &#8211; the object for the whole document</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the input object</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="staticmethod">

@@ -6,7 +6,7 @@
 ReSpec to EPUB utility
 ======================
 
-Get an HTML document in `ReSpec <http://www.w3.org/respec/>`_, or an HTML document *generated* by
+Get an HTML document in `ReSpec <http://www.w3.org/respec/>`_, or an HTML5 document *generated* by
 `ReSpec <http://www.w3.org/respec/>`_ or `Bikeshed <https://wiki.csswg.org/tools/bikeshed>`_
 and generate an EPUB3 file for off-line reading. ReSpec “sources” are transformed into HTML on the fly
 using a separate Web Service set up (at W3C) for that purpose.  Style sheets, images, scripts, etc.,
@@ -19,6 +19,12 @@ The package can be used through a command line tool (see the manual below) or ca
 (it will be installed on the `W3C Labs site <https://labs.w3.org/epub-generator/>`__). The
 save menu of ReSpec is extended so that the service can be invoked from within respec when the user generates
 the final output (see the `ReSpec <http://www.w3.org/respec/>`__ documentation for further details).
+
+Adjustments to readers
+----------------------
+
+The code includes a number of adjustments and hacks to accommodate with the idiosyncrasy's (or bugs) of current readers.
+See the :py:meth:`.utils.Utils.change_DOM` and (to a lesser extend) :py:meth:`.utils.Utils.html_to_xhtml` methods for further details.
 
 
 Dependencies

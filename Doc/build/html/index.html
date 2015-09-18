@@ -45,7 +45,7 @@
         
   <div class="section" id="respec-to-epub-utility">
 <h1>ReSpec to EPUB utility<a class="headerlink" href="#respec-to-epub-utility" title="Permalink to this headline">¶</a></h1>
-<p>Get an HTML document in <a class="reference external" href="http://www.w3.org/respec/">ReSpec</a>, or an HTML document <em>generated</em> by
+<p>Get an HTML document in <a class="reference external" href="http://www.w3.org/respec/">ReSpec</a>, or an HTML5 document <em>generated</em> by
 <a class="reference external" href="http://www.w3.org/respec/">ReSpec</a> or <a class="reference external" href="https://wiki.csswg.org/tools/bikeshed">Bikeshed</a>
 and generate an EPUB3 file for off-line reading. ReSpec “sources” are transformed into HTML on the fly
 using a separate Web Service set up (at W3C) for that purpose.  Style sheets, images, scripts, etc.,
@@ -56,6 +56,11 @@ Python’s URL library speak, if the URL-s of those resources have the same net 
 (it will be installed on the <a class="reference external" href="https://labs.w3.org/epub-generator/">W3C Labs site</a>). The
 save menu of ReSpec is extended so that the service can be invoked from within respec when the user generates
 the final output (see the <a class="reference external" href="http://www.w3.org/respec/">ReSpec</a> documentation for further details).</p>
+<div class="section" id="adjustments-to-readers">
+<h2>Adjustments to readers<a class="headerlink" href="#adjustments-to-readers" title="Permalink to this headline">¶</a></h2>
+<p>The code includes a number of adjustments and hacks to accommodate with the idiosyncrasy&#8217;s (or bugs) of current readers.
+See the <a class="reference internal" href="utils.html#rp2epub.utils.Utils.change_DOM" title="rp2epub.utils.Utils.change_DOM"><code class="xref py py-meth docutils literal"><span class="pre">utils.Utils.change_DOM()</span></code></a> and (to a lesser extend) <a class="reference internal" href="utils.html#rp2epub.utils.Utils.html_to_xhtml" title="rp2epub.utils.Utils.html_to_xhtml"><code class="xref py py-meth docutils literal"><span class="pre">utils.Utils.html_to_xhtml()</span></code></a> methods for further details.</p>
+</div>
 <div class="section" id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
 <p>The package relies on Python 2.7. The script does not work (yet?) with Python 3; the underlying HTML library
@@ -69,7 +74,7 @@ encoding issues, and should not be used.</p>
 <h2>Metadata<a class="headerlink" href="#metadata" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Version: 1.1</li>
-<li>Document creation date: September 15, 2015</li>
+<li>Document creation date: September 18, 2015</li>
 <li>Author: Ivan Herman</li>
 <li>Contact: <a class="reference external" href="mailto:ivan&#37;&#52;&#48;w3&#46;org">ivan<span>&#64;</span>w3<span>&#46;</span>org</a></li>
 <li>Licence: W3C SOFTWARE NOTICE AND LICENSE &lt;<a class="reference external" href="http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231">http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231</a>&gt;</li>
@@ -101,7 +106,7 @@ encoding issues, and should not be used.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="templates.html">Templates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="config.html">Templates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration data</a></li>
 </ul>
 </div>
 </div>
