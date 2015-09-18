@@ -54,6 +54,8 @@ Thanks also to Zheng Xu (Rakuten/Kobo) who helped me in some of the interoperabi
 ====================
 
 .. toctree::
+   :numbered:
+   :maxdepth: 1
 
    manual
    rp2epub

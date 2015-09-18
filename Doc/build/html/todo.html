@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Miscellaneous issues, to-do items &mdash; ReSpec to EPUB Utility</title>
+    <title>9. Miscellaneous issues, to-do items &mdash; ReSpec to EPUB Utility</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,17 +24,17 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ReSpec to EPUB Utility" href="index.html" />
-    <link rel="prev" title="Configuration data" href="config.html" /> 
+    <link rel="prev" title="8. Configuration data" href="config.html" /> 
   </head>
   <body role="document">
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
           <span>ReSpec to EPUB Utility</span></a></h1>
-        <h2 class="heading"><span>Miscellaneous issues, to-do items</span></h2>
+        <h2 class="heading"><span>9. Miscellaneous issues, to-do items</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="config.html">Configuration data</a>
+        «&#160;&#160;<a href="config.html">8. Configuration data</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         </p>
@@ -44,9 +44,21 @@
         
         
   <div class="section" id="miscellaneous-issues-to-do-items">
-<h1>Miscellaneous issues, to-do items<a class="headerlink" href="#miscellaneous-issues-to-do-items" title="Permalink to this headline">¶</a></h1>
+<h1>9. Miscellaneous issues, to-do items<a class="headerlink" href="#miscellaneous-issues-to-do-items" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="note-on-the-handling-of-css-files">
+<h2>9.1. Note on the handling of CSS files<a class="headerlink" href="#note-on-the-handling-of-css-files" title="Permalink to this headline">¶</a></h2>
+<p>A minor complication arises when handling official CSS files for documents. The current CSS file structure relies on
+document type specific CSS files; these (usually) include a common CSS file (<code class="docutils literal"><span class="pre">base.css</span></code>) and set the background
+image to the “logo”, ie, the vertical, coloured bar on the upper left hand corner of the document. Following the same
+structure would have required the script to parse CSS files to locate the various <code class="docutils literal"><span class="pre">url</span></code> statements, modify them and, to
+download the corresponding logos into the book. Instead, the script relies on directly linking to (a local copy of)
+<code class="docutils literal"><span class="pre">base.css</span></code>, and establishing the document status from the document itself. Using that status information, plus
+a per-document-status mapping (see <a class="reference internal" href="config.html#rp2epub.config.DOCTYPE_INFO" title="rp2epub.config.DOCTYPE_INFO"><code class="xref py py-data docutils literal"><span class="pre">config.DOCTYPE_INFO</span></code></a>), the corresponding logo files can be found.</p>
+<p>This mechanism is a little bit fragile, because it relies on establishing the document status (which is not always obvious, see
+issue below). However, it avoided having a separate CSS parser. Time will tell whether this was a wise choice…</p>
+</div>
 <div class="section" id="bikeshed-issues">
-<h2>Bikeshed issues<a class="headerlink" href="#bikeshed-issues" title="Permalink to this headline">¶</a></h2>
+<h2>9.2. Bikeshed issues<a class="headerlink" href="#bikeshed-issues" title="Permalink to this headline">¶</a></h2>
 <p>The core of the code has been developed with ReSpec in mind, although attempts have been made to work with
 <a class="reference external" href="https://wiki.csswg.org/tools/bikeshed">Bikeshed</a>, too. There, however, cases where this does not work properly. The
 most notable issue is to establish the “dated URI” of the document, which can be used to retrieve the document status
@@ -58,7 +70,7 @@ and not all; there are documents where the relevant URI is not annotated with an
 analysis of the source may be used to locate that value, but this version of the script does not do that.</p>
 </div>
 <div class="section" id="to-do-s">
-<h2>To Do-s<a class="headerlink" href="#to-do-s" title="Permalink to this headline">¶</a></h2>
+<h2>9.3. To Do-s<a class="headerlink" href="#to-do-s" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Do a better job with Bikeshed</li>
 <li>Multi-file documents: some W3C documents are a collection of files. Examples are the <a class="reference external" href="http://www.w3.org/TR/2014/REC-html5-20141028/">HTML5</a> or <a class="reference external" href="http://www.w3.org/TR/2011/REC-SVG11-20110816/">SVG</a> SVG specifications. These are not handled by the current script. This may require a more thorough review of the code, but would also require a “standard” way of denoting the order of the files (e.g., a systematic usage of the <code class="docutils literal"><span class="pre">rel=next</span></code> attribute in the header).</li>
@@ -71,7 +83,7 @@ analysis of the source may be used to locate that value, but this version of the
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="config.html">Configuration data</a>
+        «&#160;&#160;<a href="config.html">8. Configuration data</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         </p>

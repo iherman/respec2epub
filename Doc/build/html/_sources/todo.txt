@@ -1,6 +1,21 @@
 Miscellaneous issues, to-do items
 =================================
 
+Note on the handling of CSS files
+---------------------------------
+
+A minor complication arises when handling official CSS files for documents. The current CSS file structure relies on
+document type specific CSS files; these (usually) include a common CSS file (``base.css``) and set the background
+image to the “logo”, ie, the vertical, coloured bar on the upper left hand corner of the document. Following the same
+structure would have required the script to parse CSS files to locate the various ``url`` statements, modify them and, to
+download the corresponding logos into the book. Instead, the script relies on directly linking to (a local copy of)
+``base.css``, and establishing the document status from the document itself. Using that status information, plus
+a per-document-status mapping (see :py:data:`.config.DOCTYPE_INFO`), the corresponding logo files can be found.
+
+This mechanism is a little bit fragile, because it relies on establishing the document status (which is not always obvious, see
+issue below). However, it avoided having a separate CSS parser. Time will tell whether this was a wise choice…
+
+
 Bikeshed issues
 ---------------
 

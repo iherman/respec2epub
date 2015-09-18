@@ -269,7 +269,7 @@ texinfo_documents = [
 # Bibliographic Dublin Core info.
 epub_title = u'ReSpec to EPUB'
 epub_author = u'Ivan Herman'
-epub_publisher = u'Ivan Herman'
+epub_publisher = u'W3C'
 epub_copyright = u'2015, Ivan Herman'
 
 # The basename for the epub file. It defaults to the project name.
