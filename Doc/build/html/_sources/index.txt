@@ -26,7 +26,6 @@ Adjustments to readers
 The code includes a number of adjustments and hacks to accommodate with the idiosyncrasy's (or bugs) of current readers.
 See the :py:meth:`.utils.Utils.change_DOM` and (to a lesser extend) :py:meth:`.utils.Utils.html_to_xhtml` methods for further details.
 
-
 Dependencies
 ------------
 
@@ -64,6 +63,7 @@ Thanks also to Zheng Xu (Rakuten/Kobo) who helped me in some of the interoperabi
    utils
    templates
    config
+   todo
 
 Indices and tables
 ==================

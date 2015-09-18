@@ -66,6 +66,10 @@
             <dt>For an HTML file with ReSpec that has to be transformed first:</dt>
             <dd><code>https://labs.w3.org/epub-generator/cgi-bin/epub-generator.py?type=respec&amp;url=URL_OF_THE_FILE</code></dd>
         </dl>
+
+        <p>Note that the <a href="https://wiki.csswg.org/tools/bikeshed">Bikeshed</a> version is not always reliable in reproducing a proper output. Most
+        notably, the script may fail in finding the full, dated URI of the document and, therefore, cannot establish
+        the document’s publication status. See the <a href="https://rawgit.com/iherman/respec2epub/master/Doc/build/html/todo.html">documentation</a> for further details</p>.
 	    <h2>Source</h2>
 	    <p>The source code is available on <a href="https://github.com/iherman/respec2epub">GitHub</a>.
 	      It is fully in Python 2.7; the only extra dependency is the Python <a href="https://pypi.python.org/pypi/html5lib">HTML5lib</a>
