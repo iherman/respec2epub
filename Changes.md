@@ -1,3 +1,8 @@
+# Version 1.2
+
+* Added the  ``-*- coding: utf-8 -*-`` sign to setup.py
+
+
 # Version 1.1
 
 * Added a hack to add a ``type="text/css`` to link elements referring to stylesheets. Not necessary per HTML, but some reading systems require it
