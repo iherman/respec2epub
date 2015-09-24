@@ -1,6 +1,7 @@
 # Version 1.2
 
 * Added the  ``-*- coding: utf-8 -*-`` sign to setup.py
+* Added a ``page-break-inside: avoid`` in the ``book.css`` template for the ``<figure>`` element to ensure that the capture of a figure is on the same page.
 
 
 # Version 1.1

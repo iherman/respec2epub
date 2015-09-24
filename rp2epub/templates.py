@@ -209,6 +209,10 @@ BOOK_CSS = """
     page-break-after: avoid;
   }
 
+  figure {
+  	page-break-inside: avoid;
+  }
+
   h3, h4, h5 {
     page-break-after: avoid;
   }
