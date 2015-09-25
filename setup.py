@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+
 from distutils.core import setup
-import rp2epub
+from rp2epub import __version__
 
 setup(
 	name = 'rp2epub',
-	version = rp2epub.__version__,
+	version = __version__,
 	packages = ['rp2epub'],
 	scripts = ['script/rp2epub'],
 	url = 'https://github.com/iherman/respec2epub',
@@ -13,5 +15,6 @@ setup(
 	author_email = 'ivan@ivan-herman.net',
 	description = 'Generate EPUB3 files from respec based W3C Technical Reports, possibly generating from respec on the fly',
 	keywords='W3C EPUB3',
-	platforms='any', requires = ['html5lib']
+	platforms='any',
+        install_requires = ['html5lib'],
 )
