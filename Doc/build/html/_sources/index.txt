@@ -20,11 +20,21 @@ The package can be used through a command line tool (see the manual below) or ca
 save menu of ReSpec is extended so that the service can be invoked from within respec when the user generates
 the final output (see the `ReSpec <http://www.w3.org/respec/>`__ documentation for further details).
 
-Adjustments to readers
-----------------------
+Adjustments to EPUB readers
+---------------------------
 
 The code includes a number of adjustments and hacks to accommodate with the idiosyncrasy's (or bugs) of current readers.
 See the :py:meth:`.utils.Utils.change_DOM` and (to a lesser extend) :py:meth:`.utils.Utils.html_to_xhtml` methods for further details.
+
+For developers
+--------------
+
+The “entry point” or the package is the :py:class:`.doc2epub.DocWrapper` class, more exactly the :py:meth:`.doc2epub.DocWrapper.process`
+method thereof. A typical usage is::
+
+	from rp2epub.doc2epub import DocWrapper
+	DocWrapper(url, is_respec=..., package=..., folder=..., logger=..., ...).process()
+
 
 Dependencies
 ------------
@@ -34,7 +44,7 @@ The package relies on Python 2.7. The script does not work (yet?) with Python 3;
 
 Apart from the standard Python libraries the package also depends on
 `HTML5lib <https://pypi.python.org/pypi/html5lib>`__, an HTML5 parser library for
-Python. This package has been tested with version 0.99999 of that library; earlier versions had Unicode
+Python. This package has been tested with version 0.999999 of that library; earlier versions had Unicode
 encoding issues, and should not be used.
 
 Metadata
@@ -48,6 +58,7 @@ Metadata
 * Repository: <https://github.com/iherman/respec2epub>
 
 Thanks also to Zheng Xu (Rakuten/Kobo) who helped me in some of the interoperability problems around ePub readers.
+Thanks also to José Kahan (W3C) who helped me getting the setup procedure smoother.
 
 
 2. Table of Contents

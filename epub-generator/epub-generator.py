@@ -36,8 +36,6 @@ if cgi:
 		# this is the deployment platform on labs.w3.org
 		sys.path.insert(0, "/home/ivan/lib/python")
 
-import rp2epub
-
 ##########################################
 # Set up a logger. This may be useful if something goes wrong with the server...
 # However, the failing to set up the logger should not interrupt to program in general, hence all this in an exception
@@ -140,12 +138,13 @@ class Generator:
 		"""
 		# Generate the EPUB in the external library
 		# noinspection PyPep8
-		return rp2epub.DocWrapper(self.args['url'],
-								  is_respec=self.args['respec'],
-								  package=True,
-								  folder=False,
-								  temporary=True,
-								  logger=logger
+		from rp2epub.doc2epub import DocWrapper
+		return DocWrapper(self.args['url'],
+						  is_respec=self.args['respec'],
+						  package=True,
+						  folder=False,
+						  temporary=True,
+						  logger=logger
 		).process()
 
 	def process(self):

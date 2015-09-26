@@ -8,7 +8,7 @@ Module Content
 
 .. py:data:: logger
 
-  Logger instance (see the Python logging library for details). May be overwritten by the :py:class:`.DocWrapper` instance). Defaults to ``None``.
+  A python logger instance (see the Python logging library for details). May be overwritten by the :py:class:`.DocWrapper` instance). Defaults to ``None``.
 
 .. py:data:: TOC_PAIRS
 

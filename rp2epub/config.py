@@ -3,10 +3,6 @@
 """
 Various configuration variables.
 
-.. py:data:: logger
-
-  Logger (see the Python logging library for details). May be overwritten by the :py:class:`.DocWrapper` instance)
-
 .. py:data:: DEFAULT_FILES
 
   Items that have to be added to the book's manifest, no matter what; an array tuples of the form ``(file,media-type,id,properties)``.
@@ -43,9 +39,6 @@ Various configuration variables.
 **Source code:** `utils.py <https://github.com/iherman/respec2epub/blob/master/rp2epub/utils.py>`_
 
 """
-
-# logger (see the Python logging library for details). May be overwritten by the :py:class:`.DocWrapper` instance)
-logger = None
 
 # noinspection PyPep8
 # Items that have to be added to the book's manifest, no matter what; tuples of the form (file,media-type,id,properties)

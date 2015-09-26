@@ -38,7 +38,7 @@ def process():
 	parser.add_argument("-l", "--logging", action="store_true", help="Log events in the local file 'log'")
 
 	args = parser.parse_args()
-	from rp2epub import DocWrapper
+	from rp2epub.doc2epub import DocWrapper
 	DocWrapper(args.url, is_respec=args.respec,
 			   			 package=args.book,
 						 folder=args.folder,

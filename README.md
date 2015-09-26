@@ -11,5 +11,28 @@ Note that the project includes:
 
 A [documentation in HTML](https://rawgit.com/iherman/respec2epub/master/Doc/build/html/index.html) is also available, giving more details.
 
+Installation
+------------
+
+You can either run 
+
+```
+python -install setup.py
+```
+
+or
+
+```
+pip -e install
+```
+
+Both of these should be run in the directory of your local copy of the github repository. In case you do not want to download this, you can also use
+
+```
+pip install git+https://github.com/iherman/respec2epub.git
+```
+
+Note that the ``pip`` command should also install the ``html5lib`` in case you do not have it installed. If you use direct install, you should install ``html5lib`` manually. See [the ``pypi`` entry for ``html5lib``](https://pypi.python.org/pypi/html5lib).
+
 
 
