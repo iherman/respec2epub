@@ -138,6 +138,8 @@ class Generator:
 		"""
 		# Generate the EPUB in the external library
 		# noinspection PyPep8
+		# Looks unnecessary, but sets the right locale...
+		import rp2epub
 		from rp2epub.doc2epub import DocWrapper
 		return DocWrapper(self.args['url'],
 						  is_respec=self.args['respec'],
