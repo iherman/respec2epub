@@ -230,6 +230,13 @@
 			<span class="c"># Add the additional resources that are referred to from the document itself</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">extract_external_references</span><span class="p">()</span>
 
+			<span class="c"># Add the various additional media files (typically images), collected from CSS files</span>
+			<span class="k">for</span> <span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">uri</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">css_list</span><span class="o">.</span><span class="n">get_download_list</span><span class="p">():</span>
+				<span class="n">session</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">HttpSession</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+				<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_session</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">add_additional_resource</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span><span class="p">)</span>
+
 			<span class="c"># The various package files to be added to the final output</span>
 			<span class="n">Package</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
 

@@ -42,10 +42,12 @@ Dependencies
 The package relies on Python 2.7. The script does not work (yet?) with Python 3; the underlying HTML library
 (e.g., HTML5Lib) seems to have issues with encoding, UTF-8, etc.
 
-Apart from the standard Python libraries the package also depends on
-`HTML5lib <https://pypi.python.org/pypi/html5lib>`__, an HTML5 parser library for
-Python. This package has been tested with version 0.999999 of that library; earlier versions had Unicode
-encoding issues, and should not be used.
+Apart from the standard Python libraries the package depends on
+
+* `HTML5lib <https://pypi.python.org/pypi/html5lib>`__, an HTML5 parser library for Python. This package has been tested with version 0.999999 of that library; earlier versions had Unicode encoding issues, and should not be used.
+* `Tiny CSS <https://pythonhosted.org/tinycss/>`__, a simple CSS parser. This package has been tested with version 0.3.
+
+
 
 Metadata
 --------
@@ -57,7 +59,7 @@ Metadata
 * Licence: W3C SOFTWARE NOTICE AND LICENSE <http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231>
 * Repository: <https://github.com/iherman/respec2epub>
 
-Thanks also to Zheng Xu (Rakuten/Kobo) who helped me in some of the interoperability problems around ePub readers.
+Thanks to Zheng Xu (Rakuten/Kobo) who helped me in some of the interoperability problems around ePub readers.
 Thanks also to José Kahan (W3C) who helped me getting the setup procedure smoother.
 
 
@@ -73,6 +75,7 @@ Thanks also to José Kahan (W3C) who helped me getting the setup procedure smoot
    driver
    document
    package
+   cssurls
    utils
    templates
    config

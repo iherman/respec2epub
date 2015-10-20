@@ -70,6 +70,7 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span>
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Utils</span><span class="p">,</span> <span class="n">Logger</span>
+<span class="kn">from</span> <span class="nn">.cssurls</span> <span class="kn">import</span> <span class="n">CSSList</span>
 <span class="kn">import</span> <span class="nn">config</span>
 
 
@@ -88,6 +89,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_index</span>                <span class="o">=</span> <span class="mi">0</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_driver</span>               <span class="o">=</span> <span class="n">driver</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span>      <span class="o">=</span> <span class="p">[]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">css_list</span>              <span class="o">=</span> <span class="n">CSSList</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">)</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">_title</span>         <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_properties</span>    <span class="o">=</span> <span class="bp">None</span>
@@ -101,7 +103,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_toc</span>		    <span class="o">=</span> <span class="p">[]</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_subtitle</span>     <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_get_document_metadata</span><span class="p">()</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_massage_html</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_collect_downloads</span><span class="p">()</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">driver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -121,7 +123,12 @@
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span>
 
-	<span class="c"># noinspection PyPep8</span>
+<div class="viewcode-block" id="Document.add_additional_resource"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document.add_additional_resource">[docs]</a>	<span class="k">def</span> <span class="nf">add_additional_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_name</span><span class="p">,</span> <span class="n">media_type</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Add a pair of local name and media type to the list of additional resources.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">local_name</span><span class="p">,</span> <span class="n">media_type</span><span class="p">))</span>
+
+	<span class="c"># noinspection PyPep8</span></div>
 <div class="viewcode-block" id="Document.extract_external_references"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document.extract_external_references">[docs]</a>	<span class="k">def</span> <span class="nf">extract_external_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is</span>
 
@@ -192,9 +199,9 @@
 
 	<span class="c">###################################################################################################</span>
 	<span class="c"># noinspection PyPep8</span></div>
-<div class="viewcode-block" id="Document._massage_html"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._massage_html">[docs]</a>	<span class="k">def</span> <span class="nf">_massage_html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Document._collect_downloads"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._collect_downloads">[docs]</a>	<span class="k">def</span> <span class="nf">_collect_downloads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Process a document looking for (and possibly copying) external references and making some modifications on the fly</span>
+<span class="sd">		Process a document looking for (and possibly copying) external references and making some minor modifications on the fly</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="c"># Do the necessary massaging on the DOM tree to make the XHTML output o.k.</span>
 		<span class="n">Utils</span><span class="o">.</span><span class="n">html_to_xhtml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
@@ -223,6 +230,17 @@
 				<span class="n">lnk</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/base.css&quot;</span><span class="p">)</span>
 			<span class="k">else</span><span class="p">:</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lnk</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">))</span>
+				<span class="c"># The CSS reference should be stored as a possible source of further references</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">css_list</span><span class="o">.</span><span class="n">add_css</span><span class="p">(</span><span class="n">lnk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">))</span>
+
+		<span class="c"># Handle built-in style sheet statements; this should be added to the CSS handler, too</span>
+		<span class="k">for</span> <span class="n">style</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//style&quot;</span><span class="p">):</span>
+			<span class="c"># there may be cases, though not probable, that that the type attribute is set to something different</span>
+			<span class="c"># then text/css</span>
+			<span class="k">if</span> <span class="n">style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;type&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;type&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&quot;text/css&quot;</span><span class="p">:</span>
+				<span class="k">continue</span>
+			<span class="n">content</span> <span class="o">=</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">k</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">style</span><span class="o">.</span><span class="n">itertext</span><span class="p">()])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">css_list</span><span class="o">.</span><span class="n">add_css</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">is_file</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">)</span>
 
 		<span class="n">head</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//head&quot;</span><span class="p">)</span>
 		<span class="n">book_css</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="s">&quot;link&quot;</span><span class="p">)</span>

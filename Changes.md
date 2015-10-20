@@ -3,6 +3,10 @@
 * Added the  ``-*- coding: utf-8 -*-`` sign to setup.py
 * Improved the setup procedure, to make it usable directly with pip
 * Added a ``page-break-inside: avoid`` in the ``book.css`` template for the ``<figure>`` element to ensure that the capture of a figure is on the same page.
+* Added an extra CSS parsing, so that if CSS files are imported via an ``@import`` rule, or whether resources are referred to via ``url`` values in a CSS statement, these are also copied to the output (and references added to the package file).
+
+Plus some minor documentation improvements
+
 
 # Version 1.1
 

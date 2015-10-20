@@ -591,7 +591,7 @@ class Book(object):
 		"""
 		Retrieve the content of a URI and store it in the book. (This is a wrapper around the `write_session` method.)
 
-		:param str target: path for the target file
+		:param str target: path for the target file, this is always a relative URI
 		:param url: URL that has to be retrieved to be written into the book
 		:boolean return: whether the HTTP session was successful or not
 		"""

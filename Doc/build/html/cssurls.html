@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>6. Retrieval of extra resources from CSS &mdash; ReSpec to EPUB Utility</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ReSpec to EPUB Utility" href="index.html" />
+    <link rel="next" title="7. Common Utilities" href="utils.html" />
+    <link rel="prev" title="5. Package processing" href="package.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>ReSpec to EPUB Utility</span></a></h1>
+        <h2 class="heading"><span>6. Retrieval of extra resources from CSS</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        «&#160;&#160;<a href="package.html">5. Package processing</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="utils.html">7. Common Utilities</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="module-rp2epub.cssurls">
+<span id="retrieval-of-extra-resources-from-css"></span><h1>6. Retrieval of extra resources from CSS<a class="headerlink" href="#module-rp2epub.cssurls" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference internal" href="#rp2epub.cssurls.CSSList" title="rp2epub.cssurls.CSSList"><code class="xref py py-class docutils literal"><span class="pre">CSSList</span></code></a> encapsulates a collection of external references that are extracted from CSS files, references
+that are supposed to be downloaded and added to the final book, as well as added to the package file. Typically, this
+means handling the CSS import statements (i.e., importing other CSS files) as well as various uri references, e.g., when
+setting the content or the background of an element using an image.</p>
+<div class="section" id="module-content">
+<h2>6.1. Module content<a class="headerlink" href="#module-content" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rp2epub.cssurls.CSSList">
+<em class="property">class </em><code class="descclassname">rp2epub.cssurls.</code><code class="descname">CSSList</code><span class="sig-paren">(</span><em>base</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/cssurls.html#CSSList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.cssurls.CSSList" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of <a class="reference internal" href="#rp2epub.cssurls.CSSReference" title="rp2epub.cssurls.CSSReference"><code class="xref py py-class docutils literal"><span class="pre">CSSReference</span></code></a> instances. This is, initially, built up from the <a class="reference internal" href="document.html#rp2epub.document.Document" title="rp2epub.document.Document"><code class="xref py py-class docutils literal"><span class="pre">document.Document</span></code></a> class; when
+the final information is requested, a recursion is done on the collected CSS file references to collect all
+outstanding resources.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>base</strong> (<em>str</em>) &#8211; the base URL for the whole book</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rp2epub.cssurls.CSSList._gather_all_stylesheets">
+<code class="descname">_gather_all_stylesheets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/cssurls.html#CSSList._gather_all_stylesheets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.cssurls.CSSList._gather_all_stylesheets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gather all stylesheets, recursively adding the <a class="reference internal" href="#rp2epub.cssurls.CSSReference" title="rp2epub.cssurls.CSSReference"><code class="xref py py-class docutils literal"><span class="pre">CSSReference</span></code></a> to the internal set</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.cssurls.CSSList.add_css">
+<code class="descname">add_css</code><span class="sig-paren">(</span><em>origin_url</em>, <em>is_file=True</em>, <em>content=None</em>, <em>new_list=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/cssurls.html#CSSList.add_css"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.cssurls.CSSList.add_css" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new CSS, ie, add a new <a class="reference internal" href="#rp2epub.cssurls.CSSReference" title="rp2epub.cssurls.CSSReference"><code class="xref py py-class docutils literal"><span class="pre">CSSReference</span></code></a> to the internal array of references</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>origin_url</strong> (<em>str</em>) &#8211; URL of the CSS file (if any, otherwise value is ignored)</li>
+<li><strong>is_file</strong> (<em>boolean</em>) &#8211; whether the CSS is to be retrieved via the URL or whether it was embedded</li>
+<li><strong>content</strong> (<em>str</em>) &#8211; in case the CSS was embedded, the full content of the CSS</li>
+<li><strong>new_list</strong> &#8211; the list on which the new instance should be added. If the value is <code class="docutils literal"><span class="pre">None</span></code>, the instance     is added to the internal list of the class. (This differentiation is important for the recursion.)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.cssurls.CSSList.get_download_list">
+<code class="descname">get_download_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/cssurls.html#CSSList.get_download_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.cssurls.CSSList.get_download_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all the list of resources. These include those explicitly added previously, plus those retrieved
+recursively.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Array of <code class="docutils literal"><span class="pre">(local_name,</span> <span class="pre">absolute_url)</span></code> pairs.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rp2epub.cssurls.CSSReference">
+<em class="property">class </em><code class="descclassname">rp2epub.cssurls.</code><code class="descname">CSSReference</code><span class="sig-paren">(</span><em>base</em>, <em>url</em>, <em>is_file</em>, <em>content</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/cssurls.html#CSSReference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.cssurls.CSSReference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around the information necessary in one CSS reference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>base</strong> (<em>str</em>) &#8211; Base URI of the overall book. Important to generate proper local name for a resource when retrieved</li>
+<li><strong>url</strong> (<em>str</em>) &#8211; URL of the CSS file (if any, otherwise value is ignored)</li>
+<li><strong>is_file</strong> (<em>boolean</em>) &#8211; whether the CSS is to be retrieved via the URL or whether it was embedded</li>
+<li><strong>content</strong> (<em>str</em>) &#8211; in case the CSS was embedded, the full content of the CSS as retrieved from the DOM</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rp2epub.cssurls.CSSReference._collect_imports">
+<code class="descname">_collect_imports</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/cssurls.html#CSSReference._collect_imports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.cssurls.CSSReference._collect_imports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect the resources to be imported. The CSS content is parsed, and the <a class="reference internal" href="#rp2epub.cssurls.CSSReference.import_css" title="rp2epub.cssurls.CSSReference.import_css"><code class="xref py py-attr docutils literal"><span class="pre">import_css</span></code></a>
+and <a class="reference internal" href="#rp2epub.cssurls.CSSReference.import_misc" title="rp2epub.cssurls.CSSReference.import_misc"><code class="xref py py-attr docutils literal"><span class="pre">import_misc</span></code></a> sets are filled with content. This method is called at initialization time.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.cssurls.CSSReference.empty">
+<code class="descname">empty</code><a class="headerlink" href="#rp2epub.cssurls.CSSReference.empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean value whether the content is empty (in which case it can be ignored) or not</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.cssurls.CSSReference.import_css">
+<code class="descname">import_css</code><a class="headerlink" href="#rp2epub.cssurls.CSSReference.import_css" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set of URL-s for additional CSS files, ie, values of <code class="docutils literal"><span class="pre">&#64;import</span></code> rules</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.cssurls.CSSReference.import_misc">
+<code class="descname">import_misc</code><a class="headerlink" href="#rp2epub.cssurls.CSSReference.import_misc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set of <a class="reference internal" href="#rp2epub.cssurls._URLPair" title="rp2epub.cssurls._URLPair"><code class="xref py py-class docutils literal"><span class="pre">_URLPair</span></code></a> instances for resources that were found in the CSS content</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="rp2epub.cssurls._URLPair">
+<em class="property">class </em><code class="descclassname">rp2epub.cssurls.</code><code class="descname">_URLPair</code><span class="sig-paren">(</span><em>url</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/cssurls.html#_URLPair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.cssurls._URLPair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just a simple wrapper around a pair of (absolute) url, and a local name. Instead of being a pair, the
+values can then be accessed via property names (and not via array/dictionary syntax).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>url</strong> (<em>str</em>) &#8211; Absolute URL of the resource</li>
+<li><strong>name</strong> (<em>str</em>) &#8211; Local name of the resource</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="rp2epub.cssurls._URLPair.name">
+<code class="descname">name</code><a class="headerlink" href="#rp2epub.cssurls._URLPair.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The local name of the resource</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.cssurls._URLPair.url">
+<code class="descname">url</code><a class="headerlink" href="#rp2epub.cssurls._URLPair.url" title="Permalink to this definition">¶</a></dt>
+<dd><p>The absolute URL of the resource</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        «&#160;&#160;<a href="package.html">5. Package processing</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="utils.html">7. Common Utilities</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

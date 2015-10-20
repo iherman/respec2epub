@@ -26,6 +26,7 @@ from StringIO import StringIO
 from datetime import date, datetime
 
 from .utils import HttpSession, Utils, Logger
+from .cssurls import CSSList
 import config
 
 
@@ -44,6 +45,7 @@ class Document:
 		self._index                = 0
 		self._driver               = driver
 		self.download_targets      = []
+		self.css_list              = CSSList(driver.base)
 
 		self._title         = None
 		self._properties    = None
@@ -57,7 +59,7 @@ class Document:
 		self._toc		    = []
 		self._subtitle     = None
 		self._get_document_metadata()
-		self._massage_html()
+		self._collect_downloads()
 
 	@property
 	def driver(self):
@@ -76,6 +78,11 @@ class Document:
 		file of the book.
 		"""
 		return self._additional_resources
+
+	def add_additional_resource(self, local_name, media_type):
+		"""Add a pair of local name and media type to the list of additional resources.
+		"""
+		self._additional_resources.append((local_name, media_type))
 
 	# noinspection PyPep8
 	def extract_external_references(self):
@@ -148,9 +155,9 @@ class Document:
 
 	###################################################################################################
 	# noinspection PyPep8
-	def _massage_html(self):
+	def _collect_downloads(self):
 		"""
-		Process a document looking for (and possibly copying) external references and making some modifications on the fly
+		Process a document looking for (and possibly copying) external references and making some minor modifications on the fly
 		"""
 		# Do the necessary massaging on the DOM tree to make the XHTML output o.k.
 		Utils.html_to_xhtml(self.html)
@@ -179,6 +186,17 @@ class Document:
 				lnk.set("href", "Assets/base.css")
 			else:
 				self.download_targets.append((lnk, 'href'))
+				# The CSS reference should be stored as a possible source of further references
+				self.css_list.add_css(lnk.get("href"))
+
+		# Handle built-in style sheet statements; this should be added to the CSS handler, too
+		for style in self.html.findall(".//style"):
+			# there may be cases, though not probable, that that the type attribute is set to something different
+			# then text/css
+			if style.get("type") is not None and style.get("type") != "text/css":
+				continue
+			content = " ".join([k.strip() for k in style.itertext()]).strip()
+			self.css_list.add_css(self.driver.base, is_file=False, content=content)
 
 		head = self.html.find(".//head")
 		book_css = SubElement(head, "link")

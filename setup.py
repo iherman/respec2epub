@@ -17,8 +17,8 @@ setup(
 	description='Generate EPUB3 files from respec based W3C Technical Reports, possibly generating from respec on the fly',
 	keywords='W3C EPUB3',
 	platforms='any',
-	install_requires=['html5lib'],
-	requires=['html5lib'],
+	install_requires=['html5lib', 'tinycss'],
+	requires=['html5lib', 'tinycss'],
 	classifiers=[
 		'Development Status :: 5 - Production/Stable',
 		'Environment :: Console',
