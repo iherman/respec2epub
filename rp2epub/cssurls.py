@@ -25,6 +25,7 @@ class _URLPair:
 	:param str url: Absolute URL of the resource
 	:param str name: Local name of the resource
 	"""
+	# noinspection PyPep8
 	def __init__(self, url, name):
 		self._url  = url
 		self._name = name
@@ -40,6 +41,7 @@ class _URLPair:
 		return self._name
 
 
+# noinspection PyPep8
 class CSSReference:
 	"""
 	Wrapper around the information necessary in one CSS reference.
@@ -49,6 +51,7 @@ class CSSReference:
 	:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded
 	:param str content: in case the CSS was embedded, the full content of the CSS as retrieved from the DOM
 	"""
+	# noinspection PyPep8
 	def __init__(self, base, url, is_file, content):
 		self._origin_url = url
 		self._base       = base
@@ -117,6 +120,7 @@ class CSSReference:
 							add_item_to_import(i.value)
 
 
+# noinspection PyPep8
 class CSSList:
 	"""
 	List of :py:class:`CSSReference` instances. This is, initially, built up from the :py:class:`.document.Document` class; when

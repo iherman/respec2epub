@@ -131,6 +131,7 @@ class Generator:
 			logger.info("**** Handling '%s' via the generator service ****" % self.args['url'])
 			logger.info("File is %s source" % "a respec" if self.args['respec'] else "an html")
 
+	# noinspection PyUnresolvedReferences
 	def generate_ebook(self):
 		"""
 		Interface to the real ebook generation; test setup for now
@@ -141,6 +142,7 @@ class Generator:
 		# Looks unnecessary, but sets the right locale...
 		import rp2epub
 		from rp2epub.doc2epub import DocWrapper
+		# noinspection PyPep8
 		return DocWrapper(self.args['url'],
 						  is_respec=self.args['respec'],
 						  package=True,
