@@ -1,7 +1,7 @@
 # To-Dos
 
 * Utils.py contains the `change_DOM` method that implements a hack around a Readium bug. When the newer version of Readium is deployed, that hack should be removed.
-
+* With the reading of the css files in place in general, the part on handling the various css files for various document types should be revised to stick with the original structure
 
 # Possible improvements (mainly if there is demand, which is not sure)
 
