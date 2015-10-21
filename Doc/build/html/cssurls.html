@@ -48,10 +48,16 @@
         
   <div class="section" id="module-rp2epub.cssurls">
 <span id="retrieval-of-extra-resources-from-css"></span><h1>6. Retrieval of extra resources from CSS<a class="headerlink" href="#module-rp2epub.cssurls" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference internal" href="#rp2epub.cssurls.CSSList" title="rp2epub.cssurls.CSSList"><code class="xref py py-class docutils literal"><span class="pre">CSSList</span></code></a> encapsulates a collection of external references that are extracted from CSS files, references
+<p>Handling information referred to in CSS files or <cite>&lt;style&gt;</cite> elements.</p>
+<p>The <a class="reference internal" href="#rp2epub.cssurls.CSSList" title="rp2epub.cssurls.CSSList"><code class="xref py py-class docutils literal"><span class="pre">CSSList</span></code></a> encapsulates a collection of external references that are extracted from CSS files, references
 that are supposed to be downloaded and added to the final book, as well as added to the package file. Typically, this
 means handling the CSS import statements (i.e., importing other CSS files) as well as various uri references, e.g., when
 setting the content or the background of an element using an image.</p>
+<p>Note: content negotiation may not work: if, say, a <cite>url(figureref)</cite> relies on content negotiations, it may not generate
+the right statements (not sure whether reading systems would work without the proper file extensions, for example).
+Doing this safely would be to add the suffix to the downloaded file name for the local name, and modify the CSS files.
+This is not done at the moment (the <cite>tinycss</cite> library is not prepared, afaik, to write CSS files, only to read and
+parse them).</p>
 <div class="section" id="module-content">
 <h2>6.1. Module content<a class="headerlink" href="#module-content" title="Permalink to this headline">¶</a></h2>
 <dl class="class">

@@ -1,8 +1,16 @@
 """
-:py:class:`CSSList` encapsulates a collection of external references that are extracted from CSS files, references
+Handling information referred to in CSS files or `<style>` elements.
+
+The :py:class:`CSSList` encapsulates a collection of external references that are extracted from CSS files, references
 that are supposed to be downloaded and added to the final book, as well as added to the package file. Typically, this
 means handling the CSS import statements (i.e., importing other CSS files) as well as various uri references, e.g., when
 setting the content or the background of an element using an image.
+
+Note: content negotiation may not work: if, say, a `url(figureref)` relies on content negotiations, it may not generate
+the right statements (not sure whether reading systems would work without the proper file extensions, for example).
+Doing this safely would be to add the suffix to the downloaded file name for the local name, and modify the CSS files.
+This is not done at the moment (the `tinycss` library is not prepared, afaik, to write CSS files, only to read and
+parse them).
 
 .. :class::
 
