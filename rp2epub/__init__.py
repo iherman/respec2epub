@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__version__ = "1.2"
+__version__ = "1.3"
 # noinspection PyPep8
 __author__  = 'Ivan Herman, W3C'
 __contact__ = 'Ivan Herman, ivan@w3.org'

@@ -1,3 +1,6 @@
+# Version 1.3
+
+
 # Version 1.2
 
 * Added the  ``-*- coding: utf-8 -*-`` sign to setup.py
