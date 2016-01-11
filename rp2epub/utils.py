@@ -59,6 +59,7 @@ short_label_pattern = re.compile("^[1-9][0-9]*\. .*$")
 TOC_PAIRS = [
 	("div[@id='toc']", "ul[@class='toc']", None),
 	("div[@id='toc']", "ol[@class='toc']", None),
+	("nav[@id='toc']", "ul[@class='toc']", None),
 	("section[@id='toc']", "ul[@class='toc']", None),
 	("section[@id='toc']", "ol[@class='toc']", None),
 	("div[@class='toc']", "ul[@class='toc']", "tocline1"),
@@ -66,7 +67,6 @@ TOC_PAIRS = [
 	("body", "ul[@class='toc']", None),
 	("body", "ol[@class='toc']", None)
 ]
-
 
 # noinspection PyPep8Naming
 class TOC_Item(object):
@@ -291,6 +291,9 @@ class Utils(object):
 		 3. Some readers *require* to have a ``type="text/css"`` on the the link element for a CSS; otherwise the CSS
 		 is ignored. It is added (doesn't do any harm...)
 
+		 4. Add to the class of the ``body`` element the ``toc-inline`` value, to ensure that the TOC stays inline and
+		 is not floated on the left hand side (a feature of the 2016 version of the TR CSS entries)
+
 		:param html: the object for the whole document
 		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
 		"""
@@ -327,6 +330,15 @@ class Utils(object):
 		for lnk in html.findall(".//link[@rel='stylesheet']"):
 			if "type" not in lnk.keys():
 				lnk.set("type", "text/css")
+
+		# Hack #4
+		# Add 'toc-inline' to the body class, to avoid a floating TOC on the left
+		bclass = body.get("class", None)
+		if bclass == None:
+			body.set("class", "toc-inline")
+		else:
+			bclass += " toc-inline"
+			body.set("class", bclass)
 
 	@staticmethod
 	def extract_toc(html, short_name):

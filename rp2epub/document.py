@@ -47,17 +47,18 @@ class Document:
 		self.download_targets      = []
 		self.css_list              = CSSList(driver.base)
 
-		self._title         = None
-		self._properties    = None
-		self._short_name    = None
-		self._doc_type      = "base"
-		self._dated_uri     = None
-		self._date          = None
-		self._editors       = ""
-		self._authors       = ""
-		self._respec_config = None
-		self._toc		    = []
-		self._subtitle     = None
+		self._title          = None
+		self._properties     = None
+		self._short_name     = None
+		self._doc_type       = "base"
+		self._dated_uri      = None
+		self._date           = None
+		self._editors        = ""
+		self._authors        = ""
+		self._respec_config  = None
+		self._toc		     = []
+		self._css_tr_version = 2015
+		self._subtitle       = None
 		self._get_document_metadata()
 		self._collect_downloads()
 
@@ -94,6 +95,7 @@ class Document:
 		then the file is copied and stored in the book, the reference is changed in the document,
 		and the resource is marked to be added to the manifest file
 		"""
+
 		def final_target_media(f_session, f_target):
 			if f_session.media_type == 'text/html':
 				return 'application/xhtml+xml', f_target.replace('.html', '.xhtml', 1)
@@ -291,6 +293,11 @@ class Document:
 		return self._toc
 
 	@property
+	def css_tr_version(self):
+		"""Version (as an integer number denoting the year) of the CSS TR version. The value is 2015 or higher..."""
+		return self._css_tr_version
+
+	@property
 	def subtitle(self):
 		""" "W3C Note/Recommendation/Draft/ etc.": the text to be reused as a subtitle on the cover page. """
 		return self._subtitle
@@ -370,6 +377,21 @@ class Document:
 			for t in issued.itertext():
 				self._subtitle += t
 
+	def _get_CSS_TR_version(self):
+		"""
+		Set the CSS TR version based on the document.
+		Note: this is very ugly, hopefully there will be a better way of finding this...
+		"""
+		self._css_tr_version = 2015
+
+		for lnk in self.html.findall(".//link[@rel='stylesheet']"):
+			ref_details = urlparse(lnk.get("href"))
+			# TODO: THIS IS TEMPORARY, SHOULD BE FIXED WHEN THINGS BECOME FINAL!!!!
+			if ref_details.netloc == "www.w3.org" and "2016" in ref_details.path :
+				self._css_tr_version = 2016
+				return
+		return
+
 	def _get_document_metadata(self):
 		"""
 		Extract metadata (date, title, editors, etc.)
@@ -423,6 +445,9 @@ class Document:
 			for t in title_element.itertext():
 				self._title += t
 			break
+
+		# Get the CSS version of the document
+		self._get_CSS_TR_version()
 
 		# Properties to be added to the manifest
 		props = Utils.get_document_properties(self.html)
