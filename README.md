@@ -1,5 +1,7 @@
 # ReSpec (and Bikeshed output) to EPUB
 
+[![Join the chat at https://gitter.im/iherman/respec2epub](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/iherman/respec2epub?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Python script to assist in turning W3C ReSpec documents into EPUB; it can also convert HTML documents that were originally produced by ReSpec or Bikeshed into EPUB. The script does **not** aim at being a generic HTML->EPUB solution, it is indeed tailored at W3C TR documents based on ReSpec and Bikeshed. 
 
 Note that the project includes:
