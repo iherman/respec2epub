@@ -20,9 +20,10 @@ Module content
 
 # TODO: documentation
 
-from urlparse import urljoin
+from urlparse import urljoin, urlparse
 import tinycss
 from .utils import HttpSession, Logger
+import sys
 
 
 class _URLPair:
@@ -48,6 +49,9 @@ class _URLPair:
 		"""The local name of the resource"""
 		return self._name
 
+	def __repr__(self):
+		return "(" + self.name + ", " + self.url + ")"
+
 
 # noinspection PyPep8
 class CSSReference:
@@ -55,12 +59,12 @@ class CSSReference:
 	Wrapper around the information necessary in one CSS reference.
 
 	:param str base: Base URI of the overall book. Important to generate proper local name for a resource when retrieved
-	:param str url: URL of the CSS file (if any, otherwise value is ignored)
+	:param str url: URL of the CSS file (if any, otherwise value is ignored). This is an absolute URL; in practice can be using the overall book URL or www.w3.org
 	:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded
 	:param str content: in case the CSS was embedded, the full content of the CSS as retrieved from the DOM
 	"""
 	# noinspection PyPep8
-	def __init__(self, base, url, is_file, content):
+	def __init__(self, base, url, is_file = True, content = None):
 		self._origin_url = url
 		self._base       = base
 		if is_file:
@@ -98,10 +102,28 @@ class CSSReference:
 			# The final name, to be used when the content is added to the book, should be relative to the
 			# base of the whole input; that will then be used to add the downloaded
 			# content to the book
-			name = url.replace(self._base, '', 1)
+
+			# The style sheets may be on the www.w3.org domain. Those should be separated for the generation of the
+			# local name...
+			if urlparse(url).netloc == "www.w3.org":
+				path = urlparse(url).path
+				name = path if path[0] != '/' else path[1:]
+			else:
+				name = url.replace(self._base, '', 1)
+
 			self._import_misc.add(_URLPair(url, name))
 			if css:
 				self._import_css.add(url)
+
+		def handle_one_css_ruleset(ruleset):
+			# This is a basic CSS set of declarations. Each declaration has, potentially, a set of values;
+			# the values themselves may be numbers, strings, etc, and also URI-s
+			# Only the URI-s are of interest at this point.
+			if ruleset.at_keyword is None:
+				for d in ruleset.declarations:
+					for i in [item for item in d.value if item.type == "URI"]:
+						add_item_to_import(i.value)
+
 
 		self._import_css  = set()
 		self._import_misc = set()
@@ -115,17 +137,19 @@ class CSSReference:
 
 			# Go through all the individual rules of the style sheet
 			for rule in stylesheet.rules:
-				# Only the @import rule is of interest; the others, like @print, are forgotten
+				# Only the @import and @media rules are of interest; most of the others, like @print, are ignored
 				if rule.at_keyword == "@import":
 					add_item_to_import(rule.uri, css=True)
 
-				# This is a basic CSS set of declarations. Each declaration has, potentially, a set of values;
-				# the values themselves may be numbers, strings, etc, and also URI-s
-				# Only the URI-s are of interest at this point.
-				if rule.at_keyword is None:
-					for d in rule.declarations:
-						for i in [item for item in d.value if item.type == "URI"]:
-							add_item_to_import(i.value)
+				elif rule.at_keyword == "@media":
+					for ruleset in rule.rules:
+						handle_one_css_ruleset(ruleset)
+
+				elif rule.at_keyword is None:
+					handle_one_css_ruleset(rule)
+
+	def __repr__(self):
+		return self._origin_url + ': ' + `self.import_css` + "," + `self.import_misc`
 
 
 # noinspection PyPep8
@@ -141,20 +165,15 @@ class CSSList:
 		self._css_list = []
 		self._base     = base
 
-	def add_css(self, origin_url, is_file=True, content=None, new_list=None):
+	def add_css(self, origin_url, is_file=True, content=None):
 		"""Add a new CSS, ie, add a new :py:class:`CSSReference` to the internal array of references
-
 		:param str origin_url: URL of the CSS file (if any, otherwise value is ignored)
 		:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded
 		:param str content: in case the CSS was embedded, the full content of the CSS
-		:param new_list: the list on which the new instance should be added. If the value is ``None``, the instance	is added to the internal list of the class. (This differentiation is important for the recursion.)
-
 		"""
-		if new_list is None:
-			new_list = self._css_list
 		css_ref = CSSReference(self._base, urljoin(self._base, origin_url), is_file, content)
 		if not css_ref.empty:
-			new_list.append(css_ref)
+			self._css_list.append(css_ref)
 
 	def get_download_list(self):
 		"""Return all the list of resources. These include those explicitly added previously, plus those retrieved
@@ -170,19 +189,26 @@ class CSSList:
 		return list(final_download_list)
 
 	def _gather_all_stylesheets(self):
-		"""Gather all stylesheets, recursively adding the :py:class:`CSSReference` to the internal set"""
-		def _get_new_stylesheets(old):
-			additional_list = []
-			for c in old:
-				for url in c.import_css:
-					self.add_css(url, new_list=additional_list)
-			return additional_list
+		def one_level(css_references):
+			"""
+			Recursive step to gather all resources to be downloaded: goes through the list of css references and tries to
+			access the next level of css references for further inclusion.
 
-		previous = self._css_list
-		while True:
-			additional = _get_new_stylesheets(previous)
-			if len(additional) == 0:
-				break
-			self._css_list += additional
-			previous = additional
+			@param css_references: an array of :py:class:`CSSReference` instances.
+			"""
+			next_level = []
+			for css in css_references:
+				for url in css.import_css:
+					new_css_ref = CSSReference(self._base, urljoin(self._base, url))
+					if not new_css_ref.empty:
+						next_level.append(new_css_ref)
+			if len(next_level) != 0:
+				next_level += one_level(next_level)
+			return next_level
+		self._css_list += one_level(self._css_list)
 
+	def __repr__(self):
+		retval = ""
+		for c in self._css_list:
+			retval += c.__repr__() + '\n'
+		return retval

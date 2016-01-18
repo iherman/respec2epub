@@ -170,16 +170,19 @@ class DocWrapper:
 			css_background       = ""
 			padding              = "2em 1em 2em 70px;"
 
-			# Add the book.css with the right value set for the background image and the padding
+			# Add the book.css with the right value set for the padding
 			if self.document.doc_type in DOCTYPE_INFO and self.document.doc_type_info["logo_transfer"] is not None:
-				additional_transfers = [self.document.doc_type_info["logo_transfer"]]
-				css_background       = "background-image: url(%s);" % self.document.doc_type_info["logo_transfer"][2][7:]
-				padding              = self.document.doc_type_info["padding"]
+				# @@@ additional_transfers = [self.document.doc_type_info["logo_transfer"]]
+				# @@@ was: css_background       = "background-image: url(%s);" % self.document.doc_type_info["logo_transfer"][2][7:]
+				padding = self.document.doc_type_info["padding"]
 
-			self.book.writestr('Assets/book.css', BOOK_CSS % (css_background, padding))
+			# @@@ The CSS background should be gone here!
+			# @@@ self.book.writestr('Assets/book.css', BOOK_CSS % (css_background, padding))
+			self.book.writestr('Assets/book.css', BOOK_CSS % padding)
 
 			# Some resources should be added to the book once and for all
-			for uri, alt_uri, local in additional_transfers + self.document.doc_type_info["transfer"]:
+			# @@@@ was: for uri, alt_uri, local in additional_transfers + self.document.doc_type_info["transfer"]:
+			for uri, alt_uri, local in self.document.doc_type_info["transfer"]:
 				if not self.book.write_HTTP(local, uri):
 					self.book.write_HTTP(local, alt_uri)
 
