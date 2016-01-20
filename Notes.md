@@ -1,24 +1,4 @@
 
-* the SVG formatted logo is missing
-
-
-
----
-
-1. The base.css file is included through a strange procedure into the system in the old TR css files; fantasai's version uses the standard ``@import`` mechanism
-    * This means that simulating the import for the old version is still necessary, but becomes unnecessary with the new one. Not sure how to handle that programatically
-        * The http return header of the file seems to be o.k. some magic is happening on the server side, but that is irrelevant.
-    * However, **problem**. This approach, at least for the old version, requires to add a *new* link element, maintaining the reference to the base as well as adding a new one. *Which does not work due to the ``html5lib`` bug on handling the DOM elements*, one can only *add* an element at the end of an element, and not as a sibling on the spot. What this means is that handling the old style stuff may not be possible:-(
-    * However... if the href value for that element simply has to change, this may be enough. Add the css suffix, issue an HTTP to get and store the content, and that is it...
-    
-    
-1. The references to the images should work, but it they are managed via content negotiations. Means
-    * Does such a reference, without the suffix, works properly in a reader? (Probably yes). I not, the suffix may have to be added artificially.
-1. The changes, probably:
-    * in line 178 in ``document.py`` the reference to the base should be maintained (probably) due to the first point above, but the style sheet itself should be added to the overall list, too (and the link reference maintained, maybe with the .css extension added?)
-    * in line 182 in ``doc2epub.py`` wonder what is necessary to transfer from the config file. Possibly only the long logo, which then could be handled specifically, and that field can be removed from the config file. Actually, the whole logo transfer may be unnecessary but… it may clash with the ibook problem of margins
-
-However: the whole issue of table of content on the left is in limbo. For an ebook, this is totally unnecessary, because I do create a nav file overall! I wonder if the simplest (and crudest) approach is not to remove the TOC altogether from the generated output… With the new style this may be much more acceptable.
 
 ---
 

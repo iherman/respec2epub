@@ -89,7 +89,7 @@ class Document:
 	def extract_external_references(self):
 		"""Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is
 
-		- the URL begins with the same base
+		- the URL begins with the same base or is on the www.w3.org domain (the latter is for official CSS files and logos)
 		- is one of the 'accepted' media types for epub
 
 		then the file is copied and stored in the book, the reference is changed in the document,
@@ -115,35 +115,39 @@ class Document:
 			# @@@ If the change is done keeping the reference as non-local then there will never be a match
 			# @@@ Good for the testing; the test here may be removed later
 			if attr_value is not None and all(map(lambda x: x[2] != attr_value, to_transfer)):
+				# This artefact is necessary to treat the WWW level, official URIs and local ones
 				ref = urljoin(self.driver.base, attr_value)
+
 				# In some cases, primarily in the case of editors drafts, the reference is simply on the file
-				# itself; better avoid a duplication
+				# itself; that should be forgotten
 				if ref == self.driver.top_uri or ref == self.driver.base:
 					continue
 
 				parsed_ref = urlparse(ref)
+				# Genuine local, relative URI
 				local      = True if ref.startswith(self.driver.base) else False
+				# Official WWW URI-s, mainly for style sheets or possibly javascript
 				www_level  = True if parsed_ref.netloc == "www.w3.org" else False
-
-				# @@@ This test may have to be extended by allowing a w3c reference (either http or https!)
-				# @@@ Think about allowed javascripts that may creep into the picture with the approval
-				# @@@ of the /script list!!!!
-				# @@@ best do the check separately and set a flag, because it may have to be reused below
 				if local or www_level :
 					session = HttpSession(ref, check_media_type=True)
 					if session.success:
 						# Find/set the right name for the target document
 						path = parsed_ref.path
 						if path[-1] == '/':
+							# This should not really happen, but may: relying on some WWW mechanism that we cannot
+							# rely on in a a book
 							target = 'Assets/extras/data%s.%s' % (self._index, config.ACCEPTED_MEDIA_TYPES[session.media_type])
 							self._index += 1
 						elif www_level:
+							# This is, mainly, for official CSS files; reproducing the same path as for W3C
 							target = path if path[0] != '/' else path[1:]
+						elif local:
+							# This is for local references, reproducing the same path as in the origin
+							# Removing a possible, though erroneous, first character, just to be on the safe side
+							target = attr_value if attr_value[0] != '/' else attr_value[1:]
 						else:
+							# In fact, this should not happen...
 							target = attr_value.split('/')[-1]
-
-						# else:
-						# 	target = parsed_ref.path if www_level else '%s' % path.split('/')[-1]
 
 						# yet another complication: if the target is an html file, it will have to become xhtml :-(
 						# this means that the target and the media types should receive a local name, to
@@ -191,31 +195,9 @@ class Document:
 		localize_logo("W3C Member Submission", "member_subm.png")
 		localize_logo("W3C Team Submission", "team_subm.png")
 
-		# # handle stylesheet references
-		# for lnk in self.html.findall(".//link[@rel='stylesheet']"):
-		# 	ref_details = urlparse(lnk.get("href"))
-		# 	if ref_details.netloc == "www.w3.org" and (ref_details.path.startswith("/StyleSheets") or ref_details.path.startswith("/community/src/css/spec")):
-		# 		# @@@ This has to change.
-		# 		# @@@ - append a .css if not there, to make things clear, change the lnk.set value!!!
-		# 		# @@@ - just add this entry to the download targets and the css_links.
-		# 		# @@@ in other words, the 'else' branch is unnecessary!
-		# 		# @@@
-		# 		# This is the local, W3C, style sheet. Actions to be taken:
-		# 		# 1. This is exchanged against the general 'base.css'
-		# 		# 2. Below, after all the stylesheets are handled, the reference to a separate 'book.css' is added
-		# 		# 3. The final book.css is finalized later (through a template and in the "driver"), adding a reference
-		# 		# to the background image that corresponds to the documents status
-		# 		lnk.set("href", "Assets/base.css")
-		# 	else:
-		# 		self.download_targets.append((lnk, 'href'))
-		# 		# The CSS reference should be stored as a possible source of further references
-		# 		self.css_list.add_css(lnk.get("href"))
-
 		# handle stylesheet references
 		for lnk in self.html.findall(".//link[@rel='stylesheet']"):
 			ref = lnk.get("href")
-			# @@@ The full test may come back later when the 2006 version of the style sheets are added to their final place
-			# if ref_details.netloc == "www.w3.org" and (ref_details.path.startswith("/StyleSheets") or ref_details.path.startswith("/community/src/css/spec")):
 			if urlparse(ref).netloc == "www.w3.org":
 				if not ref.endswith(".css"):
 					lnk.set("href",ref + ".css")
