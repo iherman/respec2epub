@@ -578,7 +578,7 @@ class Book(object):
 
 		:param str target: path for the target file
 		:param session: a :py:class:`.HttpSession` instance whose data must retrieved to be written into the book
-		:param css_change_patterns: a list of (from,to) replace patterns to be applied on CSS files
+		:param css_change_patterns: a list of ``(from,to)`` replace patterns to be applied on CSS files
 		:return boolean: the value of session.success
 		"""
 		# Copy the content into the final book

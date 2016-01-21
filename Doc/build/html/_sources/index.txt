@@ -74,8 +74,8 @@ Thanks also to José Kahan (W3C) who helped me getting the setup procedure smoot
    rp2epub
    driver
    document
-   package
    cssurls
+   package
    utils
    templates
    config

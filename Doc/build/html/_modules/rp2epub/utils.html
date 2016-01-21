@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.2',
+        VERSION:     '1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -103,6 +103,7 @@
 <span class="n">TOC_PAIRS</span> <span class="o">=</span> <span class="p">[</span>
 	<span class="p">(</span><span class="s">&quot;div[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
 	<span class="p">(</span><span class="s">&quot;div[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;ol[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+	<span class="p">(</span><span class="s">&quot;nav[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
 	<span class="p">(</span><span class="s">&quot;section[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
 	<span class="p">(</span><span class="s">&quot;section[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;ol[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
 	<span class="p">(</span><span class="s">&quot;div[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s">&quot;tocline1&quot;</span><span class="p">),</span>
@@ -110,7 +111,6 @@
 	<span class="p">(</span><span class="s">&quot;body&quot;</span><span class="p">,</span> <span class="s">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
 	<span class="p">(</span><span class="s">&quot;body&quot;</span><span class="p">,</span> <span class="s">&quot;ol[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 <span class="p">]</span>
-
 
 <span class="c"># noinspection PyPep8Naming</span>
 <div class="viewcode-block" id="TOC_Item"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.TOC_Item">[docs]</a><span class="k">class</span> <span class="nc">TOC_Item</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -335,6 +335,9 @@
 <span class="sd">		 3. Some readers *require* to have a ``type=&quot;text/css&quot;`` on the the link element for a CSS; otherwise the CSS</span>
 <span class="sd">		 is ignored. It is added (doesn&#39;t do any harm...)</span>
 
+<span class="sd">		 4. Add to the class of the ``body`` element the ``toc-inline`` value, to ensure that the TOC stays inline and</span>
+<span class="sd">		 is not floated on the left hand side (a feature of the 2016 version of the TR CSS entries)</span>
+
 <span class="sd">		:param html: the object for the whole document</span>
 <span class="sd">		:type html: :py:class:`xml.etree.ElementTree.ElementTree`</span>
 <span class="sd">		&quot;&quot;&quot;</span>
@@ -371,6 +374,15 @@
 		<span class="k">for</span> <span class="n">lnk</span> <span class="ow">in</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//link[@rel=&#39;stylesheet&#39;]&quot;</span><span class="p">):</span>
 			<span class="k">if</span> <span class="s">&quot;type&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lnk</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
 				<span class="n">lnk</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;type&quot;</span><span class="p">,</span> <span class="s">&quot;text/css&quot;</span><span class="p">)</span>
+
+		<span class="c"># Hack #4</span>
+		<span class="c"># Add &#39;toc-inline&#39; to the body class, to avoid a floating TOC on the left</span>
+		<span class="n">bclass</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">bclass</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">body</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="s">&quot;toc-inline&quot;</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">bclass</span> <span class="o">+=</span> <span class="s">&quot; toc-inline&quot;</span>
+			<span class="n">body</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="n">bclass</span><span class="p">)</span>
 </div>
 	<span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="Utils.extract_toc"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.extract_toc">[docs]</a>	<span class="k">def</span> <span class="nf">extract_toc</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">short_name</span><span class="p">):</span>
@@ -603,14 +615,15 @@
 		<span class="n">content</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 	<span class="c"># noinspection PyTypeChecker</span></div>
-<div class="viewcode-block" id="Book.write_session"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.write_session">[docs]</a>	<span class="k">def</span> <span class="nf">write_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
+<div class="viewcode-block" id="Book.write_session"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.write_session">[docs]</a>	<span class="k">def</span> <span class="nf">write_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">css_change_patterns</span> <span class="o">=</span> <span class="p">[]):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		The returned content of an :py:class:`.HttpSession` is added to the book. If the content is an HTML file,</span>
 <span class="sd">		it will be converted into XHTML on the fly.</span>
 
 <span class="sd">		:param str target: path for the target file</span>
 <span class="sd">		:param session: a :py:class:`.HttpSession` instance whose data must retrieved to be written into the book</span>
-<span class="sd">		:boolean return: the value of session.success</span>
+<span class="sd">		:param css_change_patterns: a list of ``(from,to)`` replace patterns to be applied on CSS files</span>
+<span class="sd">		:return boolean: the value of session.success</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="c"># Copy the content into the final book</span>
 		<span class="c"># Special care should be taken with html files. Those are supposed to become XHTML:-(</span>
@@ -625,6 +638,13 @@
 				<span class="n">html</span> <span class="o">=</span> <span class="n">html5lib</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">namespaceHTMLElements</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 				<span class="n">Utils</span><span class="o">.</span><span class="n">html_to_xhtml</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.html&#39;</span><span class="p">,</span> <span class="s">&#39;.xhtml&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ElementTree</span><span class="p">(</span><span class="n">html</span><span class="p">))</span>
+			<span class="k">elif</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="s">&#39;text/css&#39;</span><span class="p">:</span>
+				<span class="c"># We have to make a series of string replacements, as defined in the `css_change_patterns`</span>
+				<span class="c"># parameter.</span>
+				<span class="n">content</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+				<span class="k">for</span> <span class="p">(</span><span class="n">c_from</span><span class="p">,</span> <span class="n">c_to</span><span class="p">)</span> <span class="ow">in</span> <span class="n">css_change_patterns</span><span class="p">:</span>
+					<span class="n">content</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">c_from</span><span class="p">,</span> <span class="n">c_to</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
 			<span class="k">else</span><span class="p">:</span>
 				<span class="c"># Note that some of the media types are not to be compressed</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_STORED</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="ow">in</span> <span class="n">_NO_COMPRESS</span> <span class="k">else</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span>
@@ -664,7 +684,7 @@
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">zip</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-	<span class="c"># The properties below are necessary to use the class in a &quot;with ... as&quot; python structure</span></div>
+	<span class="c"># The methods below are necessary to use the class in a &quot;with ... as&quot; python structure</span></div>
 	<span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">return</span> <span class="bp">self</span>
 
@@ -709,7 +729,7 @@
       </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Ivan Herman.
+        &copy; Copyright 2016, Ivan Herman.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>

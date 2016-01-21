@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.2',
+        VERSION:     '1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -50,11 +50,14 @@
 <span class="sd">means handling the CSS import statements (i.e., importing other CSS files) as well as various uri references, e.g., when</span>
 <span class="sd">setting the content or the background of an element using an image.</span>
 
-<span class="sd">Note: content negotiation may not work: if, say, a `url(figureref)` relies on content negotiations, it may not generate</span>
-<span class="sd">the right statements (not sure whether reading systems would work without the proper file extensions, for example).</span>
-<span class="sd">Doing this safely would be to add the suffix to the downloaded file name for the local name, and modify the CSS files.</span>
-<span class="sd">This is not done at the moment (the `tinycss` library is not prepared, afaik, to write CSS files, only to read and</span>
-<span class="sd">parse them).</span>
+<span class="sd">Some CSS files may need a change on the fly. The typical case is when a background image is set through the statement::</span>
+
+<span class="sd">	background: url(//www.w3.org/StyleSheet/TR/logo);</span>
+
+
+<span class="sd">(Which is the trick used to help in the HTTP vs. HTTPS negotiations.) The URL reference must be changed to a local,</span>
+<span class="sd">relative URL. These cases are gathered by the process and the upper layers use it to make a simple string &quot;replace&quot;</span>
+<span class="sd">on the fly when the CSS file is copied to the book.</span>
 
 <span class="sd">.. :class::</span>
 
@@ -64,9 +67,10 @@
 
 <span class="c"># TODO: documentation</span>
 
-<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urljoin</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urljoin</span><span class="p">,</span> <span class="n">urlparse</span>
 <span class="kn">import</span> <span class="nn">tinycss</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Logger</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
 
 <div class="viewcode-block" id="_URLPair"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls._URLPair">[docs]</a><span class="k">class</span> <span class="nc">_URLPair</span><span class="p">:</span>
@@ -92,6 +96,9 @@
 		<span class="sd">&quot;&quot;&quot;The local name of the resource&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 
+	<span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="s">&quot;(&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span>
+
 
 <span class="c"># noinspection PyPep8</span></div>
 <div class="viewcode-block" id="CSSReference"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSReference">[docs]</a><span class="k">class</span> <span class="nc">CSSReference</span><span class="p">:</span>
@@ -99,14 +106,15 @@
 <span class="sd">	Wrapper around the information necessary in one CSS reference.</span>
 
 <span class="sd">	:param str base: Base URI of the overall book. Important to generate proper local name for a resource when retrieved</span>
-<span class="sd">	:param str url: URL of the CSS file (if any, otherwise value is ignored)</span>
+<span class="sd">	:param str url: URL of the CSS file (if any, otherwise value is ignored). This is an absolute URL; in practice can be using the overall book URL or www.w3.org</span>
 <span class="sd">	:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded</span>
 <span class="sd">	:param str content: in case the CSS was embedded, the full content of the CSS as retrieved from the DOM</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="c"># noinspection PyPep8</span>
-	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">is_file</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_origin_url</span> <span class="o">=</span> <span class="n">url</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_base</span>       <span class="o">=</span> <span class="n">base</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">is_file</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">content</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_origin_url</span>      <span class="o">=</span> <span class="n">url</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_base</span>            <span class="o">=</span> <span class="n">base</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_change_patterns</span> <span class="o">=</span> <span class="p">[]</span>
 		<span class="k">if</span> <span class="n">is_file</span><span class="p">:</span>
 			<span class="n">session</span> <span class="o">=</span> <span class="n">HttpSession</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">check_media_type</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 			<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
@@ -132,6 +140,11 @@
 		<span class="sd">&quot;&quot;&quot;Set of :py:class:`_URLPair` instances for resources that were found in the CSS content&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_import_misc</span>
 
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">change_patterns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Array of (from,to) pairs used to replace strings in CSS files when copying into the book&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_change_patterns</span>
+
 <div class="viewcode-block" id="CSSReference._collect_imports"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSReference._collect_imports">[docs]</a>	<span class="k">def</span> <span class="nf">_collect_imports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Collect the resources to be imported. The CSS content is parsed, and the :py:attr:`import_css`</span>
 <span class="sd">		and :py:attr:`import_misc` sets are filled with content. This method is called at initialization time.</span>
@@ -142,10 +155,41 @@
 			<span class="c"># The final name, to be used when the content is added to the book, should be relative to the</span>
 			<span class="c"># base of the whole input; that will then be used to add the downloaded</span>
 			<span class="c"># content to the book</span>
-			<span class="n">name</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+			<span class="c"># The style sheets may be on the www.w3.org domain. Those should be separated for the generation of the</span>
+			<span class="c"># local name...</span>
+			<span class="k">if</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span><span class="p">:</span>
+				<span class="n">path</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="n">path</span> <span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+			<span class="c"># In some cases the url reference is not relative (alas!)</span>
+			<span class="k">if</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url_orig</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
+				<span class="c"># 1. This reference should be changed to get the local reference. This will be the &#39;from&#39; field to replace</span>
+				<span class="n">c_from</span> <span class="o">=</span> <span class="n">url_orig</span>
+
+				<span class="c"># 2. Calculate the &#39;base&#39; part of the CSS file&#39;s URL, ie, remove the last portion of the path if any</span>
+				<span class="n">path</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_origin_url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
+				<span class="n">css_base</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+				<span class="c"># 3. Use the length of the base to remove the unnecessary part of the referenced URL, yielding the</span>
+				<span class="c"># relative URL</span>
+				<span class="n">c_to</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">css_base</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_change_patterns</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c_from</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">),</span> <span class="n">c_to</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)))</span>
+
 			<span class="bp">self</span><span class="o">.</span><span class="n">_import_misc</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">_URLPair</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
 			<span class="k">if</span> <span class="n">css</span><span class="p">:</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">_import_css</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+		<span class="k">def</span> <span class="nf">handle_one_css_ruleset</span><span class="p">(</span><span class="n">ruleset</span><span class="p">):</span>
+			<span class="c"># This is a basic CSS set of declarations. Each declaration has, potentially, a set of values;</span>
+			<span class="c"># the values themselves may be numbers, strings, etc, and also URI-s</span>
+			<span class="c"># Only the URI-s are of interest at this point.</span>
+			<span class="k">if</span> <span class="n">ruleset</span><span class="o">.</span><span class="n">at_keyword</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ruleset</span><span class="o">.</span><span class="n">declarations</span><span class="p">:</span>
+					<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s">&quot;URI&quot;</span><span class="p">]:</span>
+						<span class="n">add_item_to_import</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">_import_css</span>  <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_import_misc</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -159,20 +203,22 @@
 
 			<span class="c"># Go through all the individual rules of the style sheet</span>
 			<span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">stylesheet</span><span class="o">.</span><span class="n">rules</span><span class="p">:</span>
-				<span class="c"># Only the @import rule is of interest; the others, like @print, are forgotten</span>
+				<span class="c"># Only the @import and @media rules are of interest; most of the others, like @print, are ignored</span>
 				<span class="k">if</span> <span class="n">rule</span><span class="o">.</span><span class="n">at_keyword</span> <span class="o">==</span> <span class="s">&quot;@import&quot;</span><span class="p">:</span>
 					<span class="n">add_item_to_import</span><span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">uri</span><span class="p">,</span> <span class="n">css</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-				<span class="c"># This is a basic CSS set of declarations. Each declaration has, potentially, a set of values;</span>
-				<span class="c"># the values themselves may be numbers, strings, etc, and also URI-s</span>
-				<span class="c"># Only the URI-s are of interest at this point.</span>
-				<span class="k">if</span> <span class="n">rule</span><span class="o">.</span><span class="n">at_keyword</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-					<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">rule</span><span class="o">.</span><span class="n">declarations</span><span class="p">:</span>
-						<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s">&quot;URI&quot;</span><span class="p">]:</span>
-							<span class="n">add_item_to_import</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+				<span class="k">elif</span> <span class="n">rule</span><span class="o">.</span><span class="n">at_keyword</span> <span class="o">==</span> <span class="s">&quot;@media&quot;</span><span class="p">:</span>
+					<span class="k">for</span> <span class="n">ruleset</span> <span class="ow">in</span> <span class="n">rule</span><span class="o">.</span><span class="n">rules</span><span class="p">:</span>
+						<span class="n">handle_one_css_ruleset</span><span class="p">(</span><span class="n">ruleset</span><span class="p">)</span>
+
+				<span class="k">elif</span> <span class="n">rule</span><span class="o">.</span><span class="n">at_keyword</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+					<span class="n">handle_one_css_ruleset</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
+</div>
+	<span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_origin_url</span> <span class="o">+</span> <span class="s">&#39;: &#39;</span> <span class="o">+</span> <span class="sb">`self.import_css`</span> <span class="o">+</span> <span class="s">&quot;,&quot;</span> <span class="o">+</span> <span class="sb">`self.import_misc`</span>
 
 
-<span class="c"># noinspection PyPep8</span></div></div>
+<span class="c"># noinspection PyPep8</span></div>
 <div class="viewcode-block" id="CSSList"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSList">[docs]</a><span class="k">class</span> <span class="nc">CSSList</span><span class="p">:</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	List of :py:class:`CSSReference` instances. This is, initially, built up from the :py:class:`.document.Document` class; when</span>
@@ -182,29 +228,32 @@
 <span class="sd">	:param str base: the base URL for the whole book</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span> <span class="o">=</span> <span class="p">[]</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_base</span>     <span class="o">=</span> <span class="n">base</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span>        <span class="o">=</span> <span class="p">[]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_base</span>            <span class="o">=</span> <span class="n">base</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_change_patterns</span> <span class="o">=</span> <span class="p">[]</span>
 
-<div class="viewcode-block" id="CSSList.add_css"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSList.add_css">[docs]</a>	<span class="k">def</span> <span class="nf">add_css</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin_url</span><span class="p">,</span> <span class="n">is_file</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">new_list</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">change_patterns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Array of ``(from,to)`` pairs used to replace strings in CSS files when copying into the book&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_change_patterns</span>
+
+<div class="viewcode-block" id="CSSList.add_css"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSList.add_css">[docs]</a>	<span class="k">def</span> <span class="nf">add_css</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin_url</span><span class="p">,</span> <span class="n">is_file</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Add a new CSS, ie, add a new :py:class:`CSSReference` to the internal array of references</span>
 
 <span class="sd">		:param str origin_url: URL of the CSS file (if any, otherwise value is ignored)</span>
 <span class="sd">		:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded</span>
 <span class="sd">		:param str content: in case the CSS was embedded, the full content of the CSS</span>
-<span class="sd">		:param new_list: the list on which the new instance should be added. If the value is ``None``, the instance	is added to the internal list of the class. (This differentiation is important for the recursion.)</span>
-
 <span class="sd">		&quot;&quot;&quot;</span>
-		<span class="k">if</span> <span class="n">new_list</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-			<span class="n">new_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span>
 		<span class="n">css_ref</span> <span class="o">=</span> <span class="n">CSSReference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="n">urljoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="n">origin_url</span><span class="p">),</span> <span class="n">is_file</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
 		<span class="k">if</span> <span class="ow">not</span> <span class="n">css_ref</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-			<span class="n">new_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">css_ref</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">css_ref</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_change_patterns</span> <span class="o">+=</span> <span class="n">css_ref</span><span class="o">.</span><span class="n">change_patterns</span>
 </div>
 <div class="viewcode-block" id="CSSList.get_download_list"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSList.get_download_list">[docs]</a>	<span class="k">def</span> <span class="nf">get_download_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Return all the list of resources. These include those explicitly added previously, plus those retrieved</span>
-<span class="sd">		recursively.</span>
+		<span class="sd">&quot;&quot;&quot;Return all the list of resources that must be downloaded and added to the book. These include those</span>
+<span class="sd">		explicitly added previously, plus those retrieved recursively.</span>
 
-<span class="sd">		:return: Array of ``(local_name, absolute_url)`` pairs.</span>
+<span class="sd">		:return: List of ``(local_name, absolute_url)`` pairs.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_gather_all_stylesheets</span><span class="p">()</span>
 		<span class="n">final_download_list</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -213,23 +262,32 @@
 				<span class="n">final_download_list</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">d</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">url</span><span class="p">))</span>
 		<span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">final_download_list</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="CSSList._gather_all_stylesheets"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSList._gather_all_stylesheets">[docs]</a>	<span class="k">def</span> <span class="nf">_gather_all_stylesheets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Gather all stylesheets, recursively adding the :py:class:`CSSReference` to the internal set&quot;&quot;&quot;</span>
-		<span class="k">def</span> <span class="nf">_get_new_stylesheets</span><span class="p">(</span><span class="n">old</span><span class="p">):</span>
-			<span class="n">additional_list</span> <span class="o">=</span> <span class="p">[]</span>
-			<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">old</span><span class="p">:</span>
-				<span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">import_css</span><span class="p">:</span>
-					<span class="bp">self</span><span class="o">.</span><span class="n">add_css</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">new_list</span><span class="o">=</span><span class="n">additional_list</span><span class="p">)</span>
-			<span class="k">return</span> <span class="n">additional_list</span>
+	<span class="k">def</span> <span class="nf">_gather_all_stylesheets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">def</span> <span class="nf">one_level</span><span class="p">(</span><span class="n">css_references</span><span class="p">):</span>
+			<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Recursive step to gather all resources to be downloaded: goes through the list of css references and tries to</span>
+<span class="sd">			access the next level of css references for further inclusion.</span>
 
-		<span class="n">previous</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span>
-		<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-			<span class="n">additional</span> <span class="o">=</span> <span class="n">_get_new_stylesheets</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span>
-			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">additional</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-				<span class="k">break</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span> <span class="o">+=</span> <span class="n">additional</span>
-			<span class="n">previous</span> <span class="o">=</span> <span class="n">additional</span>
-</pre></div></div></div>
+<span class="sd">			:param css_references: an array of :py:class:`CSSReference` instances.</span>
+<span class="sd">			&quot;&quot;&quot;</span>
+			<span class="n">next_level</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="k">for</span> <span class="n">css</span> <span class="ow">in</span> <span class="n">css_references</span><span class="p">:</span>
+				<span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">css</span><span class="o">.</span><span class="n">import_css</span><span class="p">:</span>
+					<span class="n">new_css_ref</span> <span class="o">=</span> <span class="n">CSSReference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="n">urljoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="n">url</span><span class="p">))</span>
+					<span class="k">if</span> <span class="ow">not</span> <span class="n">new_css_ref</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+						<span class="n">next_level</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_css_ref</span><span class="p">)</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">_change_patterns</span> <span class="o">+=</span> <span class="n">new_css_ref</span><span class="o">.</span><span class="n">change_patterns</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">next_level</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="n">next_level</span> <span class="o">+=</span> <span class="n">one_level</span><span class="p">(</span><span class="n">next_level</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">next_level</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span> <span class="o">+=</span> <span class="n">one_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">retval</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+		<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span><span class="p">:</span>
+			<span class="n">retval</span> <span class="o">+=</span> <span class="n">c</span><span class="o">.</span><span class="n">__repr__</span><span class="p">()</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+		<span class="k">return</span> <span class="n">retval</span></div>
+</pre></div>
 
       </div>
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
@@ -241,7 +299,7 @@
       </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Ivan Herman.
+        &copy; Copyright 2016, Ivan Herman.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>

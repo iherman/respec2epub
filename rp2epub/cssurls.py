@@ -6,11 +6,14 @@ that are supposed to be downloaded and added to the final book, as well as added
 means handling the CSS import statements (i.e., importing other CSS files) as well as various uri references, e.g., when
 setting the content or the background of an element using an image.
 
-Note: content negotiation may not work: if, say, a `url(figureref)` relies on content negotiations, it may not generate
-the right statements (not sure whether reading systems would work without the proper file extensions, for example).
-Doing this safely would be to add the suffix to the downloaded file name for the local name, and modify the CSS files.
-This is not done at the moment (the `tinycss` library is not prepared, afaik, to write CSS files, only to read and
-parse them).
+Some CSS files may need a change on the fly. The typical case is when a background image is set through the statement::
+
+	background: url(//www.w3.org/StyleSheet/TR/logo);
+
+
+(Which is the trick used to help in the HTTP vs. HTTPS negotiations.) The URL reference must be changed to a local,
+relative URL. These cases are gathered by the process and the upper layers use it to make a simple string "replace"
+on the fly when the CSS file is copied to the book.
 
 .. :class::
 
@@ -187,11 +190,12 @@ class CSSList:
 
 	@property
 	def change_patterns(self):
-		"""Array of (from,to) pairs used to replace strings in CSS files when copying into the book"""
+		"""Array of ``(from,to)`` pairs used to replace strings in CSS files when copying into the book"""
 		return self._change_patterns
 
 	def add_css(self, origin_url, is_file=True, content=None):
 		"""Add a new CSS, ie, add a new :py:class:`CSSReference` to the internal array of references
+
 		:param str origin_url: URL of the CSS file (if any, otherwise value is ignored)
 		:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded
 		:param str content: in case the CSS was embedded, the full content of the CSS
@@ -202,8 +206,8 @@ class CSSList:
 			self._change_patterns += css_ref.change_patterns
 
 	def get_download_list(self):
-		"""Return all the list of resources. These include those explicitly added previously, plus those retrieved
-		recursively.
+		"""Return all the list of resources that must be downloaded and added to the book. These include those
+		explicitly added previously, plus those retrieved recursively.
 
 		:return: List of ``(local_name, absolute_url)`` pairs.
 		"""
@@ -220,7 +224,7 @@ class CSSList:
 			Recursive step to gather all resources to be downloaded: goes through the list of css references and tries to
 			access the next level of css references for further inclusion.
 
-			@param css_references: an array of :py:class:`CSSReference` instances.
+			:param css_references: an array of :py:class:`CSSReference` instances.
 			"""
 			next_level = []
 			for css in css_references:

@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2',
+        VERSION:     '1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ReSpec to EPUB Utility" href="index.html" />
-    <link rel="next" title="5. Package processing" href="package.html" />
+    <link rel="next" title="5. Retrieval of extra resources from CSS" href="cssurls.html" />
     <link rel="prev" title="3. The “driver”" href="driver.html" /> 
   </head>
   <body role="document">
@@ -39,7 +39,7 @@
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="package.html">5. Package processing</a>&#160;&#160;»
+        <a href="cssurls.html">5. Retrieval of extra resources from CSS</a>&#160;&#160;»
         </p>
 
       </div>
@@ -74,6 +74,21 @@ is changed to fit the HTML5 requirements, link references may be updated for, e.
 <dt id="rp2epub.document.Document._collect_downloads">
 <code class="descname">_collect_downloads</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/document.html#Document._collect_downloads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document._collect_downloads" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process a document looking for (and possibly copying) external references and making some minor modifications on the fly</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a <a class="reference internal" href="cssurls.html#rp2epub.cssurls.CSSList" title="rp2epub.cssurls.CSSList"><code class="xref py py-class docutils literal"><span class="pre">cssurls.CSSList</span></code></a> instance, with all the CSS references</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.document.Document._get_CSS_TR_version">
+<code class="descname">_get_CSS_TR_version</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/document.html#Document._get_CSS_TR_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document._get_CSS_TR_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the CSS TR version based on the document.
+Note: this is very ugly, hopefully there will be a better way of finding this...</p>
 </dd></dl>
 
 <dl class="method">
@@ -134,6 +149,27 @@ file of the book.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="rp2epub.document.Document.css_change_patterns">
+<code class="descname">css_change_patterns</code><a class="headerlink" href="#rp2epub.document.Document.css_change_patterns" title="Permalink to this definition">¶</a></dt>
+<dd><p>List if <cite>(from, to)</cite> pairs that must be used to replace strings in the CSS files on the fly. Typically
+used to adjust the values used in <cite>url</cite> statements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.css_references">
+<code class="descname">css_references</code><a class="headerlink" href="#rp2epub.document.Document.css_references" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set if (local_name, absolute_url) pairs for resources gathered recursively from CSS files. These
+are CSS files themselves, or other media like logos, background images, etc, referred to via a <cite>url</cite> statement
+in CSS</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.document.Document.css_tr_version">
+<code class="descname">css_tr_version</code><a class="headerlink" href="#rp2epub.document.Document.css_tr_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Version (as an integer number denoting the year) of the CSS TR version. The value is 2015 or higher...</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="rp2epub.document.Document.date">
 <code class="descname">date</code><a class="headerlink" href="#rp2epub.document.Document.date" title="Permalink to this definition">¶</a></dt>
 <dd><p>Date of publication</p>
@@ -175,7 +211,7 @@ file of the book.</p>
 <code class="descname">extract_external_references</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/document.html#Document.extract_external_references"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document.extract_external_references" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is</p>
 <ul class="simple">
-<li>the URL begins with the same bas</li>
+<li>the URL begins with the same base or is on the www.w3.org domain (the latter is for official CSS files and logos)</li>
 <li>is one of the &#8216;accepted&#8217; media types for epub</li>
 </ul>
 <p>then the file is copied and stored in the book, the reference is changed in the document,
@@ -242,13 +278,13 @@ the rest of the code does not make use of this property. But it may be used in t
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="package.html">5. Package processing</a>&#160;&#160;»
+        <a href="cssurls.html">5. Retrieval of extra resources from CSS</a>&#160;&#160;»
         </p>
 
       </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Ivan Herman.
+        &copy; Copyright 2016, Ivan Herman.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>

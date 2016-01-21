@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.2',
+        VERSION:     '1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -71,6 +71,7 @@
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Utils</span><span class="p">,</span> <span class="n">Logger</span>
 <span class="kn">from</span> <span class="nn">.cssurls</span> <span class="kn">import</span> <span class="n">CSSList</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">TO_TRANSFER</span>
 <span class="kn">import</span> <span class="nn">config</span>
 
 
@@ -89,21 +90,24 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_index</span>                <span class="o">=</span> <span class="mi">0</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_driver</span>               <span class="o">=</span> <span class="n">driver</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span>      <span class="o">=</span> <span class="p">[]</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">css_list</span>              <span class="o">=</span> <span class="n">CSSList</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">)</span>
 
-		<span class="bp">self</span><span class="o">.</span><span class="n">_title</span>         <span class="o">=</span> <span class="bp">None</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_properties</span>    <span class="o">=</span> <span class="bp">None</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span>    <span class="o">=</span> <span class="bp">None</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>      <span class="o">=</span> <span class="s">&quot;base&quot;</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>     <span class="o">=</span> <span class="bp">None</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_date</span>          <span class="o">=</span> <span class="bp">None</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>       <span class="o">=</span> <span class="s">&quot;&quot;</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_authors</span>       <span class="o">=</span> <span class="s">&quot;&quot;</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_respec_config</span> <span class="o">=</span> <span class="bp">None</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_toc</span>		    <span class="o">=</span> <span class="p">[]</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_subtitle</span>     <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_title</span>          <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_properties</span>     <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span>     <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>       <span class="o">=</span> <span class="s">&quot;base&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>      <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_date</span>           <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>        <span class="o">=</span> <span class="s">&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_authors</span>        <span class="o">=</span> <span class="s">&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_respec_config</span>  <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_toc</span>		     <span class="o">=</span> <span class="p">[]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_css_tr_version</span> <span class="o">=</span> <span class="mi">2015</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_subtitle</span>       <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_get_document_metadata</span><span class="p">()</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_collect_downloads</span><span class="p">()</span>
+
+		<span class="n">css_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collect_downloads</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_css_references</span>       <span class="o">=</span> <span class="n">css_list</span><span class="o">.</span><span class="n">get_download_list</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_css_change_patterns</span>  <span class="o">=</span> <span class="n">css_list</span><span class="o">.</span><span class="n">change_patterns</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">driver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -127,17 +131,36 @@
 		<span class="sd">&quot;&quot;&quot;Add a pair of local name and media type to the list of additional resources.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">local_name</span><span class="p">,</span> <span class="n">media_type</span><span class="p">))</span>
+</div>
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">css_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Set if (local_name, absolute_url) pairs for resources gathered recursively from CSS files. These</span>
+<span class="sd">		are CSS files themselves, or other media like logos, background images, etc, referred to via a `url` statement</span>
+<span class="sd">		in CSS</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_css_references</span>
 
-	<span class="c"># noinspection PyPep8</span></div>
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">css_change_patterns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;List if `(from, to)` pairs that must be used to replace strings in the CSS files on the fly. Typically</span>
+<span class="sd">		used to adjust the values used in `url` statements.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_css_change_patterns</span>
+
+
+	<span class="c">#-------------------------------------------------------------------------------------------------------------------</span>
+
+	<span class="c"># noinspection PyPep8</span>
 <div class="viewcode-block" id="Document.extract_external_references"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document.extract_external_references">[docs]</a>	<span class="k">def</span> <span class="nf">extract_external_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is</span>
 
-<span class="sd">		- the URL begins with the same bas</span>
+<span class="sd">		- the URL begins with the same base or is on the www.w3.org domain (the latter is for official CSS files and logos)</span>
 <span class="sd">		- is one of the &#39;accepted&#39; media types for epub</span>
 
 <span class="sd">		then the file is copied and stored in the book, the reference is changed in the document,</span>
 <span class="sd">		and the resource is marked to be added to the manifest file</span>
 <span class="sd">		&quot;&quot;&quot;</span>
+
 		<span class="k">def</span> <span class="nf">final_target_media</span><span class="p">(</span><span class="n">f_session</span><span class="p">,</span> <span class="n">f_target</span><span class="p">):</span>
 			<span class="k">if</span> <span class="n">f_session</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="s">&#39;text/html&#39;</span><span class="p">:</span>
 				<span class="k">return</span> <span class="s">&#39;application/xhtml+xml&#39;</span><span class="p">,</span> <span class="n">f_target</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.html&#39;</span><span class="p">,</span> <span class="s">&#39;.xhtml&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -153,24 +176,40 @@
 			<span class="c"># earlier manipulation on the DOM may have already set the external references to those, the</span>
 			<span class="c"># HTTPSession is unnecessary (and sometimes leads to 404 anyway)</span>
 			<span class="c"># Bottom line: those references must be filtered out</span>
-			<span class="n">to_transfer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_type_info</span><span class="p">[</span><span class="s">&quot;transfer&quot;</span><span class="p">]</span>
-			<span class="k">if</span> <span class="n">attr_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">attr_value</span><span class="p">,</span> <span class="n">to_transfer</span><span class="p">)):</span>
+			<span class="k">if</span> <span class="n">attr_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">attr_value</span><span class="p">,</span> <span class="n">TO_TRANSFER</span><span class="p">)):</span>
+				<span class="c"># This artefact is necessary to treat the WWW level, official URIs and local ones</span>
 				<span class="n">ref</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">attr_value</span><span class="p">)</span>
+
 				<span class="c"># In some cases, primarily in the case of editors drafts, the reference is simply on the file</span>
-				<span class="c"># itself; better avoid a duplication</span>
+				<span class="c"># itself; that should be forgotten</span>
 				<span class="k">if</span> <span class="n">ref</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">top_uri</span> <span class="ow">or</span> <span class="n">ref</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">:</span>
 					<span class="k">continue</span>
 
-				<span class="k">if</span> <span class="n">ref</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+				<span class="n">parsed_ref</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+				<span class="c"># Genuine local, relative URI</span>
+				<span class="n">local</span>      <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="n">ref</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">)</span> <span class="k">else</span> <span class="bp">False</span>
+				<span class="c"># Official WWW URI-s, mainly for style sheets or possibly javascript</span>
+				<span class="n">www_level</span>  <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="n">parsed_ref</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span> <span class="k">else</span> <span class="bp">False</span>
+				<span class="k">if</span> <span class="n">local</span> <span class="ow">or</span> <span class="n">www_level</span> <span class="p">:</span>
 					<span class="n">session</span> <span class="o">=</span> <span class="n">HttpSession</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">check_media_type</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 					<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
-						<span class="c"># Find the right name for the target document</span>
-						<span class="n">path</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
+						<span class="c"># Find/set the right name for the target document</span>
+						<span class="n">path</span> <span class="o">=</span> <span class="n">parsed_ref</span><span class="o">.</span><span class="n">path</span>
 						<span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;/&#39;</span><span class="p">:</span>
+							<span class="c"># This should not really happen, but may: relying on some WWW mechanism that we cannot</span>
+							<span class="c"># rely on in a a book</span>
 							<span class="n">target</span> <span class="o">=</span> <span class="s">&#39;Assets/extras/data</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">ACCEPTED_MEDIA_TYPES</span><span class="p">[</span><span class="n">session</span><span class="o">.</span><span class="n">media_type</span><span class="p">])</span>
 							<span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">+=</span> <span class="mi">1</span>
+						<span class="k">elif</span> <span class="n">www_level</span><span class="p">:</span>
+							<span class="c"># This is, mainly, for official CSS files; reproducing the same path as for W3C</span>
+							<span class="n">target</span> <span class="o">=</span> <span class="n">path</span> <span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+						<span class="k">elif</span> <span class="n">local</span><span class="p">:</span>
+							<span class="c"># This is for local references, reproducing the same path as in the origin</span>
+							<span class="c"># Removing a possible, though erroneous, first character, just to be on the safe side</span>
+							<span class="n">target</span> <span class="o">=</span> <span class="n">attr_value</span> <span class="k">if</span> <span class="n">attr_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="n">attr_value</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
 						<span class="k">else</span><span class="p">:</span>
-							<span class="n">target</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+							<span class="c"># In fact, this should not happen...</span>
+							<span class="n">target</span> <span class="o">=</span> <span class="n">attr_value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
 						<span class="c"># yet another complication: if the target is an html file, it will have to become xhtml :-(</span>
 						<span class="c"># this means that the target and the media types should receive a local name, to</span>
@@ -180,7 +219,7 @@
 						<span class="c"># We can now copy the content into the final book.</span>
 						<span class="c"># Note that some of the media types are not to be compressed; this is taken care in the</span>
 						<span class="c"># &quot;Book&quot; instance</span>
-						<span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_session</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_session</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">css_change_patterns</span><span class="p">)</span>
 
 						<span class="c"># Add information about the new entry; this has to be added to the manifest file</span>
 						<span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">final_target</span><span class="p">,</span> <span class="n">final_media_type</span><span class="p">))</span>
@@ -202,7 +241,12 @@
 <div class="viewcode-block" id="Document._collect_downloads"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._collect_downloads">[docs]</a>	<span class="k">def</span> <span class="nf">_collect_downloads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Process a document looking for (and possibly copying) external references and making some minor modifications on the fly</span>
+
+<span class="sd">		:returns: a :py:class:`.cssurls.CSSList` instance, with all the CSS references</span>
 <span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c"># To collect the CSS references and data</span>
+		<span class="n">css_list</span> <span class="o">=</span> <span class="n">CSSList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">)</span>
+
 		<span class="c"># Do the necessary massaging on the DOM tree to make the XHTML output o.k.</span>
 		<span class="n">Utils</span><span class="o">.</span><span class="n">html_to_xhtml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
 
@@ -220,18 +264,13 @@
 
 		<span class="c"># handle stylesheet references</span>
 		<span class="k">for</span> <span class="n">lnk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//link[@rel=&#39;stylesheet&#39;]&quot;</span><span class="p">):</span>
-			<span class="n">ref_details</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">lnk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">))</span>
-			<span class="k">if</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">ref_details</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;/StyleSheets&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;/community/src/css/spec&quot;</span><span class="p">)):</span>
-				<span class="c"># This is the local, W3C, style sheet. Actions to be taken:</span>
-				<span class="c"># 1. This is exchanged against the general &#39;base.css&#39;</span>
-				<span class="c"># 2. Below, after all the stylesheets are handled, the reference to a separate &#39;book.css&#39; is added</span>
-				<span class="c"># 3. The final book.css is finalized later (through a template and in the &quot;driver&quot;), adding a reference</span>
-				<span class="c"># to the background image that corresponds to the documents status</span>
-				<span class="n">lnk</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/base.css&quot;</span><span class="p">)</span>
-			<span class="k">else</span><span class="p">:</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lnk</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">))</span>
-				<span class="c"># The CSS reference should be stored as a possible source of further references</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">css_list</span><span class="o">.</span><span class="n">add_css</span><span class="p">(</span><span class="n">lnk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">))</span>
+			<span class="n">ref</span> <span class="o">=</span> <span class="n">lnk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span><span class="p">:</span>
+				<span class="k">if</span> <span class="ow">not</span> <span class="n">ref</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.css&quot;</span><span class="p">):</span>
+					<span class="n">lnk</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span><span class="n">ref</span> <span class="o">+</span> <span class="s">&quot;.css&quot;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lnk</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">))</span>
+			<span class="c"># The CSS reference should be stored as a possible source of further references</span>
+			<span class="n">css_list</span><span class="o">.</span><span class="n">add_css</span><span class="p">(</span><span class="n">lnk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">))</span>
 
 		<span class="c"># Handle built-in style sheet statements; this should be added to the CSS handler, too</span>
 		<span class="k">for</span> <span class="n">style</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//style&quot;</span><span class="p">):</span>
@@ -240,7 +279,7 @@
 			<span class="k">if</span> <span class="n">style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;type&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;type&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&quot;text/css&quot;</span><span class="p">:</span>
 				<span class="k">continue</span>
 			<span class="n">content</span> <span class="o">=</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">k</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">style</span><span class="o">.</span><span class="n">itertext</span><span class="p">()])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">css_list</span><span class="o">.</span><span class="n">add_css</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">is_file</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">)</span>
+			<span class="n">css_list</span><span class="o">.</span><span class="n">add_css</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">is_file</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">)</span>
 
 		<span class="n">head</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//head&quot;</span><span class="p">)</span>
 		<span class="n">book_css</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="s">&quot;link&quot;</span><span class="p">)</span>
@@ -262,11 +301,16 @@
 			<span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">tag_name</span><span class="p">):</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">element</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
 
-		<span class="c"># Extra care should be taken with &lt;a&gt; elements to exclude self references (ie, fragment id-s)</span>
+		<span class="c"># Extra care should be taken with &lt;a&gt; elements: only local, relative URI-s should be considered,</span>
+		<span class="c"># excluding the pure fragment id. Ie, it should refer to another file in the local package.</span>
+		<span class="c"># As a pathological case, the href == &quot;.&quot; should also be excluded to avoid self-reference</span>
 		<span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//a[@href]&quot;</span><span class="p">):</span>
-			<span class="n">ref</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">)</span>
-			<span class="k">if</span> <span class="n">ref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">ref</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;#&#39;</span> <span class="ow">and</span> <span class="n">ref</span> <span class="o">!=</span> <span class="s">&quot;.&quot;</span><span class="p">:</span>
+			<span class="n">ref</span>  <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">)</span>
+			<span class="n">pref</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pref</span><span class="o">.</span><span class="n">netloc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">pref</span><span class="o">.</span><span class="n">scheme</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">pref</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">ref</span> <span class="o">!=</span> <span class="s">&quot;.&quot;</span><span class="p">:</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">element</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">))</span>
+
+		<span class="k">return</span> <span class="n">css_list</span>
 
 	<span class="c">###################################################################################################</span>
 	<span class="c"># Metadata; all these are filled with value through the _get_document_metadata method, called at</span>
@@ -333,6 +377,11 @@
 	<span class="k">def</span> <span class="nf">toc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Table of content, an array of ``TOC_Item`` objects&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toc</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">css_tr_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Version (as an integer number denoting the year) of the CSS TR version. The value is 2015 or higher...&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_css_tr_version</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">subtitle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -414,6 +463,21 @@
 			<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">issued</span><span class="o">.</span><span class="n">itertext</span><span class="p">():</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">_subtitle</span> <span class="o">+=</span> <span class="n">t</span>
 </div>
+<div class="viewcode-block" id="Document._get_CSS_TR_version"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._get_CSS_TR_version">[docs]</a>	<span class="k">def</span> <span class="nf">_get_CSS_TR_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Set the CSS TR version based on the document.</span>
+<span class="sd">		Note: this is very ugly, hopefully there will be a better way of finding this...</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_css_tr_version</span> <span class="o">=</span> <span class="mi">2015</span>
+
+		<span class="k">for</span> <span class="n">lnk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//link[@rel=&#39;stylesheet&#39;]&quot;</span><span class="p">):</span>
+			<span class="n">ref_details</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">lnk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">))</span>
+			<span class="c"># TODO: THIS IS TEMPORARY, SHOULD BE FIXED WHEN THINGS BECOME FINAL!!!!</span>
+			<span class="k">if</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span> <span class="ow">and</span> <span class="s">&quot;2016&quot;</span> <span class="ow">in</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">path</span> <span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_css_tr_version</span> <span class="o">=</span> <span class="mi">2016</span>
+				<span class="k">return</span>
+		<span class="k">return</span>
+</div>
 <div class="viewcode-block" id="Document._get_document_metadata"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._get_document_metadata">[docs]</a>	<span class="k">def</span> <span class="nf">_get_document_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Extract metadata (date, title, editors, etc.)</span>
@@ -468,6 +532,9 @@
 				<span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">+=</span> <span class="n">t</span>
 			<span class="k">break</span>
 
+		<span class="c"># Get the CSS version of the document</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_get_CSS_TR_version</span><span class="p">()</span>
+
 		<span class="c"># Properties to be added to the manifest</span>
 		<span class="n">props</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">get_document_properties</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
 		<span class="n">props</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;remote-resources&quot;</span><span class="p">)</span>
@@ -497,7 +564,7 @@
       </div>
 
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Ivan Herman.
+        &copy; Copyright 2016, Ivan Herman.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
