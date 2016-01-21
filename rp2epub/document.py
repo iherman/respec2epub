@@ -134,7 +134,7 @@ class Document:
 			to_transfer = self.doc_type_info["transfer"]
 			# @@@ If the change is done keeping the reference as non-local then there will never be a match
 			# @@@ Good for the testing; the test here may be removed later
-			if attr_value is not None and all(map(lambda x: x[2] != attr_value, to_transfer)):
+			if attr_value is not None and all(map(lambda x: x[1] != attr_value, to_transfer)):
 				# This artefact is necessary to treat the WWW level, official URIs and local ones
 				ref = urljoin(self.driver.base, attr_value)
 

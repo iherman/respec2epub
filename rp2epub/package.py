@@ -72,7 +72,7 @@ class Package:
 		if self.document.doc_type in DOCTYPE_INFO and self.document.doc_type_info["logo_transfer"] is not None:
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
 			item.set("id", "css-logo")
-			item.set("href", self.document.doc_type_info["logo_transfer"][2])
+			item.set("href", self.document.doc_type_info["logo_transfer"][1])
 			item.set("media-type", "image/png")
 			item.tail = "\n    "
 

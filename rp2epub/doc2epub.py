@@ -182,9 +182,8 @@ class DocWrapper:
 
 			# Some resources should be added to the book once and for all
 			# @@@@ was: for uri, alt_uri, local in additional_transfers + self.document.doc_type_info["transfer"]:
-			for uri, alt_uri, local in self.document.doc_type_info["transfer"]:
-				if not self.book.write_HTTP(local, uri):
-					self.book.write_HTTP(local, alt_uri)
+			for uri, local in self.document.doc_type_info["transfer"]:
+				self.book.write_HTTP(local, uri)
 
 			# Add the additional resources that are referred to from the document itself
 			self.document.extract_external_references()
