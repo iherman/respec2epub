@@ -8,7 +8,6 @@ Module Content
 --------------
 """
 
-
 # noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
@@ -66,14 +65,6 @@ class Package:
 			item.set("media-type", media_type)
 			if prop != "":
 				item.set("properties", prop)
-			item.tail = "\n    "
-
-		# Add the type-specific logo
-		if self.document.doc_type in DOCTYPE_INFO and self.document.doc_type_info["logo_transfer"] is not None:
-			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
-			item.set("id", "css-logo")
-			item.set("href", self.document.doc_type_info["logo_transfer"][1])
-			item.set("media-type", "image/png")
 			item.tail = "\n    "
 
 		item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")

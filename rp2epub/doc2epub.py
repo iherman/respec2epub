@@ -29,7 +29,7 @@ import tempfile
 from .templates import BOOK_CSS
 from .document import Document
 from .package import Package
-from .config import DOCTYPE_INFO
+from .config import DOCTYPE_INFO, TO_TRANSFER
 from .utils import HttpSession, Book, Logger
 import utils
 
@@ -171,9 +171,7 @@ class DocWrapper:
 			padding              = "2em 1em 2em 70px;"
 
 			# Add the book.css with the right value set for the padding
-			if self.document.doc_type in DOCTYPE_INFO and self.document.doc_type_info["logo_transfer"] is not None:
-				# @@@ additional_transfers = [self.document.doc_type_info["logo_transfer"]]
-				# @@@ was: css_background       = "background-image: url(%s);" % self.document.doc_type_info["logo_transfer"][2][7:]
+			if self.document.doc_type in DOCTYPE_INFO:
 				padding = self.document.doc_type_info["padding"]
 
 			# @@@ The CSS background should be gone here!
@@ -181,8 +179,7 @@ class DocWrapper:
 			self.book.writestr('Assets/book.css', BOOK_CSS % padding)
 
 			# Some resources should be added to the book once and for all
-			# @@@@ was: for uri, alt_uri, local in additional_transfers + self.document.doc_type_info["transfer"]:
-			for uri, local in self.document.doc_type_info["transfer"]:
+			for uri, local in TO_TRANSFER:
 				self.book.write_HTTP(local, uri)
 
 			# Add the additional resources that are referred to from the document itself

@@ -27,6 +27,7 @@ from datetime import date, datetime
 
 from .utils import HttpSession, Utils, Logger
 from .cssurls import CSSList
+from .config import TO_TRANSFER
 import config
 
 
@@ -131,10 +132,7 @@ class Document:
 			# earlier manipulation on the DOM may have already set the external references to those, the
 			# HTTPSession is unnecessary (and sometimes leads to 404 anyway)
 			# Bottom line: those references must be filtered out
-			to_transfer = self.doc_type_info["transfer"]
-			# @@@ If the change is done keeping the reference as non-local then there will never be a match
-			# @@@ Good for the testing; the test here may be removed later
-			if attr_value is not None and all(map(lambda x: x[1] != attr_value, to_transfer)):
+			if attr_value is not None and all(map(lambda x: x[1] != attr_value, TO_TRANSFER)):
 				# This artefact is necessary to treat the WWW level, official URIs and local ones
 				ref = urljoin(self.driver.base, attr_value)
 
