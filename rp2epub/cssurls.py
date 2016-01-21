@@ -65,8 +65,9 @@ class CSSReference:
 	"""
 	# noinspection PyPep8
 	def __init__(self, base, url, is_file = True, content = None):
-		self._origin_url = url
-		self._base       = base
+		self._origin_url      = url
+		self._base            = base
+		self._change_patterns = []
 		if is_file:
 			session = HttpSession(url, check_media_type=True)
 			if session.success:
@@ -92,6 +93,11 @@ class CSSReference:
 		"""Set of :py:class:`_URLPair` instances for resources that were found in the CSS content"""
 		return self._import_misc
 
+	@property
+	def change_patterns(self):
+		"""Array of (from,to) pairs used to replace strings in CSS files when copying into the book"""
+		return self._change_patterns
+
 	def _collect_imports(self):
 		"""Collect the resources to be imported. The CSS content is parsed, and the :py:attr:`import_css`
 		and :py:attr:`import_misc` sets are filled with content. This method is called at initialization time.
@@ -111,6 +117,20 @@ class CSSReference:
 			else:
 				name = url.replace(self._base, '', 1)
 
+			# In some cases the url reference is not relative (alas!)
+			if urlparse(url_orig).netloc != "":
+				# 1. This reference should be changed to get the local reference. This will be the 'from' field to replace
+				c_from = url_orig
+
+				# 2. Calculate the 'base' part of the CSS file's URL, ie, remove the last portion of the path if any
+				path = urlparse(self._origin_url).path
+				css_base = path.rsplit('/',1)[0] if path[-1] != '/' else path[:-1]
+
+				# 3. Use the length of the base to remove the unnecessary part of the referenced URL, yielding the
+				# relative URL
+				c_to = urlparse(url).path[len(css_base)+1:]
+				self._change_patterns.append((c_from.encode('utf-8'), c_to.encode('utf-8')))
+
 			self._import_misc.add(_URLPair(url, name))
 			if css:
 				self._import_css.add(url)
@@ -123,7 +143,6 @@ class CSSReference:
 				for d in ruleset.declarations:
 					for i in [item for item in d.value if item.type == "URI"]:
 						add_item_to_import(i.value)
-
 
 		self._import_css  = set()
 		self._import_misc = set()
@@ -162,8 +181,14 @@ class CSSList:
 	:param str base: the base URL for the whole book
 	"""
 	def __init__(self, base):
-		self._css_list = []
-		self._base     = base
+		self._css_list        = []
+		self._base            = base
+		self._change_patterns = []
+
+	@property
+	def change_patterns(self):
+		"""Array of (from,to) pairs used to replace strings in CSS files when copying into the book"""
+		return self._change_patterns
 
 	def add_css(self, origin_url, is_file=True, content=None):
 		"""Add a new CSS, ie, add a new :py:class:`CSSReference` to the internal array of references
@@ -174,12 +199,13 @@ class CSSList:
 		css_ref = CSSReference(self._base, urljoin(self._base, origin_url), is_file, content)
 		if not css_ref.empty:
 			self._css_list.append(css_ref)
+			self._change_patterns += css_ref.change_patterns
 
 	def get_download_list(self):
 		"""Return all the list of resources. These include those explicitly added previously, plus those retrieved
 		recursively.
 
-		:return: Array of ``(local_name, absolute_url)`` pairs.
+		:return: List of ``(local_name, absolute_url)`` pairs.
 		"""
 		self._gather_all_stylesheets()
 		final_download_list = set()
@@ -202,6 +228,7 @@ class CSSList:
 					new_css_ref = CSSReference(self._base, urljoin(self._base, url))
 					if not new_css_ref.empty:
 						next_level.append(new_css_ref)
+						self._change_patterns += new_css_ref.change_patterns
 			if len(next_level) != 0:
 				next_level += one_level(next_level)
 			return next_level

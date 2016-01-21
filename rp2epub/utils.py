@@ -571,14 +571,15 @@ class Book(object):
 		content.close()
 
 	# noinspection PyTypeChecker
-	def write_session(self, target, session):
+	def write_session(self, target, session, css_change_patterns = []):
 		"""
 		The returned content of an :py:class:`.HttpSession` is added to the book. If the content is an HTML file,
 		it will be converted into XHTML on the fly.
 
 		:param str target: path for the target file
 		:param session: a :py:class:`.HttpSession` instance whose data must retrieved to be written into the book
-		:boolean return: the value of session.success
+		:param css_change_patterns: a list of (from,to) replace patterns to be applied on CSS files
+		:return boolean: the value of session.success
 		"""
 		# Copy the content into the final book
 		# Special care should be taken with html files. Those are supposed to become XHTML:-(
@@ -593,6 +594,13 @@ class Book(object):
 				html = html5lib.parse(session.data, namespaceHTMLElements=False)
 				Utils.html_to_xhtml(html)
 				self.write_element(target.replace('.html', '.xhtml', 1), ElementTree(html))
+			elif session.media_type == 'text/css':
+				# We have to make a series of string replacements, as defined in the `css_change_patterns`
+				# parameter.
+				content = session.data.read()
+				for (c_from, c_to) in css_change_patterns:
+					content = content.replace(c_from, c_to)
+				self.writestr(target, content)
 			else:
 				# Note that some of the media types are not to be compressed
 				self.writestr(target, session.data.read(), zipfile.ZIP_STORED if session.media_type in _NO_COMPRESS else zipfile.ZIP_DEFLATED)
@@ -632,7 +640,7 @@ class Book(object):
 		if self.package:
 			self.zip.close()
 
-	# The properties below are necessary to use the class in a "with ... as" python structure
+	# The methods below are necessary to use the class in a "with ... as" python structure
 	def __enter__(self):
 		return self
 

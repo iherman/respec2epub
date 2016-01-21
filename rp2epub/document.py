@@ -45,7 +45,6 @@ class Document:
 		self._index                = 0
 		self._driver               = driver
 		self.download_targets      = []
-		self.css_list              = CSSList(driver.base)
 
 		self._title          = None
 		self._properties     = None
@@ -60,7 +59,10 @@ class Document:
 		self._css_tr_version = 2015
 		self._subtitle       = None
 		self._get_document_metadata()
-		self._collect_downloads()
+
+		css_list = self._collect_downloads()
+		self._css_references       = css_list.get_download_list()
+		self._css_change_patterns  = css_list.change_patterns
 
 	@property
 	def driver(self):
@@ -84,6 +86,24 @@ class Document:
 		"""Add a pair of local name and media type to the list of additional resources.
 		"""
 		self._additional_resources.append((local_name, media_type))
+
+	@property
+	def css_references(self):
+		"""Set if (local_name, absolute_url) pairs for resources gathered recursively from CSS files. These
+		are CSS files themselves, or other media like logos, background images, etc, referred to via a `url` statement
+		in CSS
+		"""
+		return self._css_references
+
+	@property
+	def css_change_patterns(self):
+		"""List if `(from, to)` pairs that must be used to replace strings in the CSS files on the fly. Typically
+		used to adjust the values used in `url` statements.
+		"""
+		return self._css_change_patterns
+
+
+	#-------------------------------------------------------------------------------------------------------------------
 
 	# noinspection PyPep8
 	def extract_external_references(self):
@@ -157,7 +177,7 @@ class Document:
 						# We can now copy the content into the final book.
 						# Note that some of the media types are not to be compressed; this is taken care in the
 						# "Book" instance
-						self.driver.book.write_session(target, session)
+						self.driver.book.write_session(target, session, self.css_change_patterns)
 
 						# Add information about the new entry; this has to be added to the manifest file
 						self._additional_resources.append((final_target, final_media_type))
@@ -179,7 +199,12 @@ class Document:
 	def _collect_downloads(self):
 		"""
 		Process a document looking for (and possibly copying) external references and making some minor modifications on the fly
+
+		:returns: a :py:class:`.cssurls.CSSList` instance, with all the CSS references
 		"""
+		# To collect the CSS references and data
+		css_list = CSSList(self.driver.base)
+
 		# Do the necessary massaging on the DOM tree to make the XHTML output o.k.
 		Utils.html_to_xhtml(self.html)
 
@@ -203,7 +228,7 @@ class Document:
 					lnk.set("href",ref + ".css")
 			self.download_targets.append((lnk, 'href'))
 			# The CSS reference should be stored as a possible source of further references
-			self.css_list.add_css(lnk.get("href"))
+			css_list.add_css(lnk.get("href"))
 
 		# Handle built-in style sheet statements; this should be added to the CSS handler, too
 		for style in self.html.findall(".//style"):
@@ -212,7 +237,7 @@ class Document:
 			if style.get("type") is not None and style.get("type") != "text/css":
 				continue
 			content = " ".join([k.strip() for k in style.itertext()]).strip()
-			self.css_list.add_css(self.driver.base, is_file=False, content=content)
+			css_list.add_css(self.driver.base, is_file=False, content=content)
 
 		head = self.html.find(".//head")
 		book_css = SubElement(head, "link")
@@ -242,6 +267,8 @@ class Document:
 			pref = urlparse(ref)
 			if len(pref.netloc) == 0 and len(pref.scheme) == 0 and len(pref.path) != 0 and ref != ".":
 				self.download_targets.append((element, 'href'))
+
+		return css_list
 
 	###################################################################################################
 	# Metadata; all these are filled with value through the _get_document_metadata method, called at

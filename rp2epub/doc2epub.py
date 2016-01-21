@@ -190,10 +190,10 @@ class DocWrapper:
 			self.document.extract_external_references()
 
 			# Add the various additional media files (typically images), collected from CSS files
-			for (local, uri) in self.document.css_list.get_download_list():
+			for (local, uri) in self.document.css_references:
 				session = utils.HttpSession(uri)
 				if session.success:
-					self.book.write_session(local, session)
+					self.book.write_session(local, session, self.document.css_change_patterns)
 					self.document.add_additional_resource(local, session.media_type)
 
 			# The various package files to be added to the final output

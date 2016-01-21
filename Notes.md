@@ -1,3 +1,10 @@
+document.py: 
+- After collect downloads call a separate function to get the css resources. This would include the change information. These are stored in a local list
+- The same request would also store a list of change pairs
+- The extract references method should also forward the change pairs to the book, which would have to do some chagne on the fly
+- The document2book gets the information from the document's pre-fetched array instead of calling the funciton itself.
+
+
 
 
 ---
