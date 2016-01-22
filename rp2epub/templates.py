@@ -187,13 +187,6 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
 </html>
 """
 
-# @@@ Removed the background for the body, that should be automatic...
-# @@@ It said:
-# body {
-#     %s
-#     padding: 0 0 0 0 !important;
-#   }
-
 BOOK_CSS = """
   body {
     padding: 0 0 0 0 !important;

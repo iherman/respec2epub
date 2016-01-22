@@ -105,6 +105,7 @@ TO_TRANSFER = [
 # noinspection PyPep8
 # some information necessary per doc type: the prefix to be used when creating the full, dated URI, the padding
 # that should be put into the body of the document, and the subtitle to be used on the cover page
+# The padding values are need for the pre-2016 style sheets...
 DOCTYPE_INFO = {
 	"base": {
 		"uri_prefix"	: None,

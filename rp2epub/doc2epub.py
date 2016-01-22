@@ -111,7 +111,7 @@ class DocWrapper:
 
 	@property
 	def url_respec_setting(self):
-		"""Possible ReSpec configuration setting via a URI"""
+		"""Possible ReSpec configuration setting via the query part of the URI of the document"""
 		return self._url_respec_setting
 
 	@property
@@ -166,14 +166,11 @@ class DocWrapper:
 		# 'short name' will also be used for the name of the final book
 
 		with Book(self.book_file_name, self.document.short_name, self.package, self.folder) as self._book:
-			additional_transfers = []
-			css_background       = ""
-			padding              = "2em 1em 2em 70px;"
-
-			# Add the book.css with the right value set for the padding
-			if self.document.doc_type in DOCTYPE_INFO:
-				padding = self.document.doc_type_info["padding"]
-
+			try:
+				padding = "0px;" if self.document.css_tr_version > 2015 else self.document.doc_type_info["padding"]
+			except:
+				# this may happen if something goes wrong with the document type setting, but it really shouldn't...
+				padding = "0px;"
 			self.book.writestr('StyleSheets/TR/book.css', BOOK_CSS % padding)
 
 			# Some resources should be added to the in any case: icons, stylesheets for cover and nav pages,...

@@ -103,9 +103,6 @@ class Document:
 		"""
 		return self._css_change_patterns
 
-
-	#-------------------------------------------------------------------------------------------------------------------
-
 	# noinspection PyPep8
 	def extract_external_references(self):
 		"""Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is
@@ -327,7 +324,7 @@ class Document:
 
 	@property
 	def css_tr_version(self):
-		"""Version (as an integer number denoting the year) of the CSS TR version. The value is 2015 or higher..."""
+		"""Version (as an integer number denoting the year) of the CSS TR version. The value is 2015 or higher"""
 		return self._css_tr_version
 
 	@property
