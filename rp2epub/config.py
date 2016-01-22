@@ -95,9 +95,11 @@ EXTERNAL_REFERENCES = [
 # noinspection PyPep8
 # Default array of (url,local_name) pairs of resources that must be transferred and added to the output.
 # This may be expanded run time.
-
+# Note: the base.css file here is only used, by default, to the nav and cover pages. Otherwise
+# the relevant base is downloaded automatically
 TO_TRANSFER = [
-	("http://www.w3.org/Icons/w3c_main.png", "Assets/w3c_main.png")
+	("http://www.w3.org/Icons/w3c_main.png", "Icons/w3c_main.png"),
+	("http://www.w3.org/StyleSheets/TR/base.css", "StyleSheets/TR/base.css")
 ]
 
 # noinspection PyPep8

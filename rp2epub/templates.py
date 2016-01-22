@@ -129,7 +129,7 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
     <meta charset="utf-8" />
     <title></title>
     <meta name="author" content="" />
-    <link type="text/css" rel="stylesheet" href="Assets/base.css" />
+    <link type="text/css" rel="stylesheet" href="StyleSheets/TR/base.css" />
     <style type="text/css">
 	  body {
 		padding: 0 0 0 0 !important;
@@ -174,7 +174,7 @@ COVER = """<?xml version="1.0" encoding="utf-8"?>
       <h2 id="subtitle"></h2>
       <p class="larger" id="editors"></p>
       <p class="larger" id="authors"></p>
-      <p class="logo"><a href="http://www.w3.org/"><img alt="W3C main logo" src="Assets/w3c_main.png"/></a></p>
+      <p class="logo"><a href="http://www.w3.org/"><img alt="W3C main logo" src="Icons/w3c_main.png"/></a></p>
       <p class="disclaimer">Note: this EPUB edition does <em>not</em> represent the authoritative text of the specification; please consult the <a id="ref_original">original document</a> on the W3C Web Site.</p>
       <p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a>
       © of the original documents: <span id="cpdate"></span> W3C<sup>®</sup> (<a href="http://www.mit.edu">MIT</a>, <a href="http://www.ercim.eu/">ERCIM</a>,

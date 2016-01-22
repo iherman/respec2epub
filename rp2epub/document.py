@@ -157,7 +157,7 @@ class Document:
 							target = 'Assets/extras/data%s.%s' % (self._index, config.ACCEPTED_MEDIA_TYPES[session.media_type])
 							self._index += 1
 						elif www_level:
-							# This is, mainly, for official CSS files; reproducing the same path as for W3C
+							# This is, mainly, for official CSS files as well as W3C logos/icons; reproducing the same path as for W3C
 							target = path if path[0] != '/' else path[1:]
 						elif local:
 							# This is for local references, reproducing the same path as in the origin
@@ -209,15 +209,6 @@ class Document:
 		# Change the value of @about to the dated URI, which is what counts...
 		self.html.set("about", self.dated_uri)
 
-		# The reference to the W3C and submission logos should be localized
-		def localize_logo(alt, name):
-			img = self.html.find(".//img[@alt='%s']" % alt)
-			if img is not None:
-				img.set('src', "Assets/" + name)
-		localize_logo("W3C", "w3c_home.png")
-		localize_logo("W3C Member Submission", "member_subm.png")
-		localize_logo("W3C Team Submission", "team_subm.png")
-
 		# handle stylesheet references
 		for lnk in self.html.findall(".//link[@rel='stylesheet']"):
 			ref = lnk.get("href")
@@ -240,7 +231,7 @@ class Document:
 		head = self.html.find(".//head")
 		book_css = SubElement(head, "link")
 		book_css.set("rel", "stylesheet")
-		book_css.set("href", "Assets/book.css")
+		book_css.set("href", "StyleSheets/TR/book.css")
 
 		# This is an ugly issue which comes up very very rarely: the base element screws up things
 		for element in self.html.findall(".//base"):

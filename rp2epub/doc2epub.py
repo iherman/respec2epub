@@ -174,11 +174,9 @@ class DocWrapper:
 			if self.document.doc_type in DOCTYPE_INFO:
 				padding = self.document.doc_type_info["padding"]
 
-			# @@@ The CSS background should be gone here!
-			# @@@ self.book.writestr('Assets/book.css', BOOK_CSS % (css_background, padding))
-			self.book.writestr('Assets/book.css', BOOK_CSS % padding)
+			self.book.writestr('StyleSheets/TR/book.css', BOOK_CSS % padding)
 
-			# Some resources should be added to the book once and for all
+			# Some resources should be added to the in any case: icons, stylesheets for cover and nav pages,...
 			for uri, local in TO_TRANSFER:
 				self.book.write_HTTP(local, uri)
 
@@ -192,7 +190,7 @@ class DocWrapper:
 					self.book.write_session(local, session, self.document.css_change_patterns)
 					self.document.add_additional_resource(local, session.media_type)
 
-			# The various package files to be added to the final output
+			# The various EPUB specific package files to be added to the final output
 			Package(self).process()
 
 			# The main content should be stored in the target book

@@ -177,10 +177,6 @@ class Package:
 		ET.register_namespace('epub', "http://www.idpf.org/2007/ops")
 		nav = ElementTree(ET.fromstring(NAV))
 
-		# The style sheet's position is different in the simple case, so this has to be amended
-		style = nav.findall(".//{http://www.w3.org/1999/xhtml}link[@rel='stylesheet']")[0]
-		style.set("href", "Assets/base.css")
-
 		# Set the title
 		title = nav.findall(".//{http://www.w3.org/1999/xhtml}title")[0]
 		title.text = self.document.title + " - Table of Contents"
