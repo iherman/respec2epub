@@ -147,9 +147,6 @@
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_css_change_patterns</span>
 
-
-	<span class="c">#-------------------------------------------------------------------------------------------------------------------</span>
-
 	<span class="c"># noinspection PyPep8</span>
 <div class="viewcode-block" id="Document.extract_external_references"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document.extract_external_references">[docs]</a>	<span class="k">def</span> <span class="nf">extract_external_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is</span>
@@ -201,7 +198,7 @@
 							<span class="n">target</span> <span class="o">=</span> <span class="s">&#39;Assets/extras/data</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">ACCEPTED_MEDIA_TYPES</span><span class="p">[</span><span class="n">session</span><span class="o">.</span><span class="n">media_type</span><span class="p">])</span>
 							<span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">+=</span> <span class="mi">1</span>
 						<span class="k">elif</span> <span class="n">www_level</span><span class="p">:</span>
-							<span class="c"># This is, mainly, for official CSS files; reproducing the same path as for W3C</span>
+							<span class="c"># This is, mainly, for official CSS files as well as W3C logos/icons; reproducing the same path as for W3C</span>
 							<span class="n">target</span> <span class="o">=</span> <span class="n">path</span> <span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
 						<span class="k">elif</span> <span class="n">local</span><span class="p">:</span>
 							<span class="c"># This is for local references, reproducing the same path as in the origin</span>
@@ -253,15 +250,6 @@
 		<span class="c"># Change the value of @about to the dated URI, which is what counts...</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;about&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dated_uri</span><span class="p">)</span>
 
-		<span class="c"># The reference to the W3C and submission logos should be localized</span>
-		<span class="k">def</span> <span class="nf">localize_logo</span><span class="p">(</span><span class="n">alt</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-			<span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//img[@alt=&#39;</span><span class="si">%s</span><span class="s">&#39;]&quot;</span> <span class="o">%</span> <span class="n">alt</span><span class="p">)</span>
-			<span class="k">if</span> <span class="n">img</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-				<span class="n">img</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;src&#39;</span><span class="p">,</span> <span class="s">&quot;Assets/&quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
-		<span class="n">localize_logo</span><span class="p">(</span><span class="s">&quot;W3C&quot;</span><span class="p">,</span> <span class="s">&quot;w3c_home.png&quot;</span><span class="p">)</span>
-		<span class="n">localize_logo</span><span class="p">(</span><span class="s">&quot;W3C Member Submission&quot;</span><span class="p">,</span> <span class="s">&quot;member_subm.png&quot;</span><span class="p">)</span>
-		<span class="n">localize_logo</span><span class="p">(</span><span class="s">&quot;W3C Team Submission&quot;</span><span class="p">,</span> <span class="s">&quot;team_subm.png&quot;</span><span class="p">)</span>
-
 		<span class="c"># handle stylesheet references</span>
 		<span class="k">for</span> <span class="n">lnk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//link[@rel=&#39;stylesheet&#39;]&quot;</span><span class="p">):</span>
 			<span class="n">ref</span> <span class="o">=</span> <span class="n">lnk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">)</span>
@@ -284,7 +272,7 @@
 		<span class="n">head</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//head&quot;</span><span class="p">)</span>
 		<span class="n">book_css</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="s">&quot;link&quot;</span><span class="p">)</span>
 		<span class="n">book_css</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;rel&quot;</span><span class="p">,</span> <span class="s">&quot;stylesheet&quot;</span><span class="p">)</span>
-		<span class="n">book_css</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/book.css&quot;</span><span class="p">)</span>
+		<span class="n">book_css</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="s">&quot;StyleSheets/TR/book.css&quot;</span><span class="p">)</span>
 
 		<span class="c"># This is an ugly issue which comes up very very rarely: the base element screws up things</span>
 		<span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//base&quot;</span><span class="p">):</span>
@@ -380,7 +368,7 @@
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">css_tr_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Version (as an integer number denoting the year) of the CSS TR version. The value is 2015 or higher...&quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;Version (as an integer number denoting the year) of the CSS TR version. The value is 2015 or higher&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_css_tr_version</span>
 
 	<span class="nd">@property</span>

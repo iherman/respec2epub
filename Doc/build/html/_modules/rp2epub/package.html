@@ -221,10 +221,6 @@
 		<span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s">&#39;epub&#39;</span><span class="p">,</span> <span class="s">&quot;http://www.idpf.org/2007/ops&quot;</span><span class="p">)</span>
 		<span class="n">nav</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">NAV</span><span class="p">))</span>
 
-		<span class="c"># The style sheet&#39;s position is different in the simple case, so this has to be amended</span>
-		<span class="n">style</span> <span class="o">=</span> <span class="n">nav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}link[@rel=&#39;stylesheet&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-		<span class="n">style</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="s">&quot;Assets/base.css&quot;</span><span class="p">)</span>
-
 		<span class="c"># Set the title</span>
 		<span class="n">title</span> <span class="o">=</span> <span class="n">nav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}title&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 		<span class="n">title</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">title</span> <span class="o">+</span> <span class="s">&quot; - Table of Contents&quot;</span>
