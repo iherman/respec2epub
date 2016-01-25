@@ -25,7 +25,11 @@ by the :py:class:`.Package` instance.
 
 .. py:data:: BOOK_CSS
 
-  Content of the ``book.css`` file, adding some page-breaking statements to the overall styling.
+  Main content of the ``book.css`` file, adding some page-breaking statements to the overall styling.
+
+.. py:data:: BOOK_CSS_EXTRAS
+
+  Additional content of the ``book.css`` file, depending on the version of the style sheet (2015, 2016, etc)
 
 **Source code:** `utils.py <https://github.com/iherman/respec2epub/blob/master/rp2epub/templates.py>`_
 
@@ -232,14 +236,19 @@ BOOK_CSS = """
     orphans: 4;
     widows: 2;
   }
-  
-  #back-to-top,
-  .toc-toggle {
-	display: none;
-  }
-
-
-
-
 
 """
+
+BOOK_CSS_EXTRAS = {
+	2016: """
+  #back-to-top,
+    .toc-toggle {
+	   display: none;
+  }
+
+  .figure, figure {
+    margin-left: auto;
+    margin-right: auto;
+  }
+""",
+}

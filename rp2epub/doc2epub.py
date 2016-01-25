@@ -26,7 +26,7 @@ from xml.etree.ElementTree import ElementTree
 from urlparse import urlparse, urlunparse
 import tempfile
 
-from .templates import BOOK_CSS
+from .templates import BOOK_CSS, BOOK_CSS_EXTRAS
 from .document import Document
 from .package import Package
 from .config import TO_TRANSFER
@@ -179,7 +179,16 @@ class DocWrapper:
 					# fallback if there is a key error, ie, the padding has not yet been set for a possible new style
 					padding = PADDING_NEW_STYLE[2016]
 
-			self.book.writestr('StyleSheets/TR/book.css', BOOK_CSS % padding)
+			# Additional CSS statements that has to be added to book.css, depending on the document's TR version
+			if self.document.css_tr_version > 2015:
+				try:
+					css_extras = BOOK_CSS_EXTRAS[self.document.css_tr_version]
+				except:
+					css_extras = BOOK_CSS_EXTRAS[2016]
+			else:
+				css_extras = ""
+
+			self.book.writestr('StyleSheets/TR/book.css', (BOOK_CSS % padding) + css_extras)
 
 			# Some resources should be added to the in any case: icons, stylesheets for cover and nav pages,...
 			for uri, local in TO_TRANSFER:
