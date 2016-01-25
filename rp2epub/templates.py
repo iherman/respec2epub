@@ -232,4 +232,14 @@ BOOK_CSS = """
     orphans: 4;
     widows: 2;
   }
+  
+  #back-to-top,
+  .toc-toggle {
+	display: none;
+  }
+
+
+
+
+
 """
