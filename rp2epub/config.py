@@ -103,128 +103,120 @@ TO_TRANSFER = [
 ]
 
 # noinspection PyPep8
+PADDING_NEW_STYLE = {
+	2015: "2em 1em 2em 70px;",
+	2016: "1.6em 1.5em 2em calc(26px + 1.5em);"
+}
+
+# noinspection PyPep8
+PADDING_OLD_STYLE = {
+	"Member-SUBM" : "2em 80px 2em 160px;",
+	"BG-DRAFT"    :  "2em 80px 2em 160px;",
+	"BG-FINAL"    : "2em 80px 2em 160px;",
+	"CG-DRAFT"    :  "2em 80px 2em 160px;",
+	"CG-FINAL"    :  "2em 80px 2em 160px;",
+}
+
+
+# noinspection PyPep8
 # some information necessary per doc type: the prefix to be used when creating the full, dated URI, the padding
 # that should be put into the body of the document, and the subtitle to be used on the cover page
 # The padding values are need for the pre-2016 style sheets...
 DOCTYPE_INFO = {
 	"base": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"  	: "W3C Document"
 	},
 	"MO": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Member-Only Document"
 	},
 	"unofficial": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "Unofficial Draft"
 	},
 	"ED": {
 		"uri_prefix"	: "ED",
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Editor's Draft"
 	},
 	"FPWD": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C First Public Working Draft"
 	},
 	"WD": {
 		"uri_prefix"	: "WD",
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Working Draft"
 	},
 	"LC": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Last Call Working Draft"
 	},
 	"CR": {
 		"uri_prefix"	: "CR",
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Candidate Recommendation"
 	},
 	"PR": {
 		"uri_prefix"	: "PR",
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Proposed Recommendation"
 	},
 	"PER": {
 		"uri_prefix"	: "PER",
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Proposed Edited Recommendation"
 	},
 	"REC": {
 		"uri_prefix"	: "REC",
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Recommendation"
 	},
 	"RSCND": {
 		"uri_prefix"	: "RSCND",
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Rescinded Recommendation"
 	},
 	"NOTE": {
 		"uri_prefix"	: "NOTE",
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Note"
 	},
 	"FPWD-NOTE": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Working Group Note"
 	},
 	"WG-NOTE": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Working Group Note"
 	},
 	"IG-NOTE": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "Interest Group Note"
 	},
 	"finding": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C TAG Finding"
 	},
 	"draft-finding": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Draft TAG Finding"
 	},
 	"Member-SUBM": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 80px 2em 160px;",
 		"subtitle"		: "W3C Member Submission"
 	},
 	"Team-SUBM": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 1em 2em 70px;",
 		"subtitle"		: "W3C Team Submission"
 	},
 	"BG-DRAFT": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 80px 2em 160px;",
 		"subtitle"		: "W3C Draft Business Group Report"
 	},
 	"BG-FINAL": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 80px 2em 160px;",
 		"subtitle"		: "W3C Business Group Report"
 	},
 	"CG-DRAFT": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 80px 2em 160px;",
 		"subtitle"		: "W3C Draft Community Group Report"
 	},
 	"CG-FINAL": {
 		"uri_prefix"	: None,
-		"padding"		: "2em 80px 2em 160px;",
 		"subtitle"		: "W3C Community Group Report"
 	}
 }

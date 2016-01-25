@@ -29,7 +29,8 @@ import tempfile
 from .templates import BOOK_CSS
 from .document import Document
 from .package import Package
-from .config import DOCTYPE_INFO, TO_TRANSFER
+from .config import TO_TRANSFER
+from .config import PADDING_NEW_STYLE, PADDING_OLD_STYLE
 from .utils import HttpSession, Book, Logger
 import utils
 
@@ -166,11 +167,18 @@ class DocWrapper:
 		# 'short name' will also be used for the name of the final book
 
 		with Book(self.book_file_name, self.document.short_name, self.package, self.folder) as self._book:
-			try:
-				padding = "0px;" if self.document.css_tr_version > 2015 else self.document.doc_type_info["padding"]
-			except:
-				# this may happen if something goes wrong with the document type setting, but it really shouldn't...
-				padding = "0px;"
+			if self.document.css_tr_version == 2015:
+				try:
+					padding = PADDING_OLD_STYLE[self.document.doc_type]
+				except:
+					padding = PADDING_NEW_STYLE[2015]
+			else:
+				try:
+					padding = PADDING_NEW_STYLE[self.document.css_tr_version]
+				except:
+					# fallback if there is a key error, ie, the padding has not yet been set for a possible new style
+					padding = PADDING_NEW_STYLE[2016]
+
 			self.book.writestr('StyleSheets/TR/book.css', BOOK_CSS % padding)
 
 			# Some resources should be added to the in any case: icons, stylesheets for cover and nav pages,...
