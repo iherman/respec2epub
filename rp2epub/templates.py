@@ -269,5 +269,9 @@ BOOK_CSS_EXTRAS = {
     margin-left: auto;
     margin-right: auto;
   }
+
+  nav#toc {
+    display: none
+  }
 """,
 }
