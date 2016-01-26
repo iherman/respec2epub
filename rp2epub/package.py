@@ -11,7 +11,7 @@ Module Content
 # noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement, tostring
-from .templates import PACKAGE, TOC, NAV, COVER
+from .templates import PACKAGE, TOC, NAV, NAV_CSS_NUMBERING, NAV_CSS_NO_NUMBERING, COVER
 from .config import DEFAULT_FILES, DOCTYPE_INFO
 
 
@@ -171,11 +171,13 @@ class Package:
 		"""
 		Create a new style TOC file ('nav' file): ``nav.xhtml``.
 		"""
+		full_nav         = True if len(self.document.nav_toc) != 0 else False
+		final_nav_header = NAV % (NAV_CSS_NO_NUMBERING if full_nav else NAV_CSS_NUMBERING)
 
 		# Setting the default namespace; this is important when the file is generated
 		ET.register_namespace('', "http://www.w3.org/1999/xhtml")
 		ET.register_namespace('epub', "http://www.idpf.org/2007/ops")
-		nav = ElementTree(ET.fromstring(NAV))
+		nav = ElementTree(ET.fromstring(final_nav_header))
 
 		# Set the title
 		title = nav.findall(".//{http://www.w3.org/1999/xhtml}title")[0]
@@ -201,7 +203,7 @@ class Package:
 		a.text = "Cover"
 		a.set("class", "toc")
 
-		if len(self.document.nav_toc) != 0:
+		if full_nav:
 			for toc_entry in self.document.nav_toc:
 				ol.append(toc_entry)
 		else:

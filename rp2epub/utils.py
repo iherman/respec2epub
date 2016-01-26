@@ -402,9 +402,13 @@ class Utils(object):
 					return True
 			return False
 
-		# Execute the various versions in order
-		if toc_respec_or_bikeshed():
-			# we are fine, found what is needed
+		def toc_extract_nav():
+			"""
+			Extract a full hierarchy of navigation element, to be reused for the new style, ie, EPUB3, navigation,
+			if possible. That relies on a restricted set of toc pairs that the original document may contain
+			:return: array of elements, cloned version of the top level ``<li>`` elements in the original source.
+			The array is empty if the TOC structure is inadequate
+			"""
 			top_levels = []
 
 			# See if the new style nav/ul access works
@@ -418,8 +422,13 @@ class Utils(object):
 						ref = "Overview.xhtml" + ref if ref[0] == '#' else ref.replace(".html", ".xhtml", 1)
 						a.set("href",ref)
 					top_levels.append(cloned_li)
-			#
-			return (retval, top_levels)
+
+			return top_levels
+
+		# Execute the various versions in order
+		if toc_respec_or_bikeshed():
+			# we are fine, found what is needed
+			return (retval, toc_extract_nav())
 		else:
 			# if we got here, something is wrong...
 			Logger.warning("Could not extract a table of content from '%s'" % short_name)

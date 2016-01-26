@@ -9,7 +9,16 @@ by the :py:class:`.Package` instance.
 
 .. py:data:: NAV
 
-  XHTML code for the new type EPUB3 table of content file
+  XHTML code for the new type EPUB3 table of content file. The string has to be completed for styling on whether the
+  TOC entries contain numbering or not
+
+.. py:data:: NAV_CSS_NUMBERING
+
+  CSS complement to the NAV string that includes numbering
+
+.. py:data:: NAV_CSS_NO_NUMBERING
+
+  CSS complement to the NAV string that relies on the numbers generated into the TOC entries and not done by CSS
 
 .. py:data:: TOC
 
@@ -54,14 +63,7 @@ NAV = """<?xml version="1.0" encoding="UTF-8"?>
         <link rel="stylesheet" type="text/css" href="StyleSheets/TR/base.css" />
         <meta content="application/xhtml+xml; charset=utf-8" http-equiv="content-type" />
         <style>
-            ol {
-                counter-reset: section;
-                list-style-type: none;
-            }
-            li:before {
-                counter-increment: section;
-                content: counters(section, ".") " ";
-            }
+%s
         </style>
     </head>
     <body>
@@ -75,6 +77,23 @@ NAV = """<?xml version="1.0" encoding="UTF-8"?>
         </nav>
     </body>
 </html>
+"""
+
+NAV_CSS_NUMBERING = """
+            ol {
+                counter-reset: section;
+                list-style-type: none;
+            }
+            li:before {
+                counter-increment: section;
+                content: counters(section, ".") " ";
+            }
+"""
+
+NAV_CSS_NO_NUMBERING = """
+            ol {
+                list-style-type: none;
+            }
 """
 
 TOC = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
