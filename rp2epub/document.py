@@ -21,7 +21,7 @@ from urlparse import urlparse, urljoin
 import json
 import sys
 import traceback
-from xml.etree.ElementTree import SubElement
+from xml.etree.ElementTree import SubElement, tostring
 from StringIO import StringIO
 from datetime import date, datetime
 
@@ -57,6 +57,7 @@ class Document:
 		self._authors        = ""
 		self._respec_config  = None
 		self._toc		     = []
+		self._nav_toc	     = []
 		self._css_tr_version = 2015
 		self._subtitle       = None
 		self._get_document_metadata()
@@ -319,8 +320,16 @@ class Document:
 
 	@property
 	def toc(self):
-		"""Table of content, an array of ``TOC_Item`` objects"""
+		"""Table of content, an array of ``TOC_Item`` objects. It is only the top level TOC structures;
+		used for the old-skool TOC file as well as for the EPUB3 navigation document in case the
+		original document does not have the appropriate structures in its TOC."""
 		return self._toc
+
+	@property
+	def nav_toc(self):
+		"""Table of content extracted from a <nav> element (if any), that is copied almost verbatim into the
+		EPUB3 navigation document. It may be empty, though, in which case the simple TOC structure is used."""
+		return self._nav_toc
 
 	@property
 	def css_tr_version(self):
@@ -495,6 +504,6 @@ class Document:
 		self._subtitle += ", " + self.date.strftime("%d %B, %Y")
 
 		# Extract the table of content
-		self._toc = Utils.extract_toc(self.html, self.short_name)
+		(self._toc, self._nav_toc) = Utils.extract_toc(self.html, self.short_name)
 
 

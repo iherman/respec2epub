@@ -10,7 +10,7 @@ Module Content
 
 # noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import ElementTree, SubElement
+from xml.etree.ElementTree import ElementTree, SubElement, tostring
 from .templates import PACKAGE, TOC, NAV, COVER
 from .config import DEFAULT_FILES, DOCTYPE_INFO
 
@@ -201,12 +201,23 @@ class Package:
 		a.text = "Cover"
 		a.set("class", "toc")
 
-		for toc_entry in self.document.toc:
-			li = SubElement(ol, "{http://www.w3.org/1999/xhtml}li")
-			a = SubElement(li, "{http://www.w3.org/1999/xhtml}a")
-			a.set("href", toc_entry.href)
-			a.text = toc_entry.short_label
-			a.set("class", "toc")
+
+		def madness(t):
+			for aref in t.findall(".//a"):
+				aref.set("href", aref.get("data-href"))
+			return t
+
+
+		if len(self.document.nav_toc) != 0:
+			for toc_entry in self.document.nav_toc:
+				ol.append(madness(toc_entry))
+		else:
+			for toc_entry in self.document.toc:
+				li = SubElement(ol, "{http://www.w3.org/1999/xhtml}li")
+				a = SubElement(li, "{http://www.w3.org/1999/xhtml}a")
+				a.set("href", toc_entry.href)
+				a.text = toc_entry.short_label
+				a.set("class", "toc")
 
 		self.book.write_element('nav.xhtml', nav)
 	# end _create_nav

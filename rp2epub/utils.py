@@ -26,7 +26,7 @@ import re
 import os
 import os.path
 import shutil
-from xml.etree.ElementTree import SubElement, ElementTree
+from xml.etree.ElementTree import SubElement, ElementTree, tostring
 import zipfile
 import html5lib
 
@@ -405,11 +405,27 @@ class Utils(object):
 		# Execute the various versions in order
 		if toc_respec_or_bikeshed():
 			# we are fine, found what is needed
-			return retval
+			top_levels = []
+
+			# See if the new style nav/ul access works
+			xpath = ".//nav[@id='toc']/ul[@class='toc']"
+			toc = html.findall(xpath)
+			if len(toc) > 0:
+				# Find the <a> elements and change them
+				for a in toc[0].findall(".//a"):
+					ref = a.get("href")
+					ref = "Overview.xhtml" + ref if ref[0] == '#' else ref.replace(".html", ".xhtml", 1)
+					# There is some madness (or bug) going on: the value of @href is lost along the lines
+					# from here to reuse. Which means that the value must be stored
+					# and reused later when the entry is used in the separate nav file
+					a.set("data-href",ref)
+				top_levels = toc[0].findall("li")
+			#
+			return (retval, top_levels)
 		else:
 			# if we got here, something is wrong...
 			Logger.warning("Could not extract a table of content from '%s'" % short_name)
-			return []
+			return ([], [])
 	# end _extract_toc
 
 
