@@ -26,7 +26,7 @@ import re
 import os
 import os.path
 import shutil
-from xml.etree.ElementTree import SubElement, ElementTree, tostring
+from xml.etree.ElementTree import SubElement, ElementTree, tostring, fromstring
 import zipfile
 import html5lib
 
@@ -411,15 +411,13 @@ class Utils(object):
 			xpath = ".//nav[@id='toc']/ul[@class='toc']"
 			toc = html.findall(xpath)
 			if len(toc) > 0:
-				# Find the <a> elements and change them
-				for a in toc[0].findall(".//a"):
-					ref = a.get("href")
-					ref = "Overview.xhtml" + ref if ref[0] == '#' else ref.replace(".html", ".xhtml", 1)
-					# There is some madness (or bug) going on: the value of @href is lost along the lines
-					# from here to reuse. Which means that the value must be stored
-					# and reused later when the entry is used in the separate nav file
-					a.set("data-href",ref)
-				top_levels = toc[0].findall("li")
+				for li in toc[0].findall("li"):
+					cloned_li = fromstring(tostring(li, encoding="utf-8", method="xml"))
+					for a in cloned_li.findall(".//a"):
+						ref = a.get("href")
+						ref = "Overview.xhtml" + ref if ref[0] == '#' else ref.replace(".html", ".xhtml", 1)
+						a.set("href",ref)
+					top_levels.append(cloned_li)
 			#
 			return (retval, top_levels)
 		else:

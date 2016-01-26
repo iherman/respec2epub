@@ -201,16 +201,9 @@ class Package:
 		a.text = "Cover"
 		a.set("class", "toc")
 
-
-		def madness(t):
-			for aref in t.findall(".//a"):
-				aref.set("href", aref.get("data-href"))
-			return t
-
-
 		if len(self.document.nav_toc) != 0:
 			for toc_entry in self.document.nav_toc:
-				ol.append(madness(toc_entry))
+				ol.append(toc_entry)
 		else:
 			for toc_entry in self.document.toc:
 				li = SubElement(ol, "{http://www.w3.org/1999/xhtml}li")
