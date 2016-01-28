@@ -10,9 +10,9 @@ Module Content
 
 # noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import ElementTree, SubElement, tostring
+from xml.etree.ElementTree import ElementTree, SubElement
 from .templates import PACKAGE, TOC, NAV, NAV_CSS_NUMBERING, NAV_CSS_NO_NUMBERING, COVER
-from .config import DEFAULT_FILES, DOCTYPE_INFO
+from .config import DEFAULT_FILES
 
 
 # noinspection PyPep8

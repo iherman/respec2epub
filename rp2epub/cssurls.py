@@ -26,7 +26,6 @@ Module content
 from urlparse import urljoin, urlparse
 import tinycss
 from .utils import HttpSession, Logger
-import sys
 
 
 class _URLPair:
@@ -138,12 +137,12 @@ class CSSReference:
 			if css:
 				self._import_css.add(url)
 
-		def handle_one_css_ruleset(ruleset):
+		def handle_one_css_ruleset(one_ruleset):
 			# This is a basic CSS set of declarations. Each declaration has, potentially, a set of values;
 			# the values themselves may be numbers, strings, etc, and also URI-s
 			# Only the URI-s are of interest at this point.
-			if ruleset.at_keyword is None:
-				for d in ruleset.declarations:
+			if one_ruleset.at_keyword is None:
+				for d in one_ruleset.declarations:
 					for i in [item for item in d.value if item.type == "URI"]:
 						add_item_to_import(i.value)
 

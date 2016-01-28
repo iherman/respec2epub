@@ -21,7 +21,7 @@ from urlparse import urlparse, urljoin
 import json
 import sys
 import traceback
-from xml.etree.ElementTree import SubElement, tostring
+from xml.etree.ElementTree import SubElement
 from StringIO import StringIO
 from datetime import date, datetime
 
@@ -86,6 +86,8 @@ class Document:
 
 	def add_additional_resource(self, local_name, media_type):
 		"""Add a pair of local name and media type to the list of additional resources.
+		:param local_name: name of the resource within the final book
+		:param media_type: media type (used when the resource is added to the package file)
 		"""
 		self._additional_resources.append((local_name, media_type))
 
@@ -131,7 +133,7 @@ class Document:
 			# HTTPSession is unnecessary (and sometimes leads to 404 anyway)
 			# Bottom line: those references must be filtered out
 			if attr_value is not None and all(map(lambda x: x[1] != attr_value, TO_TRANSFER)):
-				# This artefact is necessary to treat the WWW level, official URIs and local ones
+				# This artifact is necessary to treat the WWW level, official URIs and local ones
 				ref = urljoin(self.driver.base, attr_value)
 
 				# In some cases, primarily in the case of editors drafts, the reference is simply on the file
@@ -321,7 +323,7 @@ class Document:
 	@property
 	def toc(self):
 		"""Table of content, an array of ``TOC_Item`` objects. It is only the top level TOC structures;
-		used for the old-skool TOC file as well as for the EPUB3 navigation document in case the
+		used for the old-school TOC file as well as for the EPUB3 navigation document in case the
 		original document does not have the appropriate structures in its TOC."""
 		return self._toc
 
@@ -416,6 +418,7 @@ class Document:
 			for t in issued.itertext():
 				self._subtitle += t
 
+	# noinspection PyPep8Naming
 	def _get_CSS_TR_version(self):
 		"""
 		Set the CSS TR version based on the document.
@@ -426,7 +429,7 @@ class Document:
 		for lnk in self.html.findall(".//link[@rel='stylesheet']"):
 			ref_details = urlparse(lnk.get("href"))
 			# TODO: THIS IS TEMPORARY, SHOULD BE FIXED WHEN THINGS BECOME FINAL!!!!
-			if ref_details.netloc == "www.w3.org" and "2016" in ref_details.path :
+			if ref_details.netloc == "www.w3.org" and "2016" in ref_details.path:
 				self._css_tr_version = 2016
 				return
 		return

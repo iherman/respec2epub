@@ -170,12 +170,12 @@ class DocWrapper:
 			if self.document.css_tr_version == 2015:
 				try:
 					padding = PADDING_OLD_STYLE[self.document.doc_type]
-				except:
+				except KeyError:
 					padding = PADDING_NEW_STYLE[2015]
 			else:
 				try:
 					padding = PADDING_NEW_STYLE[self.document.css_tr_version]
-				except:
+				except KeyError:
 					# fallback if there is a key error, ie, the padding has not yet been set for a possible new style
 					padding = PADDING_NEW_STYLE[2016]
 
@@ -183,7 +183,7 @@ class DocWrapper:
 			if self.document.css_tr_version > 2015:
 				try:
 					css_extras = BOOK_CSS_EXTRAS[self.document.css_tr_version]
-				except:
+				except KeyError:
 					css_extras = BOOK_CSS_EXTRAS[2016]
 			else:
 				css_extras = ""

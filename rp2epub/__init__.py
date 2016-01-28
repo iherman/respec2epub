@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import locale
 
 __version__ = "1.3"
 # noinspection PyPep8
@@ -13,7 +14,4 @@ class R2EError(Exception):
 	"""
 	pass
 
-import locale
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-
-#from .doc2epub import DocWrapper

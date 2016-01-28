@@ -49,7 +49,9 @@ _NO_COMPRESS = [
 	"video/ogg"
 ]
 
-########################################## Table of content extraction ########################################
+#
+# Table of content extraction
+#
 short_label_pattern = re.compile("^[1-9][0-9]*\. .*$")
 
 # list of element pairs that lead to a table of content
@@ -67,6 +69,7 @@ TOC_PAIRS = [
 	("body", "ul[@class='toc']", None),
 	("body", "ol[@class='toc']", None)
 ]
+
 
 # noinspection PyPep8Naming
 class TOC_Item(object):
@@ -334,7 +337,7 @@ class Utils(object):
 		# Hack #4
 		# Add 'toc-inline' to the body class, to avoid a floating TOC on the left
 		bclass = body.get("class", None)
-		if bclass == None:
+		if bclass is None:
 			body.set("class", "toc-inline")
 		else:
 			bclass += " toc-inline"
@@ -359,6 +362,9 @@ class Utils(object):
 			Extract the TOC entry and create a URI with the 'Overview' file. This does not work well if the
 			document is cut into several documents, like the HTML5 spec...
 
+			:param parent: the parent element for the TOC entry
+			:type parent: :py:class:`xml.etree.ElementTree.Element`
+			:param explicit_num: whether the first element of the TOC line is a numbering that should be removed
 			The result is added to the tuples as a TOC_Item entry.
 			"""
 			a = parent.find("a")
@@ -387,7 +393,7 @@ class Utils(object):
 			Extract the TOC items following ReSpec or Bikeshed conventions. There are possible pairs (see the ``TOC_PAIRS``
 			alternatives), yielding <li> elements with the toc entry.
 			"""
-			## respec version
+			# respec version
 			# We have to try two different versions, because, in some cases, respec uses 'div' and in other cases 'section'
 			# probably depends on the output format requested (or the version of respec? or both?)
 			# In all cases, the <a> element contains a section number and the chapter title
@@ -420,7 +426,7 @@ class Utils(object):
 					for a in cloned_li.findall(".//a"):
 						ref = a.get("href")
 						ref = "Overview.xhtml" + ref if ref[0] == '#' else ref.replace(".html", ".xhtml", 1)
-						a.set("href",ref)
+						a.set("href", ref)
 					top_levels.append(cloned_li)
 
 			return top_levels
@@ -428,11 +434,11 @@ class Utils(object):
 		# Execute the various versions in order
 		if toc_respec_or_bikeshed():
 			# we are fine, found what is needed
-			return (retval, toc_extract_nav())
+			return retval, toc_extract_nav()
 		else:
 			# if we got here, something is wrong...
 			Logger.warning("Could not extract a table of content from '%s'" % short_name)
-			return ([], [])
+			return [], []
 	# end _extract_toc
 
 
@@ -594,7 +600,7 @@ class Book(object):
 		content.close()
 
 	# noinspection PyTypeChecker
-	def write_session(self, target, session, css_change_patterns = []):
+	def write_session(self, target, session, css_change_patterns = None):
 		"""
 		The returned content of an :py:class:`.HttpSession` is added to the book. If the content is an HTML file,
 		it will be converted into XHTML on the fly.
@@ -604,6 +610,9 @@ class Book(object):
 		:param css_change_patterns: a list of ``(from,to)`` replace patterns to be applied on CSS files
 		:return boolean: the value of session.success
 		"""
+		if css_change_patterns is None :
+			css_change_patterns = []
+
 		# Copy the content into the final book
 		# Special care should be taken with html files. Those are supposed to become XHTML:-(
 		if not session.success:

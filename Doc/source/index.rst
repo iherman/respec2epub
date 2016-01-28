@@ -32,8 +32,8 @@ For developers
 The “entry point” or the package is the :py:class:`.doc2epub.DocWrapper` class, more exactly the :py:meth:`.doc2epub.DocWrapper.process`
 method thereof. A typical usage is::
 
-	from rp2epub.doc2epub import DocWrapper
-	DocWrapper(url, is_respec=..., package=..., folder=..., logger=..., ...).process()
+    from rp2epub.doc2epub import DocWrapper
+    DocWrapper(url, is_respec=..., package=..., folder=..., logger=..., ...).process()
 
 
 Dependencies
