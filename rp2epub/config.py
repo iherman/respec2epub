@@ -12,16 +12,10 @@ Various configuration variables.
 
   A dictionary keyed by document types (as accepted by ReSpec); each value is a also a dictionary of the form:
 
-  ``logo_transfer``
-  	A tuple containing the URL of the logo to be copied into the book, a URL (typically ``http://localhost``
-  	for a local version thereof, and the name in the final book, of the form ``Assets/XXXX``
   ``uri_prefix``
   	String that may be used as a prefix in the document short name URI (as used at W3C), e.g., ``WD``
   ``subtitle``
     The name of the document in Human term, e.g., ``W3C Working Draft``
-  ``transfer``
-    Pointer to an array of tuple (of the same structures as the one in ``logo_transfer``) providing references
-    to files that must be copied to the book additionally to the logo.
   ``padding``
     Padding CSS specification (ie, value of a ``padding`` CSS directives) that must be applied to the whole content of the file.
 
@@ -29,6 +23,22 @@ Various configuration variables.
 
   Dictionary of media types that are accepted for inclusion in an epub file. The media types are used as keys, pointing
   at the suffix usually used (if needed)
+
+.. py:data:: TO_TRANSFER
+
+  List of `(URL, localname)` pairs for resources that must be downloaded for all books (e.g., w3c icon)
+
+.. py:data:: PADDING_NEW_STYLE
+
+  Dictionary, keyed through the version of the TR, indicating the paddig to be applied on the document. See
+  :py:meth:`.Utils.change_DOM` for the bugs that need this extra action. At present, the keys are 2015 and
+  2016; the changes in the TR styles in 2016 induced new values.
+
+.. py:data:: PADDING_OLD_STYLE
+
+  Related to :py:data:`PADDING_NEW_STYLE`: when using the 2015 version of TR documents the padding values for some
+  type of documents (Member Submissions, CG and BG documents) is different from the usual ones. These are listed in
+  this directory, keyed through the document type.
 
 .. py:data:: EXTERNAL_REFERENCES
 
@@ -45,9 +55,9 @@ Various configuration variables.
 DEFAULT_FILES = [
 	("nav.xhtml", "application/xhtml+xml", "nav", "nav"),
 	("toc.ncx", "application/x-dtbncx+xml", "ncx", ""),
-	("Assets/w3c_main.png", "image/png", "w3c_main", ""),
-	("Assets/base.css", "text/css", "StyleSheets-base", ""),
-	("Assets/book.css", "text/css", "StyleSheets-book", ""),
+	("Icons/w3c_main.png", "image/png", "w3c_main", ""),
+	("StyleSheet/TR/base.css", "text/css", "StyleSheets-base", ""),
+	("StyleSheet/TR/book.css", "text/css", "StyleSheets-book", ""),
 	("cover.xhtml", "application/xhtml+xml", "start", "")
 ]
 

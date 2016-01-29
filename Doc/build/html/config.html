@@ -61,16 +61,10 @@ Typical example: entry for the table of content file</p>
 <code class="descclassname">rp2epub.config.</code><code class="descname">DOCTYPE_INFO</code><a class="headerlink" href="#rp2epub.config.DOCTYPE_INFO" title="Permalink to this definition">¶</a></dt>
 <dd><p>A dictionary keyed by document types (as accepted by ReSpec); each value is a also a dictionary of the form:</p>
 <dl class="docutils">
-<dt><code class="docutils literal"><span class="pre">logo_transfer</span></code></dt>
-<dd>A tuple containing the URL of the logo to be copied into the book, a URL (typically <code class="docutils literal"><span class="pre">http://localhost</span></code>
-for a local version thereof, and the name in the final book, of the form <code class="docutils literal"><span class="pre">Assets/XXXX</span></code></dd>
 <dt><code class="docutils literal"><span class="pre">uri_prefix</span></code></dt>
 <dd>String that may be used as a prefix in the document short name URI (as used at W3C), e.g., <code class="docutils literal"><span class="pre">WD</span></code></dd>
 <dt><code class="docutils literal"><span class="pre">subtitle</span></code></dt>
 <dd>The name of the document in Human term, e.g., <code class="docutils literal"><span class="pre">W3C</span> <span class="pre">Working</span> <span class="pre">Draft</span></code></dd>
-<dt><code class="docutils literal"><span class="pre">transfer</span></code></dt>
-<dd>Pointer to an array of tuple (of the same structures as the one in <code class="docutils literal"><span class="pre">logo_transfer</span></code>) providing references
-to files that must be copied to the book additionally to the logo.</dd>
 <dt><code class="docutils literal"><span class="pre">padding</span></code></dt>
 <dd>Padding CSS specification (ie, value of a <code class="docutils literal"><span class="pre">padding</span></code> CSS directives) that must be applied to the whole content of the file.</dd>
 </dl>
@@ -81,6 +75,28 @@ to files that must be copied to the book additionally to the logo.</dd>
 <code class="descclassname">rp2epub.config.</code><code class="descname">ACCEPTED_MEDIA_TYPES</code><a class="headerlink" href="#rp2epub.config.ACCEPTED_MEDIA_TYPES" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dictionary of media types that are accepted for inclusion in an epub file. The media types are used as keys, pointing
 at the suffix usually used (if needed)</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.config.TO_TRANSFER">
+<code class="descclassname">rp2epub.config.</code><code class="descname">TO_TRANSFER</code><a class="headerlink" href="#rp2epub.config.TO_TRANSFER" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of <cite>(URL, localname)</cite> pairs for resources that must be downloaded for all books (e.g., w3c icon)</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.config.PADDING_NEW_STYLE">
+<code class="descclassname">rp2epub.config.</code><code class="descname">PADDING_NEW_STYLE</code><a class="headerlink" href="#rp2epub.config.PADDING_NEW_STYLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary, keyed through the version of the TR, indicating the paddig to be applied on the document. See
+<a class="reference internal" href="utils.html#rp2epub.utils.Utils.change_DOM" title="rp2epub.utils.Utils.change_DOM"><code class="xref py py-meth docutils literal"><span class="pre">Utils.change_DOM()</span></code></a> for the bugs that need this extra action. At present, the keys are 2015 and
+2016; the changes in the TR styles in 2016 induced new values.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.config.PADDING_OLD_STYLE">
+<code class="descclassname">rp2epub.config.</code><code class="descname">PADDING_OLD_STYLE</code><a class="headerlink" href="#rp2epub.config.PADDING_OLD_STYLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Related to <a class="reference internal" href="#rp2epub.config.PADDING_NEW_STYLE" title="rp2epub.config.PADDING_NEW_STYLE"><code class="xref py py-data docutils literal"><span class="pre">PADDING_NEW_STYLE</span></code></a>: when using the 2015 version of TR documents the padding values for some
+type of documents (Member Submissions, CG and BG documents) is different from the usual ones. These are listed in
+this directory, keyed through the document type.</p>
 </dd></dl>
 
 <dl class="data">

@@ -1,14 +1,16 @@
 """
-:py:class:`Document` Class encapsulating the original source document, plus the various metadata that can and should be
+The :py:class:`Document` Class encapsulates the original source document, plus the various metadata that can and should be
 extracted: short name, dated URI, editors, document type, etc. These data are extracted from the file,
-usually trying to interpret the content of the file. The metadata also includes information on whether there
-is scripting, whether it contains svg of MathML: these should be added to the book's package file.
+usually trying to interpret the content of the file as well as the referenced CSS files. The metadata also includes information on whether there
+is scripting, whether it contains svg or MathML: these should be added to the book's package file (per the specification of EPUB).
 
 The class instance collects the various external references that must be, eventually, added to the final book
 (images, CSS files, etc.).
 
 Finally, the HTML content (ie, the DOM tree) is also modified on the fly: HTML namespace is added, some metadata
-is changed to fit the HTML5 requirements, link references may be updated for, e.g., CSS, etc.
+is changed a bit to fit the HTML5 requirements, the HTML is output in XHTML, etc.
+
+The class is invoked (and "controlled") by a `:py:class:`.DocWrapper` instance.
 
 .. :class::
 
@@ -45,7 +47,7 @@ class Document:
 		self._additional_resources = []
 		self._index                = 0
 		self._driver               = driver
-		self.download_targets      = []
+		self._download_targets     = []
 
 		self._title          = None
 		self._properties     = None
@@ -66,6 +68,12 @@ class Document:
 		self._css_references       = css_list.get_download_list()
 		self._css_change_patterns  = css_list.change_patterns
 
+
+	@property
+	def download_targets(self):
+		"""Array of resources to be downloaded and added to the final book. Entries of the array are (:py:class:`xml.etree.ElementTree.Element`, attribute) pairs, referring to the element and the attribute that identifies the URL of the resources to be downloaded."""
+		return self._download_targets
+
 	@property
 	def driver(self):
 		"""The caller: a :py:class:`.doc2epub.DocToEpub` instance."""
@@ -73,19 +81,19 @@ class Document:
 
 	@property
 	def html(self):
-		"""HTML element as parsed; an :py:class:`xml.etree.ElementTree.Element` instance  """
+		"""The parsed version of the top level HTML element; an :py:class:`xml.etree.ElementTree.Element` instance  """
 		return self._driver.html
 
 	@property
 	def additional_resources(self):
-		"""List of additional resources that must be added to the book. A list of tuples, containing the internal
+		"""List of additional resources that must be added to the book eventually. A list of tuples, containing the internal
 		reference to the resource and the media type. Built up during processing, it is used in when creating the manifest
 		file of the book.
 		"""
 		return self._additional_resources
 
 	def add_additional_resource(self, local_name, media_type):
-		"""Add a pair of local name and media type to the list of additional resources.
+		"""Add a pair of local name and media type to the list of additional resources. Appends to the :py:attr:`additional_resources` list.
 		:param local_name: name of the resource within the final book
 		:param media_type: media type (used when the resource is added to the package file)
 		"""
@@ -93,9 +101,9 @@ class Document:
 
 	@property
 	def css_references(self):
-		"""Set if (local_name, absolute_url) pairs for resources gathered recursively from CSS files. These
+		"""Set of `(local_name, absolute_url)` pairs for resources gathered recursively from CSS files. These
 		are CSS files themselves, or other media like logos, background images, etc, referred to via a `url` statement
-		in CSS
+		in CSS.
 		"""
 		return self._css_references
 
@@ -110,11 +118,11 @@ class Document:
 	def extract_external_references(self):
 		"""Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is
 
-		- the URL begins with the same base or is on the www.w3.org domain (the latter is for official CSS files and logos)
+		- has a URL is a relative one, begins with the same base, or refers to the `www.w3.org` domain (the latter is for official CSS files and logos)
 		- is one of the 'accepted' media types for epub
 
 		then the file is copied and stored in the book, the reference is changed in the document,
-		and the resource is marked to be added to the manifest file
+		and the resource is marked to be added to the manifest file. HTML files are copied as XHTML files, with a ``.xhtml`` suffix.
 		"""
 
 		def final_target_media(f_session, f_target):
@@ -126,7 +134,7 @@ class Document:
 		# Retrieve the value of the reference. By making a urljoin, relative URI-s are also turned into absolute one;
 		# this simplifies the issue
 		# Look at generic external references like images, and, possibly copy the content
-		for (element, attr) in self.download_targets:
+		for (element, attr) in self._download_targets:
 			attr_value = element.get(attr)
 			# The TO_TRANSFER array collects the 'system' references collected in Assets. Although some
 			# earlier manipulation on the DOM may have already set the external references to those, the
@@ -196,7 +204,9 @@ class Document:
 	# noinspection PyPep8
 	def _collect_downloads(self):
 		"""
-		Process a document looking for (and possibly copying) external references and making some minor modifications on the fly
+		Process a document looking for (and possibly copying) external references and making some minor
+		modifications on the fly. ``(Element, attribute)`` pairs are added on the fly to the internal array of downloads
+		(see :py:attr:`download_targets`).
 
 		:returns: a :py:class:`.cssurls.CSSList` instance, with all the CSS references
 		"""
@@ -215,7 +225,7 @@ class Document:
 			if urlparse(ref).netloc == "www.w3.org":
 				if not ref.endswith(".css"):
 					lnk.set("href",ref + ".css")
-			self.download_targets.append((lnk, 'href'))
+			self._download_targets.append((lnk, 'href'))
 			# The CSS reference should be stored as a possible source of further references
 			css_list.add_css(lnk.get("href"))
 
@@ -246,7 +256,7 @@ class Document:
 		# Collect the additional download targets
 		for (tag_name, attr) in config.EXTERNAL_REFERENCES:
 			for element in self.html.findall(".//%s" % tag_name):
-				self.download_targets.append((element, attr))
+				self._download_targets.append((element, attr))
 
 		# Extra care should be taken with <a> elements: only local, relative URI-s should be considered,
 		# excluding the pure fragment id. Ie, it should refer to another file in the local package.
@@ -255,7 +265,7 @@ class Document:
 			ref  = element.get("href")
 			pref = urlparse(ref)
 			if len(pref.netloc) == 0 and len(pref.scheme) == 0 and len(pref.path) != 0 and ref != ".":
-				self.download_targets.append((element, 'href'))
+				self._download_targets.append((element, 'href'))
 
 		return css_list
 
@@ -290,7 +300,8 @@ class Document:
 
 	@property
 	def dated_uri(self):
-		"""'Dated URI', in the jargon. As a fall back, this may be set to the top URI of the document if the dated uri has not been set """
+		"""'Dated URI', in the W3C jargon. As a fallback, this may be set to the top URI of the document if the
+		dated uri has not been set """
 		return self._dated_uri if self._dated_uri is not None else self.driver.top_uri
 
 	@property
@@ -322,15 +333,16 @@ class Document:
 
 	@property
 	def toc(self):
-		"""Table of content, an array of ``TOC_Item`` objects. It is only the top level TOC structures;
+		"""Table of content, an array of :py:class:`.utils.TOC_Item` instances. It is only the top level TOC structures;
 		used for the old-school TOC file as well as for the EPUB3 navigation document in case the
 		original document does not have the appropriate structures in its TOC."""
 		return self._toc
 
 	@property
 	def nav_toc(self):
-		"""Table of content extracted from a <nav> element (if any), that is copied almost verbatim into the
-		EPUB3 navigation document. It may be empty, though, in which case the simple TOC structure is used."""
+		"""Table of content extracted from a ``<nav>`` element (if any), that is copied almost verbatim into the
+		EPUB3 navigation document. It may be empty, though, because the source does not contain the required TOC
+		structure, in which case the simple TOC structure is (see :py:attr:`toc`)."""
 		return self._nav_toc
 
 	@property
@@ -422,7 +434,8 @@ class Document:
 	def _get_CSS_TR_version(self):
 		"""
 		Set the CSS TR version based on the document.
-		Note: this is very ugly, hopefully there will be a better way of finding this...
+		Note: at the moment this is very ugly: the path of the CSS URL is checked for a date. Hopefully, there will
+		be some more 'standard' way of doing this, eventually.
 		"""
 		self._css_tr_version = 2015
 

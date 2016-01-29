@@ -43,21 +43,21 @@
         
   <h1>Source code for rp2epub.cssurls</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Handling information referred to in CSS files or `&lt;style&gt;` elements.</span>
-
 <span class="sd">The :py:class:`CSSList` encapsulates a collection of external references that are extracted from CSS files, references</span>
 <span class="sd">that are supposed to be downloaded and added to the final book, as well as added to the package file. Typically, this</span>
-<span class="sd">means handling the CSS import statements (i.e., importing other CSS files) as well as various uri references, e.g., when</span>
+<span class="sd">means handling the CSS import statements (i.e., importing other CSS files) as well as various URL references, e.g., when</span>
 <span class="sd">setting the content or the background of an element using an image.</span>
 
-<span class="sd">Some CSS files may need a change on the fly. The typical case is when a background image is set through the statement::</span>
+<span class="sd">Some CSS files may need to be changed on the fly. The typical case is when a background image is set through the</span>
+<span class="sd">CSS statement of the form::</span>
 
 <span class="sd">	background: url(//www.w3.org/StyleSheet/TR/logo);</span>
 
 
-<span class="sd">(Which is the trick used to help in the HTTP vs. HTTPS negotiations.) The URL reference must be changed to a local,</span>
-<span class="sd">relative URL. These cases are gathered by the process and the upper layers use it to make a simple string &quot;replace&quot;</span>
-<span class="sd">on the fly when the CSS file is copied to the book.</span>
+<span class="sd">(Which is the trick used to help in the HTTP vs. HTTPS negotiations in some of the W3C CSS files.)</span>
+<span class="sd">The URL reference must be changed, in this case, to a local,</span>
+<span class="sd">relative URL. These required cases are gathered by the process and the upper layers use it to make a simple string &quot;replace&quot;</span>
+<span class="sd">on the fly when the CSS files are copied to the book.</span>
 
 <span class="sd">.. :class::</span>
 
@@ -65,17 +65,14 @@
 <span class="sd">--------------</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="c"># TODO: documentation</span>
-
 <span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urljoin</span><span class="p">,</span> <span class="n">urlparse</span>
 <span class="kn">import</span> <span class="nn">tinycss</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Logger</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 
 
 <div class="viewcode-block" id="_URLPair"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls._URLPair">[docs]</a><span class="k">class</span> <span class="nc">_URLPair</span><span class="p">:</span>
 	<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Just a simple wrapper around a pair of (absolute) url, and a local name. Instead of being a pair, the</span>
+<span class="sd">	A simple wrapper around a pair of (absolute) url, and a local name. The</span>
 <span class="sd">	values can then be accessed via property names (and not via array/dictionary syntax).</span>
 
 <span class="sd">	:param str url: Absolute URL of the resource</span>
@@ -103,11 +100,11 @@
 <span class="c"># noinspection PyPep8</span></div>
 <div class="viewcode-block" id="CSSReference"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSReference">[docs]</a><span class="k">class</span> <span class="nc">CSSReference</span><span class="p">:</span>
 	<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Wrapper around the information necessary in one CSS reference.</span>
+<span class="sd">	Wrapper around the information related to one CSS reference.</span>
 
-<span class="sd">	:param str base: Base URI of the overall book. Important to generate proper local name for a resource when retrieved</span>
-<span class="sd">	:param str url: URL of the CSS file (if any, otherwise value is ignored). This is an absolute URL; in practice can be using the overall book URL or www.w3.org</span>
-<span class="sd">	:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded</span>
+<span class="sd">	:param str base: Base URI of the overall book. Important to generate proper local name for a resource when retrieved.</span>
+<span class="sd">	:param str url: URL of the CSS file (if any, otherwise value is ignored). This is an absolute URL; in practice it is based on the book URL or `www.w3.org`</span>
+<span class="sd">	:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded in HTML</span>
 <span class="sd">	:param str content: in case the CSS was embedded, the full content of the CSS as retrieved from the DOM</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="c"># noinspection PyPep8</span>
@@ -127,7 +124,7 @@
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;A boolean value whether the content is empty (in which case it can be ignored) or not&quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;A boolean value whether the CSS content is empty (in which case it can be ignored) or not&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_content</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
 
 	<span class="nd">@property</span>
@@ -182,12 +179,12 @@
 			<span class="k">if</span> <span class="n">css</span><span class="p">:</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">_import_css</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
-		<span class="k">def</span> <span class="nf">handle_one_css_ruleset</span><span class="p">(</span><span class="n">ruleset</span><span class="p">):</span>
+		<span class="k">def</span> <span class="nf">handle_one_css_ruleset</span><span class="p">(</span><span class="n">one_ruleset</span><span class="p">):</span>
 			<span class="c"># This is a basic CSS set of declarations. Each declaration has, potentially, a set of values;</span>
 			<span class="c"># the values themselves may be numbers, strings, etc, and also URI-s</span>
 			<span class="c"># Only the URI-s are of interest at this point.</span>
-			<span class="k">if</span> <span class="n">ruleset</span><span class="o">.</span><span class="n">at_keyword</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-				<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ruleset</span><span class="o">.</span><span class="n">declarations</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">one_ruleset</span><span class="o">.</span><span class="n">at_keyword</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">one_ruleset</span><span class="o">.</span><span class="n">declarations</span><span class="p">:</span>
 					<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s">&quot;URI&quot;</span><span class="p">]:</span>
 						<span class="n">add_item_to_import</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
@@ -251,7 +248,7 @@
 </div>
 <div class="viewcode-block" id="CSSList.get_download_list"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSList.get_download_list">[docs]</a>	<span class="k">def</span> <span class="nf">get_download_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Return all the list of resources that must be downloaded and added to the book. These include those</span>
-<span class="sd">		explicitly added previously, plus those retrieved recursively.</span>
+<span class="sd">		explicitly added via :py:meth:`add_css`, plus those retrieved recursively.</span>
 
 <span class="sd">		:return: List of ``(local_name, absolute_url)`` pairs.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
@@ -265,8 +262,8 @@
 	<span class="k">def</span> <span class="nf">_gather_all_stylesheets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="k">def</span> <span class="nf">one_level</span><span class="p">(</span><span class="n">css_references</span><span class="p">):</span>
 			<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">			Recursive step to gather all resources to be downloaded: goes through the list of css references and tries to</span>
-<span class="sd">			access the next level of css references for further inclusion.</span>
+<span class="sd">			Recursive step to gather all resources to be downloaded: goes through the list of css references and</span>
+<span class="sd">			accesses the next level of css references for further inclusion.</span>
 
 <span class="sd">			:param css_references: an array of :py:class:`CSSReference` instances.</span>
 <span class="sd">			&quot;&quot;&quot;</span>

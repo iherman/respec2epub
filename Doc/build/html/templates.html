@@ -48,7 +48,7 @@
         
   <div class="section" id="module-rp2epub.templates">
 <span id="templates"></span><h1>8. Templates<a class="headerlink" href="#module-rp2epub.templates" title="Permalink to this headline">¶</a></h1>
-<p>Templates, i.e., &#8220;scaffold&#8221; XML/CSS content; these are finalized, and then added to the book,
+<p>Templates, i.e., &#8220;scaffold&#8221; XML/CSS content; these are finalized (usually parsed on the fly), and then added to the book,
 by the <a class="reference internal" href="package.html#rp2epub.package.Package" title="rp2epub.package.Package"><code class="xref py py-class docutils literal"><span class="pre">Package</span></code></a> instance.</p>
 <dl class="data">
 <dt id="rp2epub.templates.meta_inf">
@@ -59,13 +59,26 @@ by the <a class="reference internal" href="package.html#rp2epub.package.Package"
 <dl class="data">
 <dt id="rp2epub.templates.NAV">
 <code class="descclassname">rp2epub.templates.</code><code class="descname">NAV</code><a class="headerlink" href="#rp2epub.templates.NAV" title="Permalink to this definition">¶</a></dt>
-<dd><p>XHTML code for the new type EPUB3 table of content file</p>
+<dd><p>XHTML code for the new type EPUB3 table of content file. The string has to be completed for styling on whether the
+TOC entries contain numbering or not</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.templates.NAV_CSS_NUMBERING">
+<code class="descclassname">rp2epub.templates.</code><code class="descname">NAV_CSS_NUMBERING</code><a class="headerlink" href="#rp2epub.templates.NAV_CSS_NUMBERING" title="Permalink to this definition">¶</a></dt>
+<dd><p>CSS complement to the <a class="reference internal" href="#rp2epub.templates.NAV" title="rp2epub.templates.NAV"><code class="xref py py-attr docutils literal"><span class="pre">NAV</span></code></a> string that includes numbering</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.templates.NAV_CSS_NO_NUMBERING">
+<code class="descclassname">rp2epub.templates.</code><code class="descname">NAV_CSS_NO_NUMBERING</code><a class="headerlink" href="#rp2epub.templates.NAV_CSS_NO_NUMBERING" title="Permalink to this definition">¶</a></dt>
+<dd><p>CSS complement to the <a class="reference internal" href="#rp2epub.templates.NAV" title="rp2epub.templates.NAV"><code class="xref py py-attr docutils literal"><span class="pre">NAV</span></code></a> string that relies on the numbers generated into the TOC entries and not done by CSS</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="rp2epub.templates.TOC">
 <code class="descclassname">rp2epub.templates.</code><code class="descname">TOC</code><a class="headerlink" href="#rp2epub.templates.TOC" title="Permalink to this definition">¶</a></dt>
-<dd><p>XML code for the old type EPUB2 table of content file</p>
+<dd><p>XML code for the old type EPUB2 table of content file (many EPUB readers still require this…)</p>
 </dd></dl>
 
 <dl class="data">

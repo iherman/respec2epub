@@ -55,8 +55,8 @@
 <span class="c"># noinspection PyPep8Naming</span>
 <span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">as</span> <span class="nn">ET</span>
 <span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">ElementTree</span><span class="p">,</span> <span class="n">SubElement</span>
-<span class="kn">from</span> <span class="nn">.templates</span> <span class="kn">import</span> <span class="n">PACKAGE</span><span class="p">,</span> <span class="n">TOC</span><span class="p">,</span> <span class="n">NAV</span><span class="p">,</span> <span class="n">COVER</span>
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">DEFAULT_FILES</span><span class="p">,</span> <span class="n">DOCTYPE_INFO</span>
+<span class="kn">from</span> <span class="nn">.templates</span> <span class="kn">import</span> <span class="n">PACKAGE</span><span class="p">,</span> <span class="n">TOC</span><span class="p">,</span> <span class="n">NAV</span><span class="p">,</span> <span class="n">NAV_CSS_NUMBERING</span><span class="p">,</span> <span class="n">NAV_CSS_NO_NUMBERING</span><span class="p">,</span> <span class="n">COVER</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">DEFAULT_FILES</span>
 
 
 <span class="c"># noinspection PyPep8</span>
@@ -215,11 +215,13 @@
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Create a new style TOC file (&#39;nav&#39; file): ``nav.xhtml``.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">full_nav</span>         <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">nav_toc</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="bp">False</span>
+		<span class="n">final_nav_header</span> <span class="o">=</span> <span class="n">NAV</span> <span class="o">%</span> <span class="p">(</span><span class="n">NAV_CSS_NO_NUMBERING</span> <span class="k">if</span> <span class="n">full_nav</span> <span class="k">else</span> <span class="n">NAV_CSS_NUMBERING</span><span class="p">)</span>
 
 		<span class="c"># Setting the default namespace; this is important when the file is generated</span>
 		<span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&quot;http://www.w3.org/1999/xhtml&quot;</span><span class="p">)</span>
 		<span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s">&#39;epub&#39;</span><span class="p">,</span> <span class="s">&quot;http://www.idpf.org/2007/ops&quot;</span><span class="p">)</span>
-		<span class="n">nav</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">NAV</span><span class="p">))</span>
+		<span class="n">nav</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">final_nav_header</span><span class="p">))</span>
 
 		<span class="c"># Set the title</span>
 		<span class="n">title</span> <span class="o">=</span> <span class="n">nav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}title&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -245,12 +247,16 @@
 		<span class="n">a</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s">&quot;Cover&quot;</span>
 		<span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="s">&quot;toc&quot;</span><span class="p">)</span>
 
-		<span class="k">for</span> <span class="n">toc_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">toc</span><span class="p">:</span>
-			<span class="n">li</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="s">&quot;{http://www.w3.org/1999/xhtml}li&quot;</span><span class="p">)</span>
-			<span class="n">a</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">li</span><span class="p">,</span> <span class="s">&quot;{http://www.w3.org/1999/xhtml}a&quot;</span><span class="p">)</span>
-			<span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="n">toc_entry</span><span class="o">.</span><span class="n">href</span><span class="p">)</span>
-			<span class="n">a</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">toc_entry</span><span class="o">.</span><span class="n">short_label</span>
-			<span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="s">&quot;toc&quot;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">full_nav</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">toc_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">nav_toc</span><span class="p">:</span>
+				<span class="n">ol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">toc_entry</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">toc_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">toc</span><span class="p">:</span>
+				<span class="n">li</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="s">&quot;{http://www.w3.org/1999/xhtml}li&quot;</span><span class="p">)</span>
+				<span class="n">a</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">li</span><span class="p">,</span> <span class="s">&quot;{http://www.w3.org/1999/xhtml}a&quot;</span><span class="p">)</span>
+				<span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="n">toc_entry</span><span class="o">.</span><span class="n">href</span><span class="p">)</span>
+				<span class="n">a</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">toc_entry</span><span class="o">.</span><span class="n">short_label</span>
+				<span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="s">&quot;toc&quot;</span><span class="p">)</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="s">&#39;nav.xhtml&#39;</span><span class="p">,</span> <span class="n">nav</span><span class="p">)</span>
 	<span class="c"># end _create_nav</span>

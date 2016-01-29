@@ -48,18 +48,19 @@
         
   <div class="section" id="module-rp2epub.cssurls">
 <span id="retrieval-of-extra-resources-from-css"></span><h1>5. Retrieval of extra resources from CSS<a class="headerlink" href="#module-rp2epub.cssurls" title="Permalink to this headline">¶</a></h1>
-<p>Handling information referred to in CSS files or <cite>&lt;style&gt;</cite> elements.</p>
 <p>The <a class="reference internal" href="#rp2epub.cssurls.CSSList" title="rp2epub.cssurls.CSSList"><code class="xref py py-class docutils literal"><span class="pre">CSSList</span></code></a> encapsulates a collection of external references that are extracted from CSS files, references
 that are supposed to be downloaded and added to the final book, as well as added to the package file. Typically, this
-means handling the CSS import statements (i.e., importing other CSS files) as well as various uri references, e.g., when
+means handling the CSS import statements (i.e., importing other CSS files) as well as various URL references, e.g., when
 setting the content or the background of an element using an image.</p>
-<p>Some CSS files may need a change on the fly. The typical case is when a background image is set through the statement:</p>
+<p>Some CSS files may need to be changed on the fly. The typical case is when a background image is set through the
+CSS statement of the form:</p>
 <div class="highlight-python"><div class="highlight"><pre>background: url(//www.w3.org/StyleSheet/TR/logo);
 </pre></div>
 </div>
-<p>(Which is the trick used to help in the HTTP vs. HTTPS negotiations.) The URL reference must be changed to a local,
-relative URL. These cases are gathered by the process and the upper layers use it to make a simple string &#8220;replace&#8221;
-on the fly when the CSS file is copied to the book.</p>
+<p>(Which is the trick used to help in the HTTP vs. HTTPS negotiations in some of the W3C CSS files.)
+The URL reference must be changed, in this case, to a local,
+relative URL. These required cases are gathered by the process and the upper layers use it to make a simple string &#8220;replace&#8221;
+on the fly when the CSS files are copied to the book.</p>
 <div class="section" id="module-content">
 <h2>5.1. Module content<a class="headerlink" href="#module-content" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -105,7 +106,7 @@ outstanding resources.</p>
 <dt id="rp2epub.cssurls.CSSList.get_download_list">
 <code class="descname">get_download_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/cssurls.html#CSSList.get_download_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.cssurls.CSSList.get_download_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return all the list of resources that must be downloaded and added to the book. These include those
-explicitly added previously, plus those retrieved recursively.</p>
+explicitly added via <a class="reference internal" href="#rp2epub.cssurls.CSSList.add_css" title="rp2epub.cssurls.CSSList.add_css"><code class="xref py py-meth docutils literal"><span class="pre">add_css()</span></code></a>, plus those retrieved recursively.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -121,15 +122,15 @@ explicitly added previously, plus those retrieved recursively.</p>
 <dl class="class">
 <dt id="rp2epub.cssurls.CSSReference">
 <em class="property">class </em><code class="descclassname">rp2epub.cssurls.</code><code class="descname">CSSReference</code><span class="sig-paren">(</span><em>base</em>, <em>url</em>, <em>is_file=True</em>, <em>content=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/cssurls.html#CSSReference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.cssurls.CSSReference" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wrapper around the information necessary in one CSS reference.</p>
+<dd><p>Wrapper around the information related to one CSS reference.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>base</strong> (<em>str</em>) &#8211; Base URI of the overall book. Important to generate proper local name for a resource when retrieved</li>
-<li><strong>url</strong> (<em>str</em>) &#8211; URL of the CSS file (if any, otherwise value is ignored). This is an absolute URL; in practice can be using the overall book URL or www.w3.org</li>
-<li><strong>is_file</strong> (<em>boolean</em>) &#8211; whether the CSS is to be retrieved via the URL or whether it was embedded</li>
+<li><strong>base</strong> (<em>str</em>) &#8211; Base URI of the overall book. Important to generate proper local name for a resource when retrieved.</li>
+<li><strong>url</strong> (<em>str</em>) &#8211; URL of the CSS file (if any, otherwise value is ignored). This is an absolute URL; in practice it is based on the book URL or <cite>www.w3.org</cite></li>
+<li><strong>is_file</strong> (<em>boolean</em>) &#8211; whether the CSS is to be retrieved via the URL or whether it was embedded in HTML</li>
 <li><strong>content</strong> (<em>str</em>) &#8211; in case the CSS was embedded, the full content of the CSS as retrieved from the DOM</li>
 </ul>
 </td>
@@ -152,7 +153,7 @@ and <a class="reference internal" href="#rp2epub.cssurls.CSSReference.import_mis
 <dl class="attribute">
 <dt id="rp2epub.cssurls.CSSReference.empty">
 <code class="descname">empty</code><a class="headerlink" href="#rp2epub.cssurls.CSSReference.empty" title="Permalink to this definition">¶</a></dt>
-<dd><p>A boolean value whether the content is empty (in which case it can be ignored) or not</p>
+<dd><p>A boolean value whether the CSS content is empty (in which case it can be ignored) or not</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -172,7 +173,7 @@ and <a class="reference internal" href="#rp2epub.cssurls.CSSReference.import_mis
 <dl class="class">
 <dt id="rp2epub.cssurls._URLPair">
 <em class="property">class </em><code class="descclassname">rp2epub.cssurls.</code><code class="descname">_URLPair</code><span class="sig-paren">(</span><em>url</em>, <em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/cssurls.html#_URLPair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.cssurls._URLPair" title="Permalink to this definition">¶</a></dt>
-<dd><p>Just a simple wrapper around a pair of (absolute) url, and a local name. Instead of being a pair, the
+<dd><p>A simple wrapper around a pair of (absolute) url, and a local name. The
 values can then be accessed via property names (and not via array/dictionary syntax).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

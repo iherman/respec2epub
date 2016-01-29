@@ -43,16 +43,18 @@
         
   <h1>Source code for rp2epub.document</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">:py:class:`Document` Class encapsulating the original source document, plus the various metadata that can and should be</span>
+<span class="sd">The :py:class:`Document` Class encapsulates the original source document, plus the various metadata that can and should be</span>
 <span class="sd">extracted: short name, dated URI, editors, document type, etc. These data are extracted from the file,</span>
-<span class="sd">usually trying to interpret the content of the file. The metadata also includes information on whether there</span>
-<span class="sd">is scripting, whether it contains svg of MathML: these should be added to the book&#39;s package file.</span>
+<span class="sd">usually trying to interpret the content of the file as well as the referenced CSS files. The metadata also includes information on whether there</span>
+<span class="sd">is scripting, whether it contains svg or MathML: these should be added to the book&#39;s package file (per the specification of EPUB).</span>
 
 <span class="sd">The class instance collects the various external references that must be, eventually, added to the final book</span>
 <span class="sd">(images, CSS files, etc.).</span>
 
 <span class="sd">Finally, the HTML content (ie, the DOM tree) is also modified on the fly: HTML namespace is added, some metadata</span>
-<span class="sd">is changed to fit the HTML5 requirements, link references may be updated for, e.g., CSS, etc.</span>
+<span class="sd">is changed a bit to fit the HTML5 requirements, the HTML is output in XHTML, etc.</span>
+
+<span class="sd">The class is invoked (and &quot;controlled&quot;) by a `:py:class:`.DocWrapper` instance.</span>
 
 <span class="sd">.. :class::</span>
 
@@ -89,7 +91,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span> <span class="o">=</span> <span class="p">[]</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_index</span>                <span class="o">=</span> <span class="mi">0</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_driver</span>               <span class="o">=</span> <span class="n">driver</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span>      <span class="o">=</span> <span class="p">[]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_download_targets</span>     <span class="o">=</span> <span class="p">[]</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">_title</span>          <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_properties</span>     <span class="o">=</span> <span class="bp">None</span>
@@ -101,6 +103,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_authors</span>        <span class="o">=</span> <span class="s">&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_respec_config</span>  <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_toc</span>		     <span class="o">=</span> <span class="p">[]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_nav_toc</span>	     <span class="o">=</span> <span class="p">[]</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_css_tr_version</span> <span class="o">=</span> <span class="mi">2015</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_subtitle</span>       <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_get_document_metadata</span><span class="p">()</span>
@@ -109,6 +112,12 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_css_references</span>       <span class="o">=</span> <span class="n">css_list</span><span class="o">.</span><span class="n">get_download_list</span><span class="p">()</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_css_change_patterns</span>  <span class="o">=</span> <span class="n">css_list</span><span class="o">.</span><span class="n">change_patterns</span>
 
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">download_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Array of resources to be downloaded and added to the final book. Entries of the array are (:py:class:`xml.etree.ElementTree.Element`, attribute) pairs, referring to the element and the attribute that identifies the URL of the resources to be downloaded.&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_targets</span>
+
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">driver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;The caller: a :py:class:`.doc2epub.DocToEpub` instance.&quot;&quot;&quot;</span>
@@ -116,27 +125,29 @@
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;HTML element as parsed; an :py:class:`xml.etree.ElementTree.Element` instance  &quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;The parsed version of the top level HTML element; an :py:class:`xml.etree.ElementTree.Element` instance  &quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_driver</span><span class="o">.</span><span class="n">html</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">additional_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;List of additional resources that must be added to the book. A list of tuples, containing the internal</span>
+		<span class="sd">&quot;&quot;&quot;List of additional resources that must be added to the book eventually. A list of tuples, containing the internal</span>
 <span class="sd">		reference to the resource and the media type. Built up during processing, it is used in when creating the manifest</span>
 <span class="sd">		file of the book.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span>
 
 <div class="viewcode-block" id="Document.add_additional_resource"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document.add_additional_resource">[docs]</a>	<span class="k">def</span> <span class="nf">add_additional_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_name</span><span class="p">,</span> <span class="n">media_type</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Add a pair of local name and media type to the list of additional resources.</span>
+		<span class="sd">&quot;&quot;&quot;Add a pair of local name and media type to the list of additional resources. Appends to the :py:attr:`additional_resources` list.</span>
+<span class="sd">		:param local_name: name of the resource within the final book</span>
+<span class="sd">		:param media_type: media type (used when the resource is added to the package file)</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">local_name</span><span class="p">,</span> <span class="n">media_type</span><span class="p">))</span>
 </div>
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">css_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Set if (local_name, absolute_url) pairs for resources gathered recursively from CSS files. These</span>
+		<span class="sd">&quot;&quot;&quot;Set of `(local_name, absolute_url)` pairs for resources gathered recursively from CSS files. These</span>
 <span class="sd">		are CSS files themselves, or other media like logos, background images, etc, referred to via a `url` statement</span>
-<span class="sd">		in CSS</span>
+<span class="sd">		in CSS.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_css_references</span>
 
@@ -151,11 +162,11 @@
 <div class="viewcode-block" id="Document.extract_external_references"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document.extract_external_references">[docs]</a>	<span class="k">def</span> <span class="nf">extract_external_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is</span>
 
-<span class="sd">		- the URL begins with the same base or is on the www.w3.org domain (the latter is for official CSS files and logos)</span>
+<span class="sd">		- has a URL is a relative one, begins with the same base, or refers to the `www.w3.org` domain (the latter is for official CSS files and logos)</span>
 <span class="sd">		- is one of the &#39;accepted&#39; media types for epub</span>
 
 <span class="sd">		then the file is copied and stored in the book, the reference is changed in the document,</span>
-<span class="sd">		and the resource is marked to be added to the manifest file</span>
+<span class="sd">		and the resource is marked to be added to the manifest file. HTML files are copied as XHTML files, with a ``.xhtml`` suffix.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 
 		<span class="k">def</span> <span class="nf">final_target_media</span><span class="p">(</span><span class="n">f_session</span><span class="p">,</span> <span class="n">f_target</span><span class="p">):</span>
@@ -167,14 +178,14 @@
 		<span class="c"># Retrieve the value of the reference. By making a urljoin, relative URI-s are also turned into absolute one;</span>
 		<span class="c"># this simplifies the issue</span>
 		<span class="c"># Look at generic external references like images, and, possibly copy the content</span>
-		<span class="k">for</span> <span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="p">:</span>
+		<span class="k">for</span> <span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_targets</span><span class="p">:</span>
 			<span class="n">attr_value</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
 			<span class="c"># The TO_TRANSFER array collects the &#39;system&#39; references collected in Assets. Although some</span>
 			<span class="c"># earlier manipulation on the DOM may have already set the external references to those, the</span>
 			<span class="c"># HTTPSession is unnecessary (and sometimes leads to 404 anyway)</span>
 			<span class="c"># Bottom line: those references must be filtered out</span>
 			<span class="k">if</span> <span class="n">attr_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">attr_value</span><span class="p">,</span> <span class="n">TO_TRANSFER</span><span class="p">)):</span>
-				<span class="c"># This artefact is necessary to treat the WWW level, official URIs and local ones</span>
+				<span class="c"># This artifact is necessary to treat the WWW level, official URIs and local ones</span>
 				<span class="n">ref</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">attr_value</span><span class="p">)</span>
 
 				<span class="c"># In some cases, primarily in the case of editors drafts, the reference is simply on the file</span>
@@ -237,7 +248,9 @@
 	<span class="c"># noinspection PyPep8</span></div>
 <div class="viewcode-block" id="Document._collect_downloads"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._collect_downloads">[docs]</a>	<span class="k">def</span> <span class="nf">_collect_downloads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Process a document looking for (and possibly copying) external references and making some minor modifications on the fly</span>
+<span class="sd">		Process a document looking for (and possibly copying) external references and making some minor</span>
+<span class="sd">		modifications on the fly. ``(Element, attribute)`` pairs are added on the fly to the internal array of downloads</span>
+<span class="sd">		(see :py:attr:`download_targets`).</span>
 
 <span class="sd">		:returns: a :py:class:`.cssurls.CSSList` instance, with all the CSS references</span>
 <span class="sd">		&quot;&quot;&quot;</span>
@@ -256,7 +269,7 @@
 			<span class="k">if</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span><span class="p">:</span>
 				<span class="k">if</span> <span class="ow">not</span> <span class="n">ref</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.css&quot;</span><span class="p">):</span>
 					<span class="n">lnk</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span><span class="n">ref</span> <span class="o">+</span> <span class="s">&quot;.css&quot;</span><span class="p">)</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lnk</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lnk</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">))</span>
 			<span class="c"># The CSS reference should be stored as a possible source of further references</span>
 			<span class="n">css_list</span><span class="o">.</span><span class="n">add_css</span><span class="p">(</span><span class="n">lnk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">))</span>
 
@@ -287,7 +300,7 @@
 		<span class="c"># Collect the additional download targets</span>
 		<span class="k">for</span> <span class="p">(</span><span class="n">tag_name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">EXTERNAL_REFERENCES</span><span class="p">:</span>
 			<span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">tag_name</span><span class="p">):</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">element</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">element</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
 
 		<span class="c"># Extra care should be taken with &lt;a&gt; elements: only local, relative URI-s should be considered,</span>
 		<span class="c"># excluding the pure fragment id. Ie, it should refer to another file in the local package.</span>
@@ -296,7 +309,7 @@
 			<span class="n">ref</span>  <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">)</span>
 			<span class="n">pref</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
 			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pref</span><span class="o">.</span><span class="n">netloc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">pref</span><span class="o">.</span><span class="n">scheme</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">pref</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">ref</span> <span class="o">!=</span> <span class="s">&quot;.&quot;</span><span class="p">:</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">element</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">))</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_download_targets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">element</span><span class="p">,</span> <span class="s">&#39;href&#39;</span><span class="p">))</span>
 
 		<span class="k">return</span> <span class="n">css_list</span>
 
@@ -331,7 +344,8 @@
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">dated_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;&#39;Dated URI&#39;, in the jargon. As a fall back, this may be set to the top URI of the document if the dated uri has not been set &quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;&#39;Dated URI&#39;, in the W3C jargon. As a fallback, this may be set to the top URI of the document if the</span>
+<span class="sd">		dated uri has not been set &quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">top_uri</span>
 
 	<span class="nd">@property</span>
@@ -363,8 +377,17 @@
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">toc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Table of content, an array of ``TOC_Item`` objects&quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;Table of content, an array of :py:class:`.utils.TOC_Item` instances. It is only the top level TOC structures;</span>
+<span class="sd">		used for the old-school TOC file as well as for the EPUB3 navigation document in case the</span>
+<span class="sd">		original document does not have the appropriate structures in its TOC.&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toc</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">nav_toc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Table of content extracted from a ``&lt;nav&gt;`` element (if any), that is copied almost verbatim into the</span>
+<span class="sd">		EPUB3 navigation document. It may be empty, though, because the source does not contain the required TOC</span>
+<span class="sd">		structure, in which case the simple TOC structure is (see :py:attr:`toc`).&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nav_toc</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">css_tr_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -450,18 +473,20 @@
 			<span class="bp">self</span><span class="o">.</span><span class="n">_subtitle</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
 			<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">issued</span><span class="o">.</span><span class="n">itertext</span><span class="p">():</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">_subtitle</span> <span class="o">+=</span> <span class="n">t</span>
-</div>
+
+	<span class="c"># noinspection PyPep8Naming</span></div>
 <div class="viewcode-block" id="Document._get_CSS_TR_version"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._get_CSS_TR_version">[docs]</a>	<span class="k">def</span> <span class="nf">_get_CSS_TR_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Set the CSS TR version based on the document.</span>
-<span class="sd">		Note: this is very ugly, hopefully there will be a better way of finding this...</span>
+<span class="sd">		Note: at the moment this is very ugly: the path of the CSS URL is checked for a date. Hopefully, there will</span>
+<span class="sd">		be some more &#39;standard&#39; way of doing this, eventually.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_css_tr_version</span> <span class="o">=</span> <span class="mi">2015</span>
 
 		<span class="k">for</span> <span class="n">lnk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//link[@rel=&#39;stylesheet&#39;]&quot;</span><span class="p">):</span>
 			<span class="n">ref_details</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">lnk</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">))</span>
 			<span class="c"># TODO: THIS IS TEMPORARY, SHOULD BE FIXED WHEN THINGS BECOME FINAL!!!!</span>
-			<span class="k">if</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span> <span class="ow">and</span> <span class="s">&quot;2016&quot;</span> <span class="ow">in</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">path</span> <span class="p">:</span>
+			<span class="k">if</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span> <span class="ow">and</span> <span class="s">&quot;2016&quot;</span> <span class="ow">in</span> <span class="n">ref_details</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">_css_tr_version</span> <span class="o">=</span> <span class="mi">2016</span>
 				<span class="k">return</span>
 		<span class="k">return</span>
@@ -539,7 +564,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_subtitle</span> <span class="o">+=</span> <span class="s">&quot;, &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%d</span><span class="s"> %B, %Y&quot;</span><span class="p">)</span>
 
 		<span class="c"># Extract the table of content</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_toc</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">extract_toc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_name</span><span class="p">)</span>
+		<span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_toc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nav_toc</span><span class="p">)</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">extract_toc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_name</span><span class="p">)</span>
 </pre></div></div></div>
 
       </div>

@@ -1,14 +1,14 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-The real entry point to the package through the  :py:class:`DocWrapper` class below. Instance of that class controls the
-necessary actions
+The entry point to the package is through the  :py:class:`DocWrapper` class below. An instance of that class controls the
+necessary workflow for the EPUB generation, namely:
 
 * gets hold of the content, possibly converts the ReSpec source on the fly to HTML
-* creates a :py:class:`.document.Document` class around the content that holds all the necessary metadata, and further references
+* creates a :py:class:`.document.Document` class around the content that holds all the necessary metadata and further references
 * creates the book and, if required, the folder for the content
 * collects all the dependencies from the Web, and copies them to the output
-* collects all the auxiliary files (package file, etc) and copies them to the output
+* creates all the auxiliary files (package file, navigation files, etc) and copies them to the output
 
 
 .. :class:: DocWrapper
@@ -18,7 +18,6 @@ Module content
 """
 
 # noinspection PyPep8
-# TODO: handle the possible css references to other css files or to images
 
 # noinspection PyPep8Naming
 import html5lib
@@ -36,7 +35,7 @@ import utils
 
 
 #: URI of the service used to convert a ReSpec source onto an HTML file on the fly. This service is used
-#: by this script to process ReSpec sources before EPUB3 generation.
+#: by this script to convert ReSpec sources into HTML before EPUB3 generation.
 CONVERTER = "https://labs.w3.org/spec-generator/?type=respec&url="
 
 
@@ -44,15 +43,14 @@ CONVERTER = "https://labs.w3.org/spec-generator/?type=respec&url="
 # noinspection PyPep8
 class DocWrapper:
 	"""
-	Top level entry class; receives the URI to be retrieved and generates the folders and the EPUB Package (as required)
-	in the current directory (by default).
+	Top level entry class; receives the URI to be retrieved and generates the folders and/or the EPUB Package in the current directory (by default).
 
 	:param str url: location of the document source
-	:param boolean is_respec: flag whether the source is a respec source (ie, has to be transformed through spec generator) or not
-	:param boolean package: whether a real zip file should be created or not
+	:param boolean is_respec: flag whether the source is a ReSpec source (ie, has to be transformed through spec generator) or not
+	:param boolean package: whether a real zip file (ie, the EPUB instance) should be created or not
 	:param boolean folder: whether the directory structure should be created separately or not
 	:param boolean temporary: whether the zipped EPUB file should be put into a temporary filesystem location (used when the service is used through the Web)
-	:param logger: a python logger (see the logging standard library module) to be used all around; initialized to None (for no logging)
+	:param logger: a python logger (see the standard library module on logging) to be used all around;  `None` means no logging
 	"""
 
 	# noinspection PyPep8
@@ -107,7 +105,7 @@ class DocWrapper:
 
 	@property
 	def folder(self):
-		"""Flag whether a folder, containing the package content, is created"""
+		"""Flag whether a folder, containing the package content, is created separately"""
 		return self._folder
 
 	@property
@@ -117,7 +115,7 @@ class DocWrapper:
 
 	@property
 	def book_file_name(self):
-		"""Name of the book; usually `shortname + .epub`, but can be a temporary file if so requested"""
+		"""Name of the book; usually `shortname + .epub`, but can be a temporary file if so requested (the term “shortname” is a W3C jargon…)"""
 		return self._book_file_name
 
 	@property
@@ -142,12 +140,12 @@ class DocWrapper:
 
 	@property
 	def html(self):
-		"""HTML element as parsed; :py:class:`xml.etree.ElementTree.ElementTree` instance"""
+		"""HTML element as parsed; an :py:class:`xml.etree.ElementTree.ElementTree` instance"""
 		return self._html
 
 	@property
 	def top_uri(self):
-		"""Top level URI for the file to be processed"""
+		"""Top level (absolute) URI for the file to be processed"""
 		return self._top_uri
 
 	@property

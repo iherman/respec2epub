@@ -1,27 +1,25 @@
 """
-Handling information referred to in CSS files or `<style>` elements.
-
 The :py:class:`CSSList` encapsulates a collection of external references that are extracted from CSS files, references
 that are supposed to be downloaded and added to the final book, as well as added to the package file. Typically, this
-means handling the CSS import statements (i.e., importing other CSS files) as well as various uri references, e.g., when
+means handling the CSS import statements (i.e., importing other CSS files) as well as various URL references, e.g., when
 setting the content or the background of an element using an image.
 
-Some CSS files may need a change on the fly. The typical case is when a background image is set through the statement::
+Some CSS files may need to be changed on the fly. The typical case is when a background image is set through the
+CSS statement of the form::
 
 	background: url(//www.w3.org/StyleSheet/TR/logo);
 
 
-(Which is the trick used to help in the HTTP vs. HTTPS negotiations.) The URL reference must be changed to a local,
-relative URL. These cases are gathered by the process and the upper layers use it to make a simple string "replace"
-on the fly when the CSS file is copied to the book.
+(Which is the trick used to help in the HTTP vs. HTTPS negotiations in some of the W3C CSS files.)
+The URL reference must be changed, in this case, to a local,
+relative URL. These required cases are gathered by the process and the upper layers use it to make a simple string "replace"
+on the fly when the CSS files are copied to the book.
 
 .. :class::
 
 Module content
 --------------
 """
-
-# TODO: documentation
 
 from urlparse import urljoin, urlparse
 import tinycss
@@ -30,7 +28,7 @@ from .utils import HttpSession, Logger
 
 class _URLPair:
 	"""
-	Just a simple wrapper around a pair of (absolute) url, and a local name. Instead of being a pair, the
+	A simple wrapper around a pair of (absolute) url, and a local name. The
 	values can then be accessed via property names (and not via array/dictionary syntax).
 
 	:param str url: Absolute URL of the resource
@@ -58,11 +56,11 @@ class _URLPair:
 # noinspection PyPep8
 class CSSReference:
 	"""
-	Wrapper around the information necessary in one CSS reference.
+	Wrapper around the information related to one CSS reference.
 
-	:param str base: Base URI of the overall book. Important to generate proper local name for a resource when retrieved
-	:param str url: URL of the CSS file (if any, otherwise value is ignored). This is an absolute URL; in practice can be using the overall book URL or www.w3.org
-	:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded
+	:param str base: Base URI of the overall book. Important to generate proper local name for a resource when retrieved.
+	:param str url: URL of the CSS file (if any, otherwise value is ignored). This is an absolute URL; in practice it is based on the book URL or `www.w3.org`
+	:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded in HTML
 	:param str content: in case the CSS was embedded, the full content of the CSS as retrieved from the DOM
 	"""
 	# noinspection PyPep8
@@ -82,7 +80,7 @@ class CSSReference:
 
 	@property
 	def empty(self):
-		"""A boolean value whether the content is empty (in which case it can be ignored) or not"""
+		"""A boolean value whether the CSS content is empty (in which case it can be ignored) or not"""
 		return self._content is None or len(self._content) == 0
 
 	@property
@@ -206,7 +204,7 @@ class CSSList:
 
 	def get_download_list(self):
 		"""Return all the list of resources that must be downloaded and added to the book. These include those
-		explicitly added previously, plus those retrieved recursively.
+		explicitly added via :py:meth:`add_css`, plus those retrieved recursively.
 
 		:return: List of ``(local_name, absolute_url)`` pairs.
 		"""
@@ -220,8 +218,8 @@ class CSSList:
 	def _gather_all_stylesheets(self):
 		def one_level(css_references):
 			"""
-			Recursive step to gather all resources to be downloaded: goes through the list of css references and tries to
-			access the next level of css references for further inclusion.
+			Recursive step to gather all resources to be downloaded: goes through the list of css references and
+			accesses the next level of css references for further inclusion.
 
 			:param css_references: an array of :py:class:`CSSReference` instances.
 			"""

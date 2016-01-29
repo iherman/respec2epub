@@ -3,7 +3,7 @@ import argparse
 import logging
 import logging.handlers
 
-description = "Generate EPUB3 for a single W3C TR document, either in respec format (default) or generated from respec."
+description = "Generate EPUB3 for a single W3C TR document, either in respec format (default) or an HTML file generated from respec or bikeshed."
 
 
 def _create_logger(fname, level=logging.DEBUG):

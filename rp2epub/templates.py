@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Templates, i.e., "scaffold" XML/CSS content; these are finalized, and then added to the book,
+Templates, i.e., "scaffold" XML/CSS content; these are finalized (usually parsed on the fly), and then added to the book,
 by the :py:class:`.Package` instance.
 
 .. py:data:: meta_inf
@@ -14,15 +14,15 @@ by the :py:class:`.Package` instance.
 
 .. py:data:: NAV_CSS_NUMBERING
 
-  CSS complement to the NAV string that includes numbering
+  CSS complement to the :py:attr:`NAV` string that includes numbering
 
 .. py:data:: NAV_CSS_NO_NUMBERING
 
-  CSS complement to the NAV string that relies on the numbers generated into the TOC entries and not done by CSS
+  CSS complement to the :py:attr:`NAV` string that relies on the numbers generated into the TOC entries and not done by CSS
 
 .. py:data:: TOC
 
-  XML code for the old type EPUB2 table of content file
+  XML code for the old type EPUB2 table of content file (many EPUB readers still require this…)
 
 .. py:data:: PACKAGE
 
