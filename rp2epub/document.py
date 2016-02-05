@@ -197,7 +197,10 @@ class Document:
 						# generated (but referenced from content)
 						# Take out those situations that are under the control of this script
 						if not element.get(attr).startswith("Assets/"):
+							element.tag = "span"
 							element.attrib.pop(attr)
+							if element.get("rel") is not None:
+								element.attrib.pop("rel")
 							Logger.warning("Link to '%s' removed (non-existing local resource or of non acceptable type)" % ref)
 
 	###################################################################################################

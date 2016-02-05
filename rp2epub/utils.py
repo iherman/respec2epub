@@ -426,7 +426,9 @@ class Utils(object):
 			toc = html.findall(xpath)
 			if len(toc) > 0:
 				for li in toc[0].findall("li"):
-					cloned_li = fromstring(tostring(li, encoding="utf-8", method="xml"))
+					li_in_string = tostring(li, encoding="utf-8", method="xml")
+					# making some changes for the nav element and then turn it back to an Element tree
+					cloned_li = fromstring(li_in_string.replace('<ul','<ol').replace('</ul>','</ol>'))
 					for a in cloned_li.findall(".//a"):
 						ref = a.get("href")
 						ref = "Overview.xhtml" + ref if ref[0] == '#' else ref.replace(".html", ".xhtml", 1)

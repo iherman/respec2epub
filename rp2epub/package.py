@@ -60,7 +60,7 @@ class Package:
 		# Get the default resources first
 		for (href, media_type, item_id, prop) in DEFAULT_FILES:
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
-			item.set("id", item_id)
+			item.set("id", item_id.replace('.','-'))
 			item.set("href", href)
 			item.set("media-type", media_type)
 			if prop != "":
@@ -76,11 +76,11 @@ class Package:
 		item.tail = "\n    "
 
 		# Add the additional resources
-		for resource_target, media_type in self.document.additional_resources:
+		for resource_target, media_type in set(self.document.additional_resources):
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
 			item.set("href", resource_target)
 			item.set("media-type", media_type)
-			item.set("id", resource_target.replace('/', '-'))
+			item.set("id", resource_target.replace('/', '-').replace('.','-'))
 			item.tail = "\n    "
 
 		# Add the (only) spine element
@@ -187,9 +187,9 @@ class Package:
 		date = nav.findall(".//{http://www.w3.org/1999/xhtml}meta[@name='date']")[0]
 		date.set("content", self.document.date.strftime("%Y-%m-%dT%M:%S:00Z"))
 
-		# The landmark part of the nav file has to be changed; there is no explicit cover page
-		li_landmark = nav.findall(".//{http://www.w3.org/1999/xhtml}li[@href='cover.xhtml']")[0]
-		li_landmark.set("href", "Overview.xhtml")
+		# # The landmark part of the nav file has to be changed; there is no explicit cover page
+		# li_landmark = nav.findall(".//{http://www.w3.org/1999/xhtml}a[@href='cover.xhtml']")[0]
+		# li_landmark.set("href", "Overview.xhtml")
 
 		navMap = nav.findall(".//{http://www.w3.org/1999/xhtml}nav[@id='toc']")[0]
 

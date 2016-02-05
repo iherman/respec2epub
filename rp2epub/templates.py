@@ -61,7 +61,7 @@ NAV = """<?xml version="1.0" encoding="UTF-8"?>
         </title>
         <meta name="date" />
         <link rel="stylesheet" type="text/css" href="StyleSheets/TR/base.css" />
-        <meta content="application/xhtml+xml; charset=utf-8" http-equiv="content-type" />
+        <meta charset="utf-8" />
         <style>
 %s
         </style>
@@ -71,8 +71,8 @@ NAV = """<?xml version="1.0" encoding="UTF-8"?>
         </nav>
         <nav epub:type="landmarks" id="landmarks">
           <ol epub:type="list">
-            <li epub:type="bodymatter" href="cover.xhtml">Begin reading</li>
-            <li epub:type="toc" href="toc.xhtml">Table of Contents</li>
+            <li><a epub:type="bodymatter" href="Overview.xhtml">Begin reading</a></li>
+            <li><a epub:type="toc" href="nav.xhtml">Table of Contents</a></li>
           </ol>
         </nav>
     </body>
@@ -121,7 +121,7 @@ TOC = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
 
 # noinspection PyPep8
 PACKAGE = """<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="en" unique-identifier="pub-id" prefix="cc: http://creativecommons.org/ns#">
+<package xmlns="http://www.idpf.org/2007/opf" version="3.01" xml:lang="en" unique-identifier="pub-id" prefix="cc: http://creativecommons.org/ns#">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:title id="title" />
     <meta refines="#title" property="title-type">main</meta>
