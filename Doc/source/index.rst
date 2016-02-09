@@ -58,8 +58,13 @@ Metadata
 * Document creation date: |today|
 * Author: Ivan Herman
 * Contact: ivan@w3.org
-* Licence: W3C SOFTWARE NOTICE AND LICENSE <http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231>
 * Repository: <https://github.com/iherman/respec2epub>
+
+
+Copyright © [2016] World Wide Web Consortium, (Massachusetts Institute of Technology, European Research Consortium for
+Informatics and Mathematics, Keio University, Beihang). All Rights Reserved. This work is distributed under the
+`W3C® Software License <http://www.w3.org/Consortium/Legal/copyright-software>`__ in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 Thanks to Zheng Xu (Rakuten/Kobo) who helped me in some of the interoperability problems around ePub readers.
 Thanks also to José Kahan (W3C) who helped me getting the setup procedure smoother.

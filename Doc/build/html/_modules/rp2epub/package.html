@@ -104,7 +104,7 @@
 		<span class="c"># Get the default resources first</span>
 		<span class="k">for</span> <span class="p">(</span><span class="n">href</span><span class="p">,</span> <span class="n">media_type</span><span class="p">,</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span> <span class="ow">in</span> <span class="n">DEFAULT_FILES</span><span class="p">:</span>
 			<span class="n">item</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="s">&quot;{http://www.idpf.org/2007/opf}item&quot;</span><span class="p">)</span>
-			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="n">item_id</span><span class="p">)</span>
+			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="n">item_id</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span><span class="s">&#39;-&#39;</span><span class="p">))</span>
 			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="n">href</span><span class="p">)</span>
 			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;media-type&quot;</span><span class="p">,</span> <span class="n">media_type</span><span class="p">)</span>
 			<span class="k">if</span> <span class="n">prop</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
@@ -120,11 +120,11 @@
 		<span class="n">item</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">    &quot;</span>
 
 		<span class="c"># Add the additional resources</span>
-		<span class="k">for</span> <span class="n">resource_target</span><span class="p">,</span> <span class="n">media_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">additional_resources</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">resource_target</span><span class="p">,</span> <span class="n">media_type</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">additional_resources</span><span class="p">):</span>
 			<span class="n">item</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="s">&quot;{http://www.idpf.org/2007/opf}item&quot;</span><span class="p">)</span>
 			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="n">resource_target</span><span class="p">)</span>
 			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;media-type&quot;</span><span class="p">,</span> <span class="n">media_type</span><span class="p">)</span>
-			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="n">resource_target</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="s">&#39;-&#39;</span><span class="p">))</span>
+			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="n">resource_target</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="s">&#39;-&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span><span class="s">&#39;-&#39;</span><span class="p">))</span>
 			<span class="n">item</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">    &quot;</span>
 
 		<span class="c"># Add the (only) spine element</span>
@@ -231,9 +231,9 @@
 		<span class="n">date</span> <span class="o">=</span> <span class="n">nav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}meta[@name=&#39;date&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 		<span class="n">date</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;content&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">T%M:%S:00Z&quot;</span><span class="p">))</span>
 
-		<span class="c"># The landmark part of the nav file has to be changed; there is no explicit cover page</span>
-		<span class="n">li_landmark</span> <span class="o">=</span> <span class="n">nav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}li[@href=&#39;cover.xhtml&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-		<span class="n">li_landmark</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;href&quot;</span><span class="p">,</span> <span class="s">&quot;Overview.xhtml&quot;</span><span class="p">)</span>
+		<span class="c"># # The landmark part of the nav file has to be changed; there is no explicit cover page</span>
+		<span class="c"># li_landmark = nav.findall(&quot;.//{http://www.w3.org/1999/xhtml}a[@href=&#39;cover.xhtml&#39;]&quot;)[0]</span>
+		<span class="c"># li_landmark.set(&quot;href&quot;, &quot;Overview.xhtml&quot;)</span>
 
 		<span class="n">navMap</span> <span class="o">=</span> <span class="n">nav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}nav[@id=&#39;toc&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
