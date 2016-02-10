@@ -26,7 +26,7 @@ import tinycss
 from .utils import HttpSession, Logger
 
 
-class _URLPair:
+class _URLPair(object):
 	"""
 	A simple wrapper around a pair of (absolute) url, and a local name. The
 	values can then be accessed via property names (and not via array/dictionary syntax).
@@ -54,7 +54,7 @@ class _URLPair:
 
 
 # noinspection PyPep8
-class CSSReference:
+class CSSReference(object):
 	"""
 	Wrapper around the information related to one CSS reference.
 
@@ -172,7 +172,7 @@ class CSSReference:
 
 
 # noinspection PyPep8
-class CSSList:
+class CSSList(object):
 	"""
 	List of :py:class:`CSSReference` instances. This is, initially, built up from the :py:class:`.document.Document` class; when
 	the final information is requested, a recursion is done on the collected CSS file references to collect all

@@ -16,7 +16,7 @@ from .config import DEFAULT_FILES
 
 
 # noinspection PyPep8
-class Package:
+class Package(object):
 	"""
 	Collection of methods to generate the manifest, TOC in different formats, and the cover pages
 

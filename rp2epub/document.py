@@ -34,7 +34,7 @@ import config
 
 
 # Massage the core document
-class Document:
+class Document(object):
 	"""
 	Encapsulation of the top level document.
 

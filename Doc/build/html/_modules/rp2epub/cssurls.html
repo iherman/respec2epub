@@ -70,7 +70,7 @@
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Logger</span>
 
 
-<div class="viewcode-block" id="_URLPair"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls._URLPair">[docs]</a><span class="k">class</span> <span class="nc">_URLPair</span><span class="p">:</span>
+<div class="viewcode-block" id="_URLPair"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls._URLPair">[docs]</a><span class="k">class</span> <span class="nc">_URLPair</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	A simple wrapper around a pair of (absolute) url, and a local name. The</span>
 <span class="sd">	values can then be accessed via property names (and not via array/dictionary syntax).</span>
@@ -98,7 +98,7 @@
 
 
 <span class="c"># noinspection PyPep8</span></div>
-<div class="viewcode-block" id="CSSReference"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSReference">[docs]</a><span class="k">class</span> <span class="nc">CSSReference</span><span class="p">:</span>
+<div class="viewcode-block" id="CSSReference"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSReference">[docs]</a><span class="k">class</span> <span class="nc">CSSReference</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	Wrapper around the information related to one CSS reference.</span>
 
@@ -216,7 +216,7 @@
 
 
 <span class="c"># noinspection PyPep8</span></div>
-<div class="viewcode-block" id="CSSList"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSList">[docs]</a><span class="k">class</span> <span class="nc">CSSList</span><span class="p">:</span>
+<div class="viewcode-block" id="CSSList"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSList">[docs]</a><span class="k">class</span> <span class="nc">CSSList</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	List of :py:class:`CSSReference` instances. This is, initially, built up from the :py:class:`.document.Document` class; when</span>
 <span class="sd">	the final information is requested, a recursion is done on the collected CSS file references to collect all</span>

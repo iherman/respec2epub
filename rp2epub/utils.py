@@ -449,7 +449,7 @@ class Utils(object):
 
 
 ###################################################################################
-class HttpSession:
+class HttpSession(object):
 	# noinspection PyPep8
 	"""
 		Wrapper around an HTTP session; the returned media type is compared against accepted media

@@ -41,7 +41,7 @@ CONVERTER = "https://labs.w3.org/spec-generator/?type=respec&url="
 
 ###################################################################################
 # noinspection PyPep8
-class DocWrapper:
+class DocWrapper(object):
 	"""
 	Top level entry class; receives the URI to be retrieved and generates the folders and/or the EPUB Package in the current directory (by default).
 
