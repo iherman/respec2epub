@@ -151,10 +151,6 @@ class Package(object):
 
 		navMap = ncx.findall(".//{http://www.daisy.org/z3986/2005/ncx/}navMap")[0]
 
-		# One element must be removed from the general template
-		to_remove = ncx.findall(".//{http://www.daisy.org/z3986/2005/ncx/}navPoint[@id='toc']")[0]
-		navMap.remove(to_remove)
-
 		index = 2
 		for toc_entry in self.document.toc:
 			set_nav_point(navMap, toc_entry.href, toc_entry.label, index)

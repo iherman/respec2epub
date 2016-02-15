@@ -111,10 +111,6 @@ TOC = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
       <navLabel><text>Cover</text></navLabel>
       <content src="cover.xhtml"/>
     </navPoint>
-    <navPoint class="h1" id="toc" playOrder="2">
-      <navLabel><text>Table of Contents</text></navLabel>
-      <content src="toc.xhtml"/>
-    </navPoint>
   </navMap>
 </ncx>
 """
