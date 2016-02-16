@@ -1,5 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""
+CGI entry point for the respec to EPUB conversion Web service.
+
+"""
 import os
 import os.path
 import sys
@@ -101,6 +105,9 @@ def respond(wrapper, modified):
 
 
 class Generator:
+	"""
+	The real work horse to control the conversion.
+	"""
 	# noinspection PyPep8
 	def __init__(self):
 		"""
@@ -135,6 +142,7 @@ class Generator:
 	def generate_ebook(self):
 		"""
 		Interface to the real ebook generation; test setup for now
+
 		:return: file name for the final book
 		"""
 		# Generate the EPUB in the external library
@@ -142,7 +150,7 @@ class Generator:
 		# Looks unnecessary, but sets the right locale...
 		import rp2epub
 		from rp2epub.doc2epub import DocWrapper
-		# noinspection PyPep8
+		# noinspection PyPep8,PyArgumentEqualDefault
 		return DocWrapper(self.args['url'],
 						  is_respec=self.args['respec'],
 						  package=True,
