@@ -88,10 +88,6 @@ class Package(object):
 		item = SubElement(spine, "{http://www.idpf.org/2007/opf}itemref")
 		item.set("idref", "main")
 
-		# Remove the unnecessary item in spine (from the general template)
-		to_remove = opf.findall(".//{http://www.idpf.org/2007/opf}itemref[@idref='toc']")[0]
-		spine.remove(to_remove)
-
 		# Manifest metadata
 		title = opf.findall(".//{http://purl.org/dc/elements/1.1/}title")[0]
 		title.text = self.document.title
