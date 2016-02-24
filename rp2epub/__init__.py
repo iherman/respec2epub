@@ -10,8 +10,12 @@ __license__ = 'W3C SOFTWARE NOTICE AND LICENSE <http://www.w3.org/Consortium/Leg
 
 class R2EError(Exception):
 	"""
-	rp2epub specific Exception class; used to wrap normal exceptions, without adding any functionality.
+	rp2epub specific Exception class; used to wrap normal exceptions, without adding any real functionality, just storing the value.
 	"""
-	pass
+	def __init__(self, value):
+		self.value = value
+
+	def __str__(self):
+		return repr(self.value)
 
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
