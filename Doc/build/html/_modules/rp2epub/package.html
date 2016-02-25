@@ -56,7 +56,8 @@
 <span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">as</span> <span class="nn">ET</span>
 <span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">ElementTree</span><span class="p">,</span> <span class="n">SubElement</span>
 <span class="kn">from</span> <span class="nn">.templates</span> <span class="kn">import</span> <span class="n">PACKAGE</span><span class="p">,</span> <span class="n">TOC</span><span class="p">,</span> <span class="n">NAV</span><span class="p">,</span> <span class="n">NAV_CSS_NUMBERING</span><span class="p">,</span> <span class="n">NAV_CSS_NO_NUMBERING</span><span class="p">,</span> <span class="n">COVER</span>
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">DEFAULT_FILES</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">DEFAULT_FILES</span><span class="p">,</span> <span class="n">DATE_FORMAT_STRING</span>
+
 
 
 <span class="c"># noinspection PyPep8</span>
@@ -132,19 +133,15 @@
 		<span class="n">item</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">spine</span><span class="p">,</span> <span class="s">&quot;{http://www.idpf.org/2007/opf}itemref&quot;</span><span class="p">)</span>
 		<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;idref&quot;</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">)</span>
 
-		<span class="c"># Remove the unnecessary item in spine (from the general template)</span>
-		<span class="n">to_remove</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.idpf.org/2007/opf}itemref[@idref=&#39;toc&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-		<span class="n">spine</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">to_remove</span><span class="p">)</span>
-
 		<span class="c"># Manifest metadata</span>
 		<span class="n">title</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://purl.org/dc/elements/1.1/}title&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 		<span class="n">title</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">title</span>
 		<span class="n">identifier</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://purl.org/dc/elements/1.1/}identifier&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 		<span class="n">identifier</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">dated_uri</span>
 		<span class="n">date</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.idpf.org/2007/opf}meta[@property=&#39;dcterms:modified&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-		<span class="n">date</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">T%M:%S:00Z&quot;</span><span class="p">)</span>
+		<span class="n">date</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DATE_FORMAT_STRING</span><span class="p">)</span>
 		<span class="n">date</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.idpf.org/2007/opf}meta[@property=&#39;dcterms:date&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-		<span class="n">date</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">T%M:%S:00Z&quot;</span><span class="p">)</span>
+		<span class="n">date</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DATE_FORMAT_STRING</span><span class="p">)</span>
 		<span class="n">creator</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://purl.org/dc/elements/1.1/}creator&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 		<span class="n">creator</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">editors</span>
 
@@ -195,10 +192,6 @@
 
 		<span class="n">navMap</span> <span class="o">=</span> <span class="n">ncx</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.daisy.org/z3986/2005/ncx/}navMap&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-		<span class="c"># One element must be removed from the general template</span>
-		<span class="n">to_remove</span> <span class="o">=</span> <span class="n">ncx</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.daisy.org/z3986/2005/ncx/}navPoint[@id=&#39;toc&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-		<span class="n">navMap</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">to_remove</span><span class="p">)</span>
-
 		<span class="n">index</span> <span class="o">=</span> <span class="mi">2</span>
 		<span class="k">for</span> <span class="n">toc_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">toc</span><span class="p">:</span>
 			<span class="n">set_nav_point</span><span class="p">(</span><span class="n">navMap</span><span class="p">,</span> <span class="n">toc_entry</span><span class="o">.</span><span class="n">href</span><span class="p">,</span> <span class="n">toc_entry</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
@@ -229,7 +222,7 @@
 
 		<span class="c"># Set the date</span>
 		<span class="n">date</span> <span class="o">=</span> <span class="n">nav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}meta[@name=&#39;date&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-		<span class="n">date</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;content&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">T%M:%S:00Z&quot;</span><span class="p">))</span>
+		<span class="n">date</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;content&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DATE_FORMAT_STRING</span><span class="p">))</span>
 
 		<span class="c"># # The landmark part of the nav file has to be changed; there is no explicit cover page</span>
 		<span class="c"># li_landmark = nav.findall(&quot;.//{http://www.w3.org/1999/xhtml}a[@href=&#39;cover.xhtml&#39;]&quot;)[0]</span>

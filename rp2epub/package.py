@@ -12,7 +12,8 @@ Module Content
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
 from .templates import PACKAGE, TOC, NAV, NAV_CSS_NUMBERING, NAV_CSS_NO_NUMBERING, COVER
-from .config import DEFAULT_FILES
+from .config import DEFAULT_FILES, DATE_FORMAT_STRING
+
 
 
 # noinspection PyPep8
@@ -94,9 +95,9 @@ class Package(object):
 		identifier = opf.findall(".//{http://purl.org/dc/elements/1.1/}identifier")[0]
 		identifier.text = self.document.dated_uri
 		date = opf.findall(".//{http://www.idpf.org/2007/opf}meta[@property='dcterms:modified']")[0]
-		date.text = self.document.date.strftime("%Y-%m-%dT%M:%S:00Z")
+		date.text = self.document.date.strftime(DATE_FORMAT_STRING)
 		date = opf.findall(".//{http://www.idpf.org/2007/opf}meta[@property='dcterms:date']")[0]
-		date.text = self.document.date.strftime("%Y-%m-%dT%M:%S:00Z")
+		date.text = self.document.date.strftime(DATE_FORMAT_STRING)
 		creator = opf.findall(".//{http://purl.org/dc/elements/1.1/}creator")[0]
 		creator.text = self.document.editors
 
@@ -177,7 +178,7 @@ class Package(object):
 
 		# Set the date
 		date = nav.findall(".//{http://www.w3.org/1999/xhtml}meta[@name='date']")[0]
-		date.set("content", self.document.date.strftime("%Y-%m-%dT%M:%S:00Z"))
+		date.set("content", self.document.date.strftime(DATE_FORMAT_STRING))
 
 		# # The landmark part of the nav file has to be changed; there is no explicit cover page
 		# li_landmark = nav.findall(".//{http://www.w3.org/1999/xhtml}a[@href='cover.xhtml']")[0]

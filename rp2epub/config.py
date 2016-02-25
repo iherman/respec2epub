@@ -46,9 +46,15 @@ Various configuration variables.
    may have to be downloaded to the book. (In general, only essentially relative references are considered for download, global
    references are not. There are some exceptions, e.g., W3C specific stylesheets or images.)
 
+.. py:data:: DATE_FORMAT_STRING
+
+   Format string to be used with date specific methods to ensure the required date format.
+
 **Source code:** `utils.py <https://github.com/iherman/respec2epub/blob/master/rp2epub/utils.py>`_
 
 """
+
+DATE_FORMAT_STRING = "%Y-%m-%dT%M:%S:00Z"
 
 # noinspection PyPep8
 # Items that have to be added to the book's manifest, no matter what; tuples of the form (file,media-type,id,properties)
