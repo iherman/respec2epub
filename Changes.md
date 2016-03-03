@@ -2,7 +2,7 @@
 * A basic CSS processing has been added. This means that ``import`` and ``url`` statements in CSS files are recognized, imports are treated recursively, and all resources are downloaded as required. This also means that the built-in knowledge on the structure of CSS files is gone. This change was necessary to be able to adapt the script to the newer versions of TR style sheets
 * Some entries have been added to manage the stylesheets introduced in 2016. In particular, the TOC is kept artificially embedded (the approach chosen to push the TOC on the left if the screen is wide enough is not suitable for ePub, where readers have usually their own management of TOC-s.
 
-Plus some minor improvements on programming and documentation.
+Plus some minor improvements on code and documentation.
 
 # Version 1.2
 
