@@ -141,20 +141,24 @@ class Document(object):
 			# HTTPSession is unnecessary (and sometimes leads to 404 anyway)
 			# Bottom line: those references must be filtered out
 			if attr_value is not None and all(map(lambda x: x[1] != attr_value, TO_TRANSFER)):
-				# This artifact is necessary to treat the WWW level, official URIs and local ones
+				# Remove the possible fragment ID. This may happen if the document refers to a fragment of another
+				# file locally, for example; that should not be relevant for what follows
+				attr_value = attr_value.split('#')[0]
+
+				# The following artifact is necessary to treat the WWW level, official URIs and local ones
 				ref = urljoin(self.driver.base, attr_value)
 
-				# In some cases, primarily in the case of editors drafts, the reference is simply on the file
+				# In some cases, primarily in the case of editors' drafts, the reference is simply on the file
 				# itself; that should be forgotten
 				if ref == self.driver.top_uri or ref == self.driver.base:
 					continue
 
 				parsed_ref = urlparse(ref)
 				# Genuine local, relative URI
-				local      = True if ref.startswith(self.driver.base) else False
+				local = True if ref.startswith(self.driver.base) else False
 				# Official WWW URI-s, mainly for style sheets or possibly javascript
-				www_level  = True if parsed_ref.netloc == "www.w3.org" else False
-				if local or www_level :
+				www_level = True if parsed_ref.netloc == "www.w3.org" else False
+				if local or www_level:
 					session = HttpSession(ref, check_media_type=True)
 					if session.success:
 						# Find/set the right name for the target document
@@ -175,7 +179,7 @@ class Document(object):
 							# In fact, this should not happen...
 							target = attr_value.split('/')[-1]
 
-						# yet another complication: if the target is an html file, it will have to become xhtml :-(
+						# other complication: if the target is an html file, it will have to become xhtml :-(
 						# this means that the target and the media types should receive a local name, to
 						# be stored and used below
 						final_media_type, final_target = final_target_media(session, target)
