@@ -345,6 +345,9 @@
 <span class="sd">		 of the TR documents, but it does not harm for earlier versions. I.e., this step is not made more</span>
 <span class="sd">		 complicated by a check of the document’s TR version.</span>
 
+<span class="sd">		 5. Also like 4., remove the reference to the fixup.js script (which sets some initial values to the sidebar</span>
+<span class="sd">		 handling which is to be removed altogether anyway...)</span>
+
 <span class="sd">		 :param html: the object for the whole document</span>
 <span class="sd">		 :type html: :py:class:`xml.etree.ElementTree.ElementTree`</span>
 <span class="sd">		&quot;&quot;&quot;</span>
@@ -388,8 +391,19 @@
 		<span class="k">if</span> <span class="n">bclass</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
 			<span class="n">body</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="s">&quot;toc-inline&quot;</span><span class="p">)</span>
 		<span class="k">else</span><span class="p">:</span>
-			<span class="n">bclass</span> <span class="o">+=</span> <span class="s">&quot; toc-inline&quot;</span>
-			<span class="n">body</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="n">bclass</span><span class="p">)</span>
+			<span class="n">classes</span> <span class="o">=</span> <span class="n">bclass</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+			<span class="k">if</span> <span class="s">&quot;toc-inline&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
+				<span class="n">classes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;toc-inline&quot;</span><span class="p">)</span>
+			<span class="n">body</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&quot;class&quot;</span><span class="p">,</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">classes</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s">&quot;toc-sidebar&quot;</span><span class="p">]))</span>
+
+		<span class="c"># Hack #5</span>
+		<span class="k">for</span> <span class="n">script</span> <span class="ow">in</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//script[@src]&quot;</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">script</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;src&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;fixup.js&quot;</span><span class="p">):</span>
+				<span class="c"># The ElementTree.Element interface makes it difficult to locate the parent</span>
+				<span class="c"># which would be necessary to remove this element (why????)</span>
+				<span class="c"># The hack simply removes the fixup.js reference by just issuing a reset to the element itself</span>
+				<span class="n">script</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+				<span class="n">script</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s">&quot; &quot;</span>
 </div>
 	<span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="Utils.extract_toc"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.extract_toc">[docs]</a>	<span class="k">def</span> <span class="nf">extract_toc</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">short_name</span><span class="p">):</span>

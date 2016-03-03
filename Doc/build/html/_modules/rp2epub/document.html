@@ -185,20 +185,24 @@
 			<span class="c"># HTTPSession is unnecessary (and sometimes leads to 404 anyway)</span>
 			<span class="c"># Bottom line: those references must be filtered out</span>
 			<span class="k">if</span> <span class="n">attr_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">attr_value</span><span class="p">,</span> <span class="n">TO_TRANSFER</span><span class="p">)):</span>
-				<span class="c"># This artifact is necessary to treat the WWW level, official URIs and local ones</span>
+				<span class="c"># Remove the possible fragment ID. This may happen if the document refers to a fragment of another</span>
+				<span class="c"># file locally, for example; that should not be relevant for what follows</span>
+				<span class="n">attr_value</span> <span class="o">=</span> <span class="n">attr_value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;#&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+				<span class="c"># The following artifact is necessary to treat the WWW level, official URIs and local ones</span>
 				<span class="n">ref</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">attr_value</span><span class="p">)</span>
 
-				<span class="c"># In some cases, primarily in the case of editors drafts, the reference is simply on the file</span>
+				<span class="c"># In some cases, primarily in the case of editors&#39; drafts, the reference is simply on the file</span>
 				<span class="c"># itself; that should be forgotten</span>
 				<span class="k">if</span> <span class="n">ref</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">top_uri</span> <span class="ow">or</span> <span class="n">ref</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">:</span>
 					<span class="k">continue</span>
 
 				<span class="n">parsed_ref</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
 				<span class="c"># Genuine local, relative URI</span>
-				<span class="n">local</span>      <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="n">ref</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">)</span> <span class="k">else</span> <span class="bp">False</span>
+				<span class="n">local</span> <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="n">ref</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">)</span> <span class="k">else</span> <span class="bp">False</span>
 				<span class="c"># Official WWW URI-s, mainly for style sheets or possibly javascript</span>
-				<span class="n">www_level</span>  <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="n">parsed_ref</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span> <span class="k">else</span> <span class="bp">False</span>
-				<span class="k">if</span> <span class="n">local</span> <span class="ow">or</span> <span class="n">www_level</span> <span class="p">:</span>
+				<span class="n">www_level</span> <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="n">parsed_ref</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span> <span class="k">else</span> <span class="bp">False</span>
+				<span class="k">if</span> <span class="n">local</span> <span class="ow">or</span> <span class="n">www_level</span><span class="p">:</span>
 					<span class="n">session</span> <span class="o">=</span> <span class="n">HttpSession</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">check_media_type</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 					<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
 						<span class="c"># Find/set the right name for the target document</span>
@@ -219,7 +223,7 @@
 							<span class="c"># In fact, this should not happen...</span>
 							<span class="n">target</span> <span class="o">=</span> <span class="n">attr_value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-						<span class="c"># yet another complication: if the target is an html file, it will have to become xhtml :-(</span>
+						<span class="c"># other complication: if the target is an html file, it will have to become xhtml :-(</span>
 						<span class="c"># this means that the target and the media types should receive a local name, to</span>
 						<span class="c"># be stored and used below</span>
 						<span class="n">final_media_type</span><span class="p">,</span> <span class="n">final_target</span> <span class="o">=</span> <span class="n">final_target_media</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>

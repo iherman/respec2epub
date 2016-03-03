@@ -255,6 +255,10 @@ BOOK_CSS = """
 
 BOOK_CSS_EXTRAS = {
 	2016: """
+  #toc-nav, #toc-toggle-inline {
+      display:none;
+  }
+
   #back-to-top,
     .toc-toggle {
 	   display: none;

@@ -301,6 +301,9 @@ class Utils(object):
 		 of the TR documents, but it does not harm for earlier versions. I.e., this step is not made more
 		 complicated by a check of the document’s TR version.
 
+		 5. Also like 4., remove the reference to the fixup.js script (which sets some initial values to the sidebar
+		 handling which is to be removed altogether anyway...)
+
 		 :param html: the object for the whole document
 		 :type html: :py:class:`xml.etree.ElementTree.ElementTree`
 		"""
@@ -344,8 +347,19 @@ class Utils(object):
 		if bclass is None:
 			body.set("class", "toc-inline")
 		else:
-			bclass += " toc-inline"
-			body.set("class", bclass)
+			classes = bclass.split()
+			if "toc-inline" not in classes:
+				classes.append("toc-inline")
+			body.set("class", " ".join([c for c in classes if c != "toc-sidebar"]))
+
+		# Hack #5
+		for script in html.findall(".//script[@src]"):
+			if script.get("src").endswith("fixup.js"):
+				# The ElementTree.Element interface makes it difficult to locate the parent
+				# which would be necessary to remove this element (why????)
+				# The hack simply removes the fixup.js reference by just issuing a reset to the element itself
+				script.clear()
+				script.text = " "
 
 	@staticmethod
 	def extract_toc(html, short_name):
