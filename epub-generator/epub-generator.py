@@ -95,6 +95,10 @@ def respond(wrapper, modified):
 		print "Expires: %s" % now()
 		print "Content-Length: %s" % os.stat(wrapper.book_file_name).st_size
 		print "Content-Disposition: attachment; filename=%s" % wrapper.document.short_name + ".epub"
+		print "Access-Control-Allow-Origin: *"
+		print "Access-Control-Allow-Methods: GET,HEAD"
+		print "Access-Control-Allow-Headers: Range, Content-Type, Origin, X-Requested-With, Accept, Accept-Language, Content-Language"
+		print "Access-Control-Expose-Headers: Accept-Ranges, Content-Encoding, Content-Type, Content-Length, Content-Range, Content-Language, Cache-Control, Expires, Last-Modified, Pragma"
 		print
 		with open(wrapper.book_file_name) as book:
 			print book.read()
