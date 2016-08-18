@@ -281,13 +281,13 @@ epub_publisher = u'W3C'
 epub_copyright = u'2016, Ivan Herman'
 
 # The basename for the epub file. It defaults to the project name.
-#epub_basename = u'Respec to EPUB'
+epub_basename = u'respec2epub'
 
 # The HTML theme for the epub output. Since the default themes are not optimized
 # for small screen space, using the same theme for HTML and epub output is
 # usually not wise. This defaults to 'epub', a theme designed to save visual
 # space.
-#epub_theme = 'epub'
+epub_theme = 'epub'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
@@ -298,7 +298,7 @@ epub_copyright = u'2016, Ivan Herman'
 
 # The unique identifier of the text. This can be a ISBN number
 # or the project homepage.
-#epub_identifier = ''
+epub_identifier = 'https://github.com/iherman/respec2epub'
 
 # A unique identification for the text.
 #epub_uid = ''
