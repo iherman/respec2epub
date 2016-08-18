@@ -1,20 +1,20 @@
 # ReSpec (and Bikeshed output) to EPUB
 
-Python script to assist in turning W3C ReSpec documents into EPUB; it can also convert HTML documents that were originally produced by ReSpec or Bikeshed into EPUB. The script does **not** aim at being a generic HTML->EPUB solution, it is indeed tailored at W3C TR documents based on ReSpec and Bikeshed. 
+Python script to assist in turning W3C ReSpec documents into EPUB; it can also convert HTML documents that were originally produced by ReSpec or Bikeshed into EPUB. The script does **not** aim at being a generic HTML->EPUB solution, it is indeed tailored at W3C TR documents based on ReSpec and Bikeshed.
 
 Note that the project includes:
 
 - a command line tool to generate an EPUB 3 version of a spec, whether in ReSpec or generated from ReSpec/Bikeshed
 - a wrapper around the tool to provide a web service; the service is installed at [`https://labs.w3.org/epub-generator/`](https://labs.w3.org/epub-generator/)
-- extension of ReSpec to call out to that service, 
+- extension of ReSpec to call out to that service,
 
-A [documentation in HTML](https://rawgit.com/iherman/respec2epub/master/Doc/build/html/index.html) is also available, giving more details.
+A [documentation in HTML](https://rawgit.com/iherman/respec2epub/master/Doc/build/html/index.html) is also available, giving more details. You can also download the [documentation in EPUB](https://github.com/iherman/respec2epub/blob/master/Doc/build/epub/respec2epub.epub?raw=true).
 
 ## Installation
 
 ### End User
 
-If you just want to use the package, the simplest is to run 
+If you just want to use the package, the simplest is to run
 
 ```
 pip install git+https://github.com/iherman/respec2epub.git
@@ -35,6 +35,3 @@ $ pip -e .  # this will run setup.py automatically
 You can of course choose the "pedestrian" way to clone the repository and point your ``PYTHONPATH`` variable to the ``rp2epub`` module. In that case you should install ``html5lib`` manually (see [the ``pypi`` entry for ``html5lib``](https://pypi.python.org/pypi/html5lib))
 
 The documentation is in HTML, and can be started up locally in your browser pointing at ``PATHTOREPO/Doc/build/html/index.html``
-
-
-
