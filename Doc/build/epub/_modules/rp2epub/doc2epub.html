@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rp2epub.doc2epub</title>
+    
+    <link rel="stylesheet" href="../../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body role="document">
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ReSpec to EPUB Utility</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../rp2epub.html" accesskey="U">rp2epub</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for rp2epub.doc2epub</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The entry point to the package is through the  :py:class:`DocWrapper` class below. An instance of that class controls the</span>
+<span class="sd">necessary workflow for the EPUB generation, namely:</span>
+
+<span class="sd">* gets hold of the content, possibly converts the ReSpec source on the fly to HTML</span>
+<span class="sd">* creates a :py:class:`.document.Document` class around the content that holds all the necessary metadata and further references</span>
+<span class="sd">* creates the book and, if required, the folder for the content</span>
+<span class="sd">* collects all the dependencies from the Web, and copies them to the output</span>
+<span class="sd">* creates all the auxiliary files (package file, navigation files, etc) and copies them to the output</span>
+
+
+<span class="sd">.. :class:: DocWrapper</span>
+
+<span class="sd">Module content</span>
+<span class="sd">--------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># noinspection PyPep8</span>
+
+<span class="c1"># noinspection PyPep8Naming</span>
+<span class="kn">import</span> <span class="nn">html5lib</span>
+<span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">ElementTree</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">urlunparse</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+
+<span class="kn">from</span> <span class="nn">.templates</span> <span class="kn">import</span> <span class="n">BOOK_CSS</span><span class="p">,</span> <span class="n">BOOK_CSS_EXTRAS</span>
+<span class="kn">from</span> <span class="nn">.document</span> <span class="kn">import</span> <span class="n">Document</span>
+<span class="kn">from</span> <span class="nn">.package</span> <span class="kn">import</span> <span class="n">Package</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">TO_TRANSFER</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">PADDING_NEW_STYLE</span><span class="p">,</span> <span class="n">PADDING_OLD_STYLE</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">HttpSession</span><span class="p">,</span> <span class="n">Book</span><span class="p">,</span> <span class="n">Logger</span>
+<span class="kn">import</span> <span class="nn">utils</span>
+
+
+<span class="c1">#: URI of the service used to convert a ReSpec source onto an HTML file on the fly. This service is used</span>
+<span class="c1">#: by this script to convert ReSpec sources into HTML before EPUB3 generation.</span>
+<span class="n">CONVERTER</span> <span class="o">=</span> <span class="s2">&quot;https://labs.w3.org/spec-generator/?type=respec&amp;url=&quot;</span>
+
+
+<span class="c1">###################################################################################</span>
+<span class="c1"># noinspection PyPep8</span>
+<div class="viewcode-block" id="DocWrapper"><a class="viewcode-back" href="../../driver.html#rp2epub.doc2epub.DocWrapper">[docs]</a><span class="k">class</span> <span class="nc">DocWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Top level entry class; receives the URI to be retrieved and generates the folders and/or the EPUB Package in the current directory (by default).</span>
+
+<span class="sd">	:param str url: location of the document source</span>
+<span class="sd">	:param boolean is_respec: flag whether the source is a ReSpec source (ie, has to be transformed through spec generator) or not</span>
+<span class="sd">	:param boolean package: whether a real zip file (ie, the EPUB instance) should be created or not</span>
+<span class="sd">	:param boolean folder: whether the directory structure should be created separately or not</span>
+<span class="sd">	:param boolean temporary: whether the zipped EPUB file should be put into a temporary filesystem location (used when the service is used through the Web)</span>
+<span class="sd">	:param logger: a python logger (see the standard library module on logging) to be used all around;  `None` means no logging</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="c1"># noinspection PyPep8</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">is_respec</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">temporary</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_html_document</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_top_uri</span>       <span class="o">=</span> <span class="n">url</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_book</span>          <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_domain</span>        <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_package</span>       <span class="o">=</span> <span class="n">package</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_folder</span>        <span class="o">=</span> <span class="n">folder</span>
+		<span class="n">utils</span><span class="o">.</span><span class="n">logger</span> 		<span class="o">=</span> <span class="n">logger</span>
+
+		<span class="n">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;== Handling the &#39;</span><span class="si">%s</span><span class="s2">&#39; </span><span class="si">%s</span><span class="s2"> source ==&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s2">&quot;ReSpec&quot;</span> <span class="k">if</span> <span class="n">is_respec</span> <span class="k">else</span> <span class="s2">&quot;HTML&quot;</span><span class="p">))</span>
+
+		<span class="c1"># Get the base URL, ie, remove the possible query parameter and the last portion of the path name</span>
+		<span class="n">url_tuples</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+		<span class="n">base_path</span>  <span class="o">=</span> <span class="n">url_tuples</span><span class="o">.</span><span class="n">path</span> <span class="k">if</span> <span class="n">url_tuples</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span> <span class="k">else</span> <span class="n">url_tuples</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_base</span> <span class="o">=</span> <span class="n">urlunparse</span><span class="p">((</span><span class="n">url_tuples</span><span class="o">.</span><span class="n">scheme</span><span class="p">,</span> <span class="n">url_tuples</span><span class="o">.</span><span class="n">netloc</span><span class="p">,</span> <span class="n">base_path</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+
+		<span class="c1"># Get the possible re-write of the ReSpec config file; this will become important when the respec config</span>
+		<span class="c1"># data is used</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_url_respec_setting</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">url_tuples</span><span class="o">.</span><span class="n">query</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="n">url_tuples</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">):</span>
+				<span class="n">to_set</span> <span class="o">=</span> <span class="n">setting</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_url_respec_setting</span><span class="p">[</span><span class="n">to_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">to_set</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+		<span class="c1"># Get the data, possibly converting from respec on the fly</span>
+		<span class="k">if</span> <span class="n">is_respec</span><span class="p">:</span>
+			<span class="n">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating HTML via the spec generator service from </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
+		<span class="n">session</span> <span class="o">=</span> <span class="n">HttpSession</span><span class="p">(</span><span class="n">CONVERTER</span> <span class="o">+</span> <span class="n">url</span> <span class="k">if</span> <span class="n">is_respec</span> <span class="k">else</span> <span class="n">url</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">is_respec</span><span class="o">=</span><span class="n">is_respec</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">is_respec</span><span class="p">:</span>
+			<span class="n">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ReSpec generation successful, continuing with the result&quot;</span><span class="p">)</span>
+
+		<span class="c1"># Parse the generated document</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_html</span>          <span class="o">=</span> <span class="n">html5lib</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">namespaceHTMLElements</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_html_document</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_html</span><span class="p">)</span>
+
+		<span class="c1"># representation of the whole document, with the various metadata, etc.</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_document</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+		<span class="c1"># File name to be used for the final epub file</span>
+		<span class="k">if</span> <span class="n">temporary</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_book_file_name</span> <span class="o">=</span> <span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">short_name</span> <span class="o">+</span> <span class="s1">&#39;.epub&#39;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_book_file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">short_name</span> <span class="o">+</span> <span class="s2">&quot;.epub&quot;</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">package</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Flag whether an epub package is created&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_package</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Flag whether a folder, containing the package content, is created separately&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folder</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">url_respec_setting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Possible ReSpec configuration setting via the query part of the URI of the document&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_url_respec_setting</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">book_file_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Name of the book; usually `shortname + .epub`, but can be a temporary file if so requested (the term “shortname” is a W3C jargon…)&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_book_file_name</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">base</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Base URI for the document (used to retrieve additional resources, if needed)&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">domain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Domain of the original source&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_domain</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">html_document</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Document, as parsed; an :py:class:`xml.etree.ElementTree.Element` instance&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_html_document</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">document</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Wrapper around the document, containing extra meta information for packaging&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_document</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;HTML element as parsed; an :py:class:`xml.etree.ElementTree.ElementTree` instance&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_html</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">top_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Top level (absolute) URI for the file to be processed&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_uri</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">book</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;The book being generated; an open :py:class:`zipfile.ZipFile` instance&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_book</span>
+
+<div class="viewcode-block" id="DocWrapper.process"><a class="viewcode-back" href="../../driver.html#rp2epub.doc2epub.DocWrapper.process">[docs]</a>	<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Process the book, ie, extract whatever has to be extracted and produce the epub file.</span>
+
+<span class="sd">		:returns: the instance of the class itself</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># Create the wrapper around the parsed version. This will also</span>
+		<span class="c1"># retrieve the various &#39;meta&#39; data from the document, like title, editors, document type, etc.</span>
+		<span class="c1"># It is important to get these metadata before the real processing because, for example, the</span>
+		<span class="c1"># &#39;short name&#39; will also be used for the name of the final book</span>
+
+		<span class="k">with</span> <span class="n">Book</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">book_file_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">short_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">)</span> <span class="k">as</span> <span class="bp">self</span><span class="o">.</span><span class="n">_book</span><span class="p">:</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">css_tr_version</span> <span class="o">==</span> <span class="mi">2015</span><span class="p">:</span>
+				<span class="k">try</span><span class="p">:</span>
+					<span class="n">padding</span> <span class="o">=</span> <span class="n">PADDING_OLD_STYLE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">doc_type</span><span class="p">]</span>
+				<span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+					<span class="n">padding</span> <span class="o">=</span> <span class="n">PADDING_NEW_STYLE</span><span class="p">[</span><span class="mi">2015</span><span class="p">]</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">try</span><span class="p">:</span>
+					<span class="n">padding</span> <span class="o">=</span> <span class="n">PADDING_NEW_STYLE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">css_tr_version</span><span class="p">]</span>
+				<span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+					<span class="c1"># fallback if there is a key error, ie, the padding has not yet been set for a possible new style</span>
+					<span class="n">padding</span> <span class="o">=</span> <span class="n">PADDING_NEW_STYLE</span><span class="p">[</span><span class="mi">2016</span><span class="p">]</span>
+
+			<span class="c1"># Additional CSS statements that has to be added to book.css, depending on the document&#39;s TR version</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">css_tr_version</span> <span class="o">&gt;</span> <span class="mi">2015</span><span class="p">:</span>
+				<span class="k">try</span><span class="p">:</span>
+					<span class="n">css_extras</span> <span class="o">=</span> <span class="n">BOOK_CSS_EXTRAS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">css_tr_version</span><span class="p">]</span>
+				<span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+					<span class="n">css_extras</span> <span class="o">=</span> <span class="n">BOOK_CSS_EXTRAS</span><span class="p">[</span><span class="mi">2016</span><span class="p">]</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">css_extras</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+			<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s1">&#39;StyleSheets/TR/book.css&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">BOOK_CSS</span> <span class="o">%</span> <span class="n">padding</span><span class="p">)</span> <span class="o">+</span> <span class="n">css_extras</span><span class="p">)</span>
+
+			<span class="c1"># Some resources should be added to the in any case: icons, stylesheets for cover and nav pages,...</span>
+			<span class="k">for</span> <span class="n">uri</span><span class="p">,</span> <span class="n">local</span> <span class="ow">in</span> <span class="n">TO_TRANSFER</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_HTTP</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">uri</span><span class="p">)</span>
+
+			<span class="c1"># Add the additional resources that are referred to from the document itself</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">extract_external_references</span><span class="p">()</span>
+
+			<span class="c1"># Add the various additional media files (typically images), collected from CSS files</span>
+			<span class="k">for</span> <span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">uri</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">css_references</span><span class="p">:</span>
+				<span class="n">session</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">HttpSession</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+				<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_session</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">css_change_patterns</span><span class="p">)</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">add_additional_resource</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span><span class="p">)</span>
+
+			<span class="c1"># The various EPUB specific package files to be added to the final output</span>
+			<span class="n">Package</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+
+			<span class="c1"># The main content should be stored in the target book</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="s1">&#39;Overview.xhtml&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">html_document</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="bp">self</span></div></div>
+</pre></div>
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

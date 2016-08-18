@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>1. Command line tool manual</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body role="document">
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rp2epub.html" title="2. Package entry point"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="ReSpec to EPUB utility"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ReSpec to EPUB Utility</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="command-line-tool-manual">
+<h1>1. Command line tool manual</h1>
+<p>When using the command line tool, the result is an EPUB3 file in, by default, the same folder, and whose name is the
+short name of the document expanded with the <code class="docutils literal"><span class="pre">.epub</span></code> suffix.</p>
+<p>There is a possibility to generate the EPUB3 content in expanded form (i.e., in a directory instead of an EPUB file) instead,
+or both. This may be useful for debugging, but also to inspect and possibly adapt the EPUB3 file before
+distribution.</p>
+<p>This script that can be invoked from the command as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>usage: rp2epub [-h] [-r] [-b] [-f] [-t] url
+
+Generate EPUB3 for a single W3C TR document, either in respec format (default)
+or an HTML file generated from respec or bikeshed.
+
+positional arguments:
+    url           URL of the input; if this is in respec, it will passed on to
+                  the spec generator verbatim
+
+optional arguments:
+  -h, --help      show this help message and exit
+  -r, --respec    The source is a ReSpec file, transform it before processing
+  -b, --book      Create an EPUB3 package
+  -f, --folder    Create a folder with the book content
+  -t, --tempfile  Create a one-time, temporary name for the EPUB3 file
+  -l, --logging   Log events in the local file &#39;log&#39;
+</pre></div>
+</div>
+<p>(The last two optional arguments are of a real interest for debugging only.)</p>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

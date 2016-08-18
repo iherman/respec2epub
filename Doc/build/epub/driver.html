@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>3. The “driver”</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body role="document">
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="document.html" title="4. The Document instance"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rp2epub.html" title="2. Package entry point"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ReSpec to EPUB Utility</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-rp2epub.doc2epub">
+<span id="the-driver"></span><h1>3. The &#8220;driver&#8221;</h1>
+<p>The entry point to the package is through the  <a class="reference internal" href="#rp2epub.doc2epub.DocWrapper" title="rp2epub.doc2epub.DocWrapper"><code class="xref py py-class docutils literal"><span class="pre">DocWrapper</span></code></a> class below. An instance of that class controls the
+necessary workflow for the EPUB generation, namely:</p>
+<ul class="simple">
+<li>gets hold of the content, possibly converts the ReSpec source on the fly to HTML</li>
+<li>creates a <a class="reference internal" href="document.html#rp2epub.document.Document" title="rp2epub.document.Document"><code class="xref py py-class docutils literal"><span class="pre">document.Document</span></code></a> class around the content that holds all the necessary metadata and further references</li>
+<li>creates the book and, if required, the folder for the content</li>
+<li>collects all the dependencies from the Web, and copies them to the output</li>
+<li>creates all the auxiliary files (package file, navigation files, etc) and copies them to the output</li>
+</ul>
+<div class="section" id="module-content">
+<h2>3.1. Module content</h2>
+<dl class="data">
+<dt id="rp2epub.doc2epub.CONVERTER">
+<code class="descclassname">rp2epub.doc2epub.</code><code class="descname">CONVERTER</code><em class="property"> = 'https://labs.w3.org/spec-generator/?type=respec&amp;url='</em></dt>
+<dd><p>URI of the service used to convert a ReSpec source onto an HTML file on the fly. This service is used
+by this script to convert ReSpec sources into HTML before EPUB3 generation.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="rp2epub.doc2epub.DocWrapper">
+<em class="property">class </em><code class="descclassname">rp2epub.doc2epub.</code><code class="descname">DocWrapper</code><span class="sig-paren">(</span><em>url</em>, <em>is_respec=False</em>, <em>package=True</em>, <em>folder=False</em>, <em>temporary=False</em>, <em>logger=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/doc2epub.html#DocWrapper"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Top level entry class; receives the URI to be retrieved and generates the folders and/or the EPUB Package in the current directory (by default).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>url</strong> (<em>str</em>) &#8211; location of the document source</li>
+<li><strong>is_respec</strong> (<em>boolean</em>) &#8211; flag whether the source is a ReSpec source (ie, has to be transformed through spec generator) or not</li>
+<li><strong>package</strong> (<em>boolean</em>) &#8211; whether a real zip file (ie, the EPUB instance) should be created or not</li>
+<li><strong>folder</strong> (<em>boolean</em>) &#8211; whether the directory structure should be created separately or not</li>
+<li><strong>temporary</strong> (<em>boolean</em>) &#8211; whether the zipped EPUB file should be put into a temporary filesystem location (used when the service is used through the Web)</li>
+<li><strong>logger</strong> &#8211; a python logger (see the standard library module on logging) to be used all around;  <cite>None</cite> means no logging</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.base">
+<code class="descname">base</code></dt>
+<dd><p>Base URI for the document (used to retrieve additional resources, if needed)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.book">
+<code class="descname">book</code></dt>
+<dd><p>The book being generated; an open <code class="xref py py-class docutils literal"><span class="pre">zipfile.ZipFile</span></code> instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.book_file_name">
+<code class="descname">book_file_name</code></dt>
+<dd><p>Name of the book; usually <cite>shortname + .epub</cite>, but can be a temporary file if so requested (the term “shortname” is a W3C jargon…)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.document">
+<code class="descname">document</code></dt>
+<dd><p>Wrapper around the document, containing extra meta information for packaging</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.domain">
+<code class="descname">domain</code></dt>
+<dd><p>Domain of the original source</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.folder">
+<code class="descname">folder</code></dt>
+<dd><p>Flag whether a folder, containing the package content, is created separately</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.html">
+<code class="descname">html</code></dt>
+<dd><p>HTML element as parsed; an <code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.ElementTree</span></code> instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.html_document">
+<code class="descname">html_document</code></dt>
+<dd><p>Document, as parsed; an <code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.Element</span></code> instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.package">
+<code class="descname">package</code></dt>
+<dd><p>Flag whether an epub package is created</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.doc2epub.DocWrapper.process">
+<code class="descname">process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/doc2epub.html#DocWrapper.process"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Process the book, ie, extract whatever has to be extracted and produce the epub file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the instance of the class itself</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.top_uri">
+<code class="descname">top_uri</code></dt>
+<dd><p>Top level (absolute) URI for the file to be processed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.doc2epub.DocWrapper.url_respec_setting">
+<code class="descname">url_respec_setting</code></dt>
+<dd><p>Possible ReSpec configuration setting via the query part of the URI of the document</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
