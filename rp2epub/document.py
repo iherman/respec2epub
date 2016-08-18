@@ -55,8 +55,9 @@ class Document(object):
 		self._doc_type       = "base"
 		self._dated_uri      = None
 		self._date           = None
-		self._editors        = ""
-		self._authors        = ""
+		# TODO: default should be arrays, not strings
+		self._editors        = []
+		self._authors        = []
 		self._respec_config  = None
 		self._toc		     = []
 		self._nav_toc	     = []
@@ -370,18 +371,12 @@ class Document(object):
 
 		:returns: True or False, depending on whether the right keys are available or not
 		"""
-		def _get_people(key, suffix_sing="", suffix_plur=""):
+		def _get_people(key):
 			def _get_person(person_struct):
 				retval = person_struct["name"]
 				return retval + (", %s" % person_struct["company"]) if "company" in person_struct else retval
 
-			people = [_get_person(p) for p in dict_config[key]]
-			if len(people) == 0:
-				return ""
-			elif len(people) == 1:
-				return people[0] + (" (%s)" % suffix_sing)
-			else:
-				return "; ".join(people) + (" (%s)" % suffix_plur)
+			return [_get_person(p) for p in dict_config[key]]
 
 		# store the full configuration for possible later reuse
 		self._respec_config = dict_config
@@ -389,8 +384,8 @@ class Document(object):
 		if "specStatus" in dict_config :
 			self._doc_type   = dict_config["specStatus"]
 			self._short_name = dict_config["shortName"] if "shortName" in dict_config else None
-			self._editors    = "" if "editors" not in dict_config else _get_people("editors", "editor", "editors")
-			self._authors    = "" if "authors" not in dict_config else _get_people("authors", "author", "authors")
+			self._editors    = [] if "editors" not in dict_config else _get_people("editors")
+			self._authors    = [] if "authors" not in dict_config else _get_people("authors")
 			if "publishDate" in dict_config:
 				self._date = datetime.strptime(dict_config["publishDate"], "%Y-%m-%d").date()
 			else:
@@ -423,13 +418,7 @@ class Document(object):
 		self._date = Utils.retrieve_date(self.dated_uri)
 
 		# Extract the editors
-		editor_set = Utils.extract_editors(self.html)
-		if len(editor_set) == 0:
-			self._editors = ""
-		elif len(editor_set) == 1:
-			self._editors = list(editor_set)[0] + ", (ed.)"
-		else:
-			self._editors = ", ".join(list(editor_set)) + ", (eds.)"
+		self._editors = Utils.extract_editors(self.html)
 
 		# Add the right subtitle to the cover page
 		for issued in self.html.findall(".//h2[@property='dcterms:issued']"):

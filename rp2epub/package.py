@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
 from .templates import PACKAGE, TOC, NAV, NAV_CSS_NUMBERING, NAV_CSS_NO_NUMBERING, COVER
 from .config import DEFAULT_FILES, DATE_FORMAT_STRING
-
+from .utils import Utils
 
 
 # noinspection PyPep8
@@ -54,9 +54,8 @@ class Package(object):
 		# Parse the raw manifest file
 		ET.register_namespace('', "http://www.idpf.org/2007/opf")
 		opf = ElementTree(ET.fromstring(PACKAGE))
-
-		# Add the 'main' file
 		manifest = opf.findall(".//{http://www.idpf.org/2007/opf}manifest")[0]
+		metadata = opf.findall(".//{http://www.idpf.org/2007/opf}metadata")[0]
 
 		# Get the default resources first
 		for (href, media_type, item_id, prop) in DEFAULT_FILES:
@@ -98,8 +97,16 @@ class Package(object):
 		date.text = self.document.date.strftime(DATE_FORMAT_STRING)
 		date = opf.findall(".//{http://www.idpf.org/2007/opf}meta[@property='dcterms:date']")[0]
 		date.text = self.document.date.strftime(DATE_FORMAT_STRING)
-		creator = opf.findall(".//{http://purl.org/dc/elements/1.1/}creator")[0]
-		creator.text = self.document.editors
+		for editor in self.document.editors:
+			creator = SubElement(metadata, "{http://purl.org/dc/elements/1.1/}creator")
+			creator.set("role", "editor")
+			creator.text = editor
+			creator.tail = "\n    "
+		for author in self.document.authors:
+			creator = SubElement(metadata, "{http://purl.org/dc/elements/1.1/}creator")
+			creator.set("role", "author")
+			creator.text = author
+			creator.tail = "\n    "
 
 		# Push the manifest file into the book
 		self.book.write_element('package.opf', opf)
@@ -140,7 +147,7 @@ class Package(object):
 		# Set the authors
 		authors    = ncx.findall(".//{http://www.daisy.org/z3986/2005/ncx/}docAuthor")[0]
 		txt        = SubElement(authors, "{http://www.daisy.org/z3986/2005/ncx/}text")
-		txt.text   = self.document.editors
+		txt.text = Utils.editors_to_string(self.document.editors)
 
 		# Set the book ID
 		meta_id = ncx.findall(".//{http://www.daisy.org/z3986/2005/ncx/}meta[@name='dtb:uid']")[0]
@@ -228,7 +235,7 @@ class Package(object):
 
 		# Set the authors in the meta
 		editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}meta[@name='author']")[0]
-		editors_list = self.document.editors if len(self.document.authors) == 0 else self.document.editors + "; " + self.document.authors
+		editors_list = Utils.editors_to_string(self.document.editors)
 		editors.set("content", editors_list)
 
 		# Set the title in the text
@@ -238,12 +245,13 @@ class Package(object):
 		# Set the editors
 		if len(self.document.editors) != 0:
 			editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='editors']")[0]
-			editors.text = self.document.editors
+			editors.text = Utils.editors_to_string(self.document.editors)
 
 		# Set the authors
 		if len(self.document.authors) != 0:
 			authors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='authors']")[0]
 			authors.text = self.document.authors
+			authors.text = Utils.editors_to_string(self.document.editors, editor = False)
 
 		# Set a pointer to the original
 		orig      = cover.findall(".//{http://www.w3.org/1999/xhtml}a[@id='ref_original']")[0]
