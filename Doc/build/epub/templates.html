@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>8. Templates</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body role="document">
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="9. Configuration data"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="7. Common Utilities"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ReSpec to EPUB Utility</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-rp2epub.templates">
+<span id="templates"></span><h1>8. Templates</h1>
+<p>Templates, i.e., &#8220;scaffold&#8221; XML/CSS content; these are finalized (usually parsed on the fly), and then added to the book,
+by the <a class="reference internal" href="package.html#rp2epub.package.Package" title="rp2epub.package.Package"><code class="xref py py-class docutils literal"><span class="pre">Package</span></code></a> instance.</p>
+<dl class="data">
+<dt id="rp2epub.templates.meta_inf">
+<code class="descclassname">rp2epub.templates.</code><code class="descname">meta_inf</code></dt>
+<dd><p>XML code for the Manifest file</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.templates.NAV">
+<code class="descclassname">rp2epub.templates.</code><code class="descname">NAV</code></dt>
+<dd><p>XHTML code for the new type EPUB3 table of content file. The string has to be completed for styling on whether the
+TOC entries contain numbering or not</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.templates.NAV_CSS_NUMBERING">
+<code class="descclassname">rp2epub.templates.</code><code class="descname">NAV_CSS_NUMBERING</code></dt>
+<dd><p>CSS complement to the <a class="reference internal" href="#rp2epub.templates.NAV" title="rp2epub.templates.NAV"><code class="xref py py-attr docutils literal"><span class="pre">NAV</span></code></a> string that includes numbering</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.templates.NAV_CSS_NO_NUMBERING">
+<code class="descclassname">rp2epub.templates.</code><code class="descname">NAV_CSS_NO_NUMBERING</code></dt>
+<dd><p>CSS complement to the <a class="reference internal" href="#rp2epub.templates.NAV" title="rp2epub.templates.NAV"><code class="xref py py-attr docutils literal"><span class="pre">NAV</span></code></a> string that relies on the numbers generated into the TOC entries and not done by CSS</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.templates.TOC">
+<code class="descclassname">rp2epub.templates.</code><code class="descname">TOC</code></dt>
+<dd><p>XML code for the old type EPUB2 table of content file (many EPUB readers still require this…)</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.templates.PACKAGE">
+<code class="descclassname">rp2epub.templates.</code><code class="descname">PACKAGE</code></dt>
+<dd><p>XML code for the package file (<code class="docutils literal"><span class="pre">opf</span></code> file)</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.templates.COVER">
+<code class="descclassname">rp2epub.templates.</code><code class="descname">COVER</code></dt>
+<dd><p>XHTML code for the cover page</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.templates.BOOK_CSS">
+<code class="descclassname">rp2epub.templates.</code><code class="descname">BOOK_CSS</code></dt>
+<dd><p>Main content of the <code class="docutils literal"><span class="pre">book.css</span></code> file, adding some page-breaking statements to the overall styling.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.templates.BOOK_CSS_EXTRAS">
+<code class="descclassname">rp2epub.templates.</code><code class="descname">BOOK_CSS_EXTRAS</code></dt>
+<dd><p>Additional content of the <code class="docutils literal"><span class="pre">book.css</span></code> file, depending on the version of the style sheet (2015, 2016, etc)</p>
+</dd></dl>
+
+<p><strong>Source code:</strong> <a class="reference external" href="https://github.com/iherman/respec2epub/blob/master/rp2epub/templates.py">utils.py</a><span class="link-target"> [https://github.com/iherman/respec2epub/blob/master/rp2epub/templates.py]</span></p>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

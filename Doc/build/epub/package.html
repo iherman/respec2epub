@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>6. Package processing</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body role="document">
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="7. Common Utilities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cssurls.html" title="5. Retrieval of extra resources from CSS"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ReSpec to EPUB Utility</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-rp2epub.package">
+<span id="package-processing"></span><h1>6. Package processing</h1>
+<p>Generate all the auxiliary files that are needed for EPUB: package file, table of content in different formats,
+cover page. Most of the files make use of various templates stored in the separate template file.</p>
+<div class="section" id="module-content">
+<h2>6.1. Module Content</h2>
+<dl class="class">
+<dt id="rp2epub.package.Package">
+<em class="property">class </em><code class="descclassname">rp2epub.package.</code><code class="descname">Package</code><span class="sig-paren">(</span><em>driver</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/package.html#Package"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Collection of methods to generate the manifest, TOC in different formats, and the cover pages</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>driver</strong> (<a class="reference internal" href="driver.html#rp2epub.doc2epub.DocWrapper" title="rp2epub.doc2epub.DocWrapper"><code class="xref py py-class docutils literal"><span class="pre">DocWrapper</span></code></a>) &#8211; the caller</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rp2epub.package.Package._create_cover">
+<code class="descname">_create_cover</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/package.html#Package._create_cover"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Create a cover page: <code class="docutils literal"><span class="pre">cover.xhtml</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.package.Package._create_nav">
+<code class="descname">_create_nav</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/package.html#Package._create_nav"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Create a new style TOC file (&#8216;nav&#8217; file): <code class="docutils literal"><span class="pre">nav.xhtml</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.package.Package._create_ncx">
+<code class="descname">_create_ncx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/package.html#Package._create_ncx"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Create and old style TOC file (&#8216;ncx&#8217; file): <code class="docutils literal"><span class="pre">toc.ncx</span></code>. To be used for reading systems that cannot
+handle EPUB3 specific TOC.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.package.Package._create_opf">
+<code class="descname">_create_opf</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/package.html#Package._create_opf"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Create the manifest file. Includes the list of resources, book metadata, and the spine. The manifest
+file is added to the book as <code class="docutils literal"><span class="pre">package.opf</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.package.Package.book">
+<code class="descname">book</code></dt>
+<dd><p>The target book; a <a class="reference internal" href="utils.html#rp2epub.utils.Book" title="rp2epub.utils.Book"><code class="xref py py-class docutils literal"><span class="pre">utils.Book</span></code></a> instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rp2epub.package.Package.document">
+<code class="descname">document</code></dt>
+<dd><p>Encapsulation of the real document; a <a class="reference internal" href="document.html#rp2epub.document.Document" title="rp2epub.document.Document"><code class="xref py py-class docutils literal"><span class="pre">document.Document</span></code></a> instance</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rp2epub.package.Package.process">
+<code class="descname">process</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/package.html#Package.process"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Top level entry to execute the various internal methods</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

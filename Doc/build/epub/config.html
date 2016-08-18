@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>9. Configuration data</title>
+    
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body role="document">
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="todo.html" title="10. Miscellaneous issues, to-do items"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="templates.html" title="8. Templates"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">ReSpec to EPUB Utility</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-rp2epub.config">
+<span id="configuration-data"></span><h1>9. Configuration data</h1>
+<p>Various configuration variables.</p>
+<dl class="data">
+<dt id="rp2epub.config.DEFAULT_FILES">
+<code class="descclassname">rp2epub.config.</code><code class="descname">DEFAULT_FILES</code></dt>
+<dd><p>Items that have to be added to the book&#8217;s manifest, no matter what; an array tuples of the form <code class="docutils literal"><span class="pre">(file,media-type,id,properties)</span></code>.
+Typical example: entry for the table of content file</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.config.DOCTYPE_INFO">
+<code class="descclassname">rp2epub.config.</code><code class="descname">DOCTYPE_INFO</code></dt>
+<dd><p>A dictionary keyed by document types (as accepted by ReSpec); each value is a also a dictionary of the form:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">uri_prefix</span></code></dt>
+<dd>String that may be used as a prefix in the document short name URI (as used at W3C), e.g., <code class="docutils literal"><span class="pre">WD</span></code></dd>
+<dt><code class="docutils literal"><span class="pre">subtitle</span></code></dt>
+<dd>The name of the document in Human term, e.g., <code class="docutils literal"><span class="pre">W3C</span> <span class="pre">Working</span> <span class="pre">Draft</span></code></dd>
+<dt><code class="docutils literal"><span class="pre">padding</span></code></dt>
+<dd>Padding CSS specification (ie, value of a <code class="docutils literal"><span class="pre">padding</span></code> CSS directives) that must be applied to the whole content of the file.</dd>
+</dl>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.config.ACCEPTED_MEDIA_TYPES">
+<code class="descclassname">rp2epub.config.</code><code class="descname">ACCEPTED_MEDIA_TYPES</code></dt>
+<dd><p>Dictionary of media types that are accepted for inclusion in an epub file. The media types are used as keys, pointing
+at the suffix usually used (if needed)</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.config.TO_TRANSFER">
+<code class="descclassname">rp2epub.config.</code><code class="descname">TO_TRANSFER</code></dt>
+<dd><p>List of <cite>(URL, localname)</cite> pairs for resources that must be downloaded for all books (e.g., w3c icon)</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.config.PADDING_NEW_STYLE">
+<code class="descclassname">rp2epub.config.</code><code class="descname">PADDING_NEW_STYLE</code></dt>
+<dd><p>Dictionary, keyed through the version of the TR, indicating the paddig to be applied on the document. See
+<a class="reference internal" href="utils.html#rp2epub.utils.Utils.change_DOM" title="rp2epub.utils.Utils.change_DOM"><code class="xref py py-meth docutils literal"><span class="pre">Utils.change_DOM()</span></code></a> for the bugs that need this extra action. At present, the keys are 2015 and
+2016; the changes in the TR styles in 2016 induced new values.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.config.PADDING_OLD_STYLE">
+<code class="descclassname">rp2epub.config.</code><code class="descname">PADDING_OLD_STYLE</code></dt>
+<dd><p>Related to <a class="reference internal" href="#rp2epub.config.PADDING_NEW_STYLE" title="rp2epub.config.PADDING_NEW_STYLE"><code class="xref py py-data docutils literal"><span class="pre">PADDING_NEW_STYLE</span></code></a>: when using the 2015 version of TR documents the padding values for some
+type of documents (Member Submissions, CG and BG documents) is different from the usual ones. These are listed in
+this directory, keyed through the document type.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.config.EXTERNAL_REFERENCES">
+<code class="descclassname">rp2epub.config.</code><code class="descname">EXTERNAL_REFERENCES</code></dt>
+<dd><p>Pairs of HTML element names and corresponding attributes that should be looked for in the source for content that
+may have to be downloaded to the book. (In general, only essentially relative references are considered for download, global
+references are not. There are some exceptions, e.g., W3C specific stylesheets or images.)</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="rp2epub.config.DATE_FORMAT_STRING">
+<code class="descclassname">rp2epub.config.</code><code class="descname">DATE_FORMAT_STRING</code></dt>
+<dd><p>Format string to be used with date specific methods to ensure the required date format.</p>
+</dd></dl>
+
+<p><strong>Source code:</strong> <a class="reference external" href="https://github.com/iherman/respec2epub/blob/master/rp2epub/utils.py">utils.py</a><span class="link-target"> [https://github.com/iherman/respec2epub/blob/master/rp2epub/utils.py]</span></p>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

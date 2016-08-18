@@ -34,7 +34,7 @@ $ pip -e .  # this will run setup.py automatically
 
 You can of course choose the "pedestrian" way to clone the repository and point your ``PYTHONPATH`` variable to the ``rp2epub`` module. In that case you should install ``html5lib`` manually (see [the ``pypi`` entry for ``html5lib``](https://pypi.python.org/pypi/html5lib))
 
-The documentation is in HTML, and can be started up locally in your browser pointing at ``PATHTOREPO/Doc/html/index.html``
+The documentation is in HTML, and can be started up locally in your browser pointing at ``PATHTOREPO/Doc/build/html/index.html``
 
 
 

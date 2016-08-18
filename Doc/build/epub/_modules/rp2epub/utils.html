@@ -1,0 +1,776 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rp2epub.utils</title>
+    
+    <link rel="stylesheet" href="../../_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" /> 
+  </head>
+  <body role="document">
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ReSpec to EPUB Utility</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../rp2epub.html" accesskey="U">rp2epub</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for rp2epub.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Various utility classes and methods.</span>
+
+
+<span class="sd">Module Content</span>
+<span class="sd">--------------</span>
+
+<span class="sd">.. py:data:: logger</span>
+
+<span class="sd">  A python logger instance (see the Python logging library for details). May be overwritten by the :py:class:`.DocWrapper` instance). Defaults to ``None``.</span>
+
+<span class="sd">.. py:data:: TOC_PAIRS</span>
+
+<span class="sd">  Array of tuples to help selecting the (top level) TOC entries; these are strings to be used in an XPath find. Because there</span>
+<span class="sd">  has been several versions over the past, including Bikeshed and ReSpec versions, the array contains quite a number of</span>
+<span class="sd">  variants. The tuple may contain a third string, denoting a specific class name on the target element that can be</span>
+<span class="sd">  used to narrow the filter.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">urllib2</span> <span class="kn">import</span> <span class="n">urlopen</span>
+<span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">SubElement</span><span class="p">,</span> <span class="n">ElementTree</span><span class="p">,</span> <span class="n">tostring</span><span class="p">,</span> <span class="n">fromstring</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">import</span> <span class="nn">html5lib</span>
+
+<span class="kn">from</span> <span class="nn">.templates</span> <span class="kn">import</span> <span class="n">meta_inf</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">R2EError</span>
+<span class="kn">import</span> <span class="nn">config</span>
+
+<span class="c1"># logger (see the Python logging library for details). May be overwritten by the :py:class:`.DocWrapper` instance)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="c1"># These media types should be added to the zip file uncompressed</span>
+<span class="c1"># noinspection PyPep8</span>
+<span class="n">_NO_COMPRESS</span> <span class="o">=</span> <span class="p">[</span>
+	<span class="s2">&quot;image/png&quot;</span><span class="p">,</span>
+	<span class="s2">&quot;image/jpeg&quot;</span><span class="p">,</span>
+	<span class="s2">&quot;image/gif&quot;</span><span class="p">,</span>
+	<span class="s2">&quot;audio/mpeg&quot;</span><span class="p">,</span>
+	<span class="s2">&quot;video/mp4&quot;</span><span class="p">,</span>
+	<span class="s2">&quot;video/webm&quot;</span><span class="p">,</span>
+	<span class="s2">&quot;video/ogg&quot;</span>
+<span class="p">]</span>
+
+<span class="c1">#</span>
+<span class="c1"># Table of content extraction</span>
+<span class="c1">#</span>
+<span class="n">short_label_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^[1-9][0-9]*\. .*$&quot;</span><span class="p">)</span>
+
+<span class="c1"># list of element pairs that lead to a table of content</span>
+<span class="c1"># noinspection PyPep8</span>
+<span class="c1"># structures for TOC elements in ReSpec or Bikeshed: element hierarchy and, if not None,</span>
+<span class="c1"># the class name for the &lt;li&gt; element.</span>
+<span class="n">TOC_PAIRS</span> <span class="o">=</span> <span class="p">[</span>
+	<span class="p">(</span><span class="s2">&quot;div[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+	<span class="p">(</span><span class="s2">&quot;div[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;ol[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+	<span class="p">(</span><span class="s2">&quot;nav[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+	<span class="p">(</span><span class="s2">&quot;section[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+	<span class="p">(</span><span class="s2">&quot;section[@id=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;ol[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+	<span class="p">(</span><span class="s2">&quot;div[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;tocline1&quot;</span><span class="p">),</span>
+	<span class="p">(</span><span class="s2">&quot;div[@data-fill-with=&#39;table-of-contents&#39;]&quot;</span><span class="p">,</span> <span class="s2">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+	<span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">,</span> <span class="s2">&quot;ul[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+	<span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">,</span> <span class="s2">&quot;ol[@class=&#39;toc&#39;]&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+<span class="p">]</span>
+
+
+<span class="c1"># noinspection PyPep8Naming</span>
+<div class="viewcode-block" id="TOC_Item"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.TOC_Item">[docs]</a><span class="k">class</span> <span class="nc">TOC_Item</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	A single Table of Content (TOC) item.</span>
+
+<span class="sd">	:param str href: reference in the TOC</span>
+<span class="sd">	:param str label: long label, ie, including the chapter numbering</span>
+<span class="sd">	:param str short_label: shotr label, ie, *without* the chapter numbering</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="c1"># noinspection PyPep8</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">href</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">short_label</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_href</span>        <span class="o">=</span> <span class="n">href</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_label</span>       <span class="o">=</span> <span class="n">label</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_short_label</span> <span class="o">=</span> <span class="n">short_label</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">href</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_href</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">short_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_short_label</span>
+
+
+<span class="c1">##################################################################################</span>
+</div>
+<div class="viewcode-block" id="Utils"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils">[docs]</a><span class="k">class</span> <span class="nc">Utils</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Generic utility functions to extract information from a W3C TR document.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="c1"># noinspection PyUnusedLocal,PyPep8</span>
+	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Utils.get_document_properties"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.get_document_properties">[docs]</a>	<span class="k">def</span> <span class="nf">get_document_properties</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Find the extra manifest properties that must be added to the HTML resource in the opf file.</span>
+
+<span class="sd">			See the `IDPF documentation &lt;http://www.idpf.org/epub/30/spec/epub30-publications.html#sec-item-property-values&gt;`_ for details</span>
+
+<span class="sd">			:param html: the object for the whole document</span>
+<span class="sd">			:type html: :py:class:`xml.etree.ElementTree.ElementTree`</span>
+<span class="sd">			:return: set collecting all possible property values</span>
+<span class="sd">			:rtype: set</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">retval</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+		<span class="c1"># If &lt;script&gt; is used for Javascript, the &#39;scripted&#39; property should be set</span>
+		<span class="k">for</span> <span class="n">scr</span> <span class="ow">in</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//script&quot;</span><span class="p">):</span>
+			<span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">scr</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="n">scr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;application/javascript&quot;</span> <span class="ow">or</span> <span class="n">scr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;text/javascript&quot;</span><span class="p">:</span>
+				<span class="c1"># The script element is really used for scripting</span>
+				<span class="n">retval</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;scripted&quot;</span><span class="p">)</span>
+				<span class="c1"># No reason to look further</span>
+				<span class="k">break</span>
+
+		<span class="c1"># If an interactive form is used, the &#39;scripted&#39; property should be set</span>
+		<span class="k">if</span> <span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.//form&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">retval</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;scripted&quot;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/2000/svg}svg&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">retval</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;svg&quot;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/1998/Math/MathML}math&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">retval</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;mathml&quot;</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">retval</span>
+	<span class="c1"># end _get_extra_properties</span>
+
+	<span class="c1"># noinspection PyPep8</span></div>
+	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Utils.create_shortname"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.create_shortname">[docs]</a>	<span class="k">def</span> <span class="nf">create_shortname</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Create the short name, in W3C jargon, based on the dated name. Returns a tuple with the category of the</span>
+<span class="sd">		publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, ``ED``, &quot;RSCND&quot;, or ``PER``), and the short name itself.</span>
+
+<span class="sd">		:param str name: dated name</span>
+<span class="sd">		:return: tuple of with the category of the publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, ``ED``, &quot;RSCND&quot;, or ``PER``), and the short name itself.</span>
+<span class="sd">		:rtype: tuple</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># This is very W3C specific...</span>
+		<span class="k">for</span> <span class="n">doc_type</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">DOCTYPE_INFO</span><span class="p">:</span>
+			<span class="n">doc_info</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">DOCTYPE_INFO</span><span class="p">[</span><span class="n">doc_type</span><span class="p">]</span>
+			<span class="k">if</span> <span class="n">doc_info</span><span class="p">[</span><span class="s2">&quot;uri_prefix&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">doc_info</span><span class="p">[</span><span class="s2">&quot;uri_prefix&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span><span class="p">):</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">doc_type</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+				<span class="k">return</span> <span class="n">doc_type</span><span class="p">,</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">9</span><span class="p">]</span>
+
+		<span class="c1"># If we get here, the name does not abide to any pattern; it is taken to be a base document</span>
+		<span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Could not establish document type and/or short name from &#39;</span><span class="si">%s</span><span class="s2">&#39; (remains </span><span class="se">\&quot;</span><span class="s2">base</span><span class="se">\&quot;</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">name</span>
+		<span class="n">Logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+		<span class="k">return</span> <span class="s2">&quot;base&quot;</span><span class="p">,</span> <span class="n">name</span>
+	<span class="c1"># end create_shortname</span>
+
+	<span class="c1"># noinspection PyBroadException</span></div>
+	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Utils.retrieve_date"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.retrieve_date">[docs]</a>	<span class="k">def</span> <span class="nf">retrieve_date</span><span class="p">(</span><span class="n">duri</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Retrieve the (publication) date from the dated URI.</span>
+
+<span class="sd">		:param str duri: dated URI</span>
+<span class="sd">		:return: date</span>
+<span class="sd">		:rtype: :py:class:`datetype.date`</span>
+<span class="sd">		:raises R2EError: the dated URI is not of an expected format</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># remove the last &#39;/&#39; if any</span>
+
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">d</span> <span class="o">=</span> <span class="n">duri</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">duri</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span> <span class="k">else</span> <span class="n">duri</span>
+			<span class="c1"># Date in compact format:</span>
+			<span class="n">pdate</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">:]</span>
+			<span class="k">return</span> <span class="n">date</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">pdate</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pdate</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pdate</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">]))</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;dated URI is not of the expected format&quot;</span>
+			<span class="n">Logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+	<span class="c1"># end retrieve_date</span>
+</div>
+	<span class="nd">@staticmethod</span>
+	<span class="c1"># noinspection PyBroadException</span>
+<div class="viewcode-block" id="Utils.extract_editors"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.extract_editors">[docs]</a>	<span class="k">def</span> <span class="nf">extract_editors</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Extract the editors&#39; names from a document, following the respec conventions</span>
+<span class="sd">		(``@class=p-author`` for ``&lt;dd&gt;`` including ``&lt;a&gt;`` or ``&lt;span&gt;`` with ``@class=p-name``)</span>
+
+<span class="sd">		:param html: the object for the whole document</span>
+<span class="sd">		:type html: :py:class:`xml.etree.ElementTree.ElementTree`</span>
+<span class="sd">		:return: set of editors</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">retval</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+		<span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//dd[@class]&quot;</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">dd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;p-author&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+				<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">dd</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//a[@class]&quot;</span><span class="p">):</span>
+					<span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;p-name&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+						<span class="n">retval</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+						<span class="k">break</span>
+				<span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">dd</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//span[@class]&quot;</span><span class="p">):</span>
+					<span class="k">if</span> <span class="n">span</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;p-name&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+						<span class="n">retval</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">span</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+						<span class="k">break</span>
+
+		<span class="k">return</span> <span class="n">retval</span>
+
+	<span class="c1"># noinspection PyPep8,PyBroadException</span></div>
+	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Utils.set_html_meta"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.set_html_meta">[docs]</a>	<span class="k">def</span> <span class="nf">set_html_meta</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		 Change the meta elements so that:</span>
+
+<span class="sd">		 - any ``@http-equiv=content-type`` is removed</span>
+<span class="sd">		 - there should be an extra meta setting the character set</span>
+
+<span class="sd">		:param html: the object for the whole document</span>
+<span class="sd">		:type html: :py:class:`xml.etree.ElementTree.ElementTree`</span>
+<span class="sd">		:param head: the object for the &lt;head&gt; element</span>
+<span class="sd">		:type head: :py:class:`xml.etree.ElementTree.Element`</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">for</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//meta[@http-equiv=&#39;content-type&#39;]&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//meta[@http-equiv=&#39;Content-Type&#39;]&quot;</span><span class="p">):</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">head</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="k">pass</span>
+		<span class="n">SubElement</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+</div>
+	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Utils.html_to_xhtml"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.html_to_xhtml">[docs]</a>	<span class="k">def</span> <span class="nf">html_to_xhtml</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Make the minimum changes necessary in the DOM tree so that the XHTML5 output is valid and accepted</span>
+<span class="sd">		by epub readers. These are:</span>
+
+<span class="sd">		1. The ``http://www.w3.org/1999/xhtml`` namespace is *required* in EPUB, but not generated by the</span>
+<span class="sd">		XML serialization of Python&#39;s ElementTree (or the ``HTML5Lib`` implementation thereof?). It is</span>
+<span class="sd">		therefore added explicitly.</span>
+
+<span class="sd">		2. XHTML5 does not work with ``&lt;script src=&quot;...&quot;/&gt;``, ie, with a self-closing element.</span>
+<span class="sd">		Such elements are modified by adding a space to the content of the element.</span>
+
+<span class="sd">		:param html: the object for the whole document</span>
+<span class="sd">		:type html: :py:class:`xml.etree.ElementTree.ElementTree`</span>
+<span class="sd">		:return: the input object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># Set the xhtml namespace on the top, this is required by epub readers</span>
+		<span class="c1"># noinspection PyUnresolvedReferences</span>
+		<span class="n">html</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;xmlns&quot;</span><span class="p">,</span> <span class="s2">&quot;http://www.w3.org/1999/xhtml&quot;</span><span class="p">)</span>
+
+		<span class="c1"># The script reference element should not be self-closed, but with a separate &lt;/script&gt; instead. Just adding</span>
+		<span class="c1"># an extra space to a possible link does the trick.</span>
+		<span class="k">for</span> <span class="n">script</span> <span class="ow">in</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//script[@src]&quot;</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">script</span><span class="o">.</span><span class="n">text</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="n">script</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span>
+		<span class="k">return</span> <span class="n">html</span>
+
+	<span class="c1"># noinspection PyPep8Naming</span></div>
+	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Utils.change_DOM"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.change_DOM">[docs]</a>	<span class="k">def</span> <span class="nf">change_DOM</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		 Changes on the DOM to ensure a proper interoperability of the display among EPUB readers. At the moment, the</span>
+<span class="sd">		 following actions are done:</span>
+
+<span class="sd">		 1. Due to the rigidity of the iBook reader, the DOM tree has to change: all children of the ``&lt;body&gt;`` should be</span>
+<span class="sd">		 encapsulated into a top level block element (we use ``&lt;div role=&quot;main&quot;&gt;``). This is because iBook imposes</span>
+<span class="sd">		 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level</span>
+<span class="sd">		 block element allows for suitable CSS adjustments.</span>
+
+<span class="sd">		 The CSS adjustment is done as follows: the :py:data:`.templates.BOOK_CSS` is completed with the exact</span>
+<span class="sd">		 padding values; these are retrieved (depending on the TR version and the document) from the</span>
+<span class="sd">		 See the :py:data:`.config.PADDING_NEW_STYLE` and, if applicable, the :py:data:`.config.PADDING_OLD_STYLE`</span>
+<span class="sd">		 dictionaries. The expansion of :py:data:`.templates.BOOK_CSS` itself happens in the</span>
+<span class="sd">		 :py:meth:`.doc2epub.DocWrapper.process` method.</span>
+
+<span class="sd">		 Note that using simply a &quot;main&quot; element as a top level encapsulation is not a good approach, because some files</span>
+<span class="sd">		 (e.g., generated by Bikeshed) already use that element, and there can be only one of those…</span>
+
+<span class="sd">		 2. If a ``&lt;pre&gt;`` element has the class name ``highlight``, the Readium extension to</span>
+<span class="sd">		 Chrome goes wild. However, that class name is used only for an internal processing of ReSpec though it is</span>
+<span class="sd">		 unused in the various, default CSS content. As a an emergency measure this class name is simply removed from the code, although,</span>
+<span class="sd">		 clearly, this is not the optimal way:-( But hopefully this bug will disappear from Readium and this hack can be</span>
+<span class="sd">		 removed, eventually.</span>
+
+<span class="sd">		 **Note**: this is an `acknowledged bug in Readium &lt;https://github.com/readium/readium-shared-js/issues/203&gt;`__.</span>
+<span class="sd">		 When a newer release of Readium is deployed, this hack should be removed from the code.</span>
+
+<span class="sd">		 3. Some readers *require* to have a ``type=&quot;text/css&quot;`` on the the link element for a CSS; otherwise the CSS</span>
+<span class="sd">		 is ignored. It is added (though not needed in HTML5, it doesn&#39;t do any harm either…)</span>
+
+<span class="sd">		 4. Add to the class of the ``body`` element the ``toc-inline`` value, to ensure that the TOC stays inline and</span>
+<span class="sd">		 is not floated on the left hand side. In reality, this is needed only for the post-2016 versions</span>
+<span class="sd">		 of the TR documents, but it does not harm for earlier versions. I.e., this step is not made more</span>
+<span class="sd">		 complicated by a check of the document’s TR version.</span>
+
+<span class="sd">		 5. Also like 4., remove the reference to the fixup.js script (which sets some initial values to the sidebar</span>
+<span class="sd">		 handling which is to be removed altogether anyway...)</span>
+
+<span class="sd">		 :param html: the object for the whole document</span>
+<span class="sd">		 :type html: :py:class:`xml.etree.ElementTree.ElementTree`</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c1"># Hack #1</span>
+		<span class="n">body</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.//body&quot;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//div[@main=&#39;role&#39;]&quot;</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">main</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s2">&quot;div&quot;</span><span class="p">)</span>
+			<span class="n">main</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">)</span>
+
+			<span class="c1"># All children of body, except for main, should be re-parented to main and removed from body</span>
+			<span class="c1"># Note: this is a workaround around what seems to be a bug in the html5parser. Indeed,</span>
+			<span class="c1"># the direct creation of an Element object does not work; the SubElement method must be used</span>
+			<span class="c1"># but this means that element should be avoided in the cycle below. Sigh...</span>
+			<span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">body</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;div&quot;</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;main&quot;</span><span class="p">)]:</span>
+				<span class="n">main</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+				<span class="n">body</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+
+		<span class="c1"># Hack #2</span>
+		<span class="c1"># Change the &quot;highlight&quot; class name</span>
+		<span class="c1"># noinspection PyShadowingNames</span>
+		<span class="k">def</span> <span class="nf">_change_name</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+			<span class="k">return</span> <span class="n">x</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;highlight&quot;</span> <span class="k">else</span> <span class="s2">&quot;book_highlight&quot;</span>
+
+		<span class="k">for</span> <span class="n">pre</span> <span class="ow">in</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//pre[@class]&quot;</span><span class="p">):</span>
+			<span class="c1"># there may be several class names</span>
+			<span class="n">cl_names</span> <span class="o">=</span> <span class="n">pre</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+			<span class="n">new_cl_names</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">_change_name</span><span class="p">,</span> <span class="n">cl_names</span><span class="p">)</span>
+			<span class="n">pre</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_cl_names</span><span class="p">))</span>
+
+		<span class="c1"># Hack #3</span>
+		<span class="c1"># Add the type=&quot;text/css&quot; for stylesheet elements</span>
+		<span class="k">for</span> <span class="n">lnk</span> <span class="ow">in</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//link[@rel=&#39;stylesheet&#39;]&quot;</span><span class="p">):</span>
+			<span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lnk</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+				<span class="n">lnk</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;text/css&quot;</span><span class="p">)</span>
+
+		<span class="c1"># Hack #4</span>
+		<span class="c1"># Add &#39;toc-inline&#39; to the body class, to avoid a floating TOC on the left</span>
+		<span class="n">bclass</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">bclass</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">body</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="s2">&quot;toc-inline&quot;</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">classes</span> <span class="o">=</span> <span class="n">bclass</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+			<span class="k">if</span> <span class="s2">&quot;toc-inline&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
+				<span class="n">classes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;toc-inline&quot;</span><span class="p">)</span>
+			<span class="n">body</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">classes</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">&quot;toc-sidebar&quot;</span><span class="p">]))</span>
+
+		<span class="c1"># Hack #5</span>
+		<span class="k">for</span> <span class="n">script</span> <span class="ow">in</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//script[@src]&quot;</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">script</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;src&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;fixup.js&quot;</span><span class="p">):</span>
+				<span class="c1"># The ElementTree.Element interface makes it difficult to locate the parent</span>
+				<span class="c1"># which would be necessary to remove this element (why????)</span>
+				<span class="c1"># The hack simply removes the fixup.js reference by just issuing a reset to the element itself</span>
+				<span class="n">script</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+				<span class="n">script</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span>
+</div>
+	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Utils.extract_toc"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.extract_toc">[docs]</a>	<span class="k">def</span> <span class="nf">extract_toc</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">short_name</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Extract the table of content from the document. ``html`` is the Element object for the full document. ``toc_tuples``</span>
+<span class="sd">		is an array of ``TOC_Item`` objects where the items should be put, ``short_name`` is the short name for the</span>
+<span class="sd">		document as a whole (used in possible warnings).</span>
+
+<span class="sd">		:param html: the object for the whole document</span>
+<span class="sd">		:type html: :py:class:`xml.etree.ElementTree.ElementTree`</span>
+<span class="sd">		:param str short_name: short name of the document as a whole (used in possible warning)</span>
+<span class="sd">		:return: array of :py:class:`.TOC_Item` instances</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">retval</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">def</span> <span class="nf">extract_toc_entry</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">explicit_num</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+			<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Extract the TOC entry and create a URI with the &#39;Overview&#39; file. This does not work well if the</span>
+<span class="sd">			document is cut into several documents, like the HTML5 spec...</span>
+
+<span class="sd">			:param parent: the parent element for the TOC entry</span>
+<span class="sd">			:type parent: :py:class:`xml.etree.ElementTree.Element`</span>
+<span class="sd">			:param explicit_num: whether the first element of the TOC line is a numbering that should be removed</span>
+<span class="sd">			The result is added to the tuples as a TOC_Item entry.</span>
+<span class="sd">			&quot;&quot;&quot;</span>
+			<span class="n">a</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+
+			<span class="n">ref</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">)</span>
+			<span class="n">ref</span> <span class="o">=</span> <span class="s2">&quot;Overview.xhtml&quot;</span> <span class="o">+</span> <span class="n">ref</span> <span class="k">if</span> <span class="n">ref</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span> <span class="k">else</span> <span class="n">ref</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">,</span> <span class="s2">&quot;.xhtml&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+			<span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">itertext</span><span class="p">()]</span>
+			<span class="n">label</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+			<span class="k">if</span> <span class="n">explicit_num</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="n">short_label</span> <span class="o">=</span> <span class="n">label</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">texts</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">short_label</span> <span class="o">=</span> <span class="n">label</span>
+				<span class="n">label</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">. &quot;</span> <span class="o">%</span> <span class="n">explicit_num</span><span class="p">)</span> <span class="o">+</span> <span class="n">short_label</span>
+			<span class="c1"># The &#39;short label&#39; is the title only, without an initial numbering. Unfortunately</span>
+			<span class="c1"># some, non respec documents put the numbers there without structuring, and so it ends</span>
+			<span class="c1"># up there regardless...</span>
+			<span class="c1"># (hm. This may make the previous steps unnecessary. To be checked!)</span>
+			<span class="k">if</span> <span class="n">short_label_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">short_label</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="n">short_label</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">short_label</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+			<span class="n">retval</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TOC_Item</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">short_label</span><span class="p">))</span>
+		<span class="c1"># end extract_toc_entry</span>
+
+		<span class="k">def</span> <span class="nf">toc_respec_or_bikeshed</span><span class="p">():</span>
+			<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Extract the TOC items following ReSpec or Bikeshed conventions. There are possible pairs (see the ``TOC_PAIRS``</span>
+<span class="sd">			alternatives), yielding &lt;li&gt; elements with the toc entry.</span>
+<span class="sd">			&quot;&quot;&quot;</span>
+			<span class="c1"># respec version</span>
+			<span class="c1"># We have to try two different versions, because, in some cases, respec uses &#39;div&#39; and in other cases &#39;section&#39;</span>
+			<span class="c1"># probably depends on the output format requested (or the version of respec? or both?)</span>
+			<span class="c1"># In all cases, the &lt;a&gt; element contains a section number and the chapter title</span>
+			<span class="k">for</span> <span class="n">pairs</span> <span class="ow">in</span> <span class="n">TOC_PAIRS</span><span class="p">:</span>
+				<span class="n">xpath</span> <span class="o">=</span> <span class="s2">&quot;.//{}/{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pairs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pairs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+				<span class="n">toc</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">xpath</span><span class="p">)</span>
+				<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+					<span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">toc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;li&quot;</span><span class="p">):</span>
+						<span class="k">if</span> <span class="n">pairs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="s2">&quot;class&quot;</span> <span class="ow">in</span> <span class="n">li</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">li</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">pairs</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+							<span class="k">continue</span>
+						<span class="n">extract_toc_entry</span><span class="p">(</span><span class="n">li</span><span class="p">)</span>
+					<span class="k">return</span> <span class="bp">True</span>
+			<span class="k">return</span> <span class="bp">False</span>
+
+		<span class="k">def</span> <span class="nf">toc_extract_nav</span><span class="p">():</span>
+			<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Extract a full hierarchy of navigation element, to be reused for the new style, ie, EPUB3, navigation,</span>
+<span class="sd">			if possible. That relies on a restricted set of toc pairs that the original document may contain</span>
+<span class="sd">			:return: array of elements, cloned version of the top level ``&lt;li&gt;`` elements in the original source.</span>
+<span class="sd">			The array is empty if the TOC structure is inadequate</span>
+<span class="sd">			&quot;&quot;&quot;</span>
+			<span class="n">top_levels</span> <span class="o">=</span> <span class="p">[]</span>
+
+			<span class="c1"># See if the new style nav/ul access works</span>
+			<span class="n">xpath</span> <span class="o">=</span> <span class="s2">&quot;.//nav[@id=&#39;toc&#39;]/ul[@class=&#39;toc&#39;]&quot;</span>
+			<span class="n">toc</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">xpath</span><span class="p">)</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">toc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;li&quot;</span><span class="p">):</span>
+					<span class="n">li_in_string</span> <span class="o">=</span> <span class="n">tostring</span><span class="p">(</span><span class="n">li</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;xml&quot;</span><span class="p">)</span>
+					<span class="c1"># making some changes for the nav element and then turn it back to an Element tree</span>
+					<span class="n">cloned_li</span> <span class="o">=</span> <span class="n">fromstring</span><span class="p">(</span><span class="n">li_in_string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;ul&#39;</span><span class="p">,</span><span class="s1">&#39;&lt;ol&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;/ul&gt;&#39;</span><span class="p">,</span><span class="s1">&#39;&lt;/ol&gt;&#39;</span><span class="p">))</span>
+					<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">cloned_li</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//a&quot;</span><span class="p">):</span>
+						<span class="n">ref</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">)</span>
+						<span class="n">ref</span> <span class="o">=</span> <span class="s2">&quot;Overview.xhtml&quot;</span> <span class="o">+</span> <span class="n">ref</span> <span class="k">if</span> <span class="n">ref</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span> <span class="k">else</span> <span class="n">ref</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.html&quot;</span><span class="p">,</span> <span class="s2">&quot;.xhtml&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+						<span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="p">)</span>
+					<span class="n">top_levels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cloned_li</span><span class="p">)</span>
+
+			<span class="k">return</span> <span class="n">top_levels</span>
+
+		<span class="c1"># Execute the various versions in order</span>
+		<span class="k">if</span> <span class="n">toc_respec_or_bikeshed</span><span class="p">():</span>
+			<span class="c1"># we are fine, found what is needed</span>
+			<span class="k">return</span> <span class="n">retval</span><span class="p">,</span> <span class="n">toc_extract_nav</span><span class="p">()</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="c1"># if we got here, something is wrong...</span>
+			<span class="n">Logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Could not extract a table of content from &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">short_name</span><span class="p">)</span>
+			<span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
+	<span class="c1"># end _extract_toc</span>
+
+
+<span class="c1">###################################################################################</span></div></div>
+<div class="viewcode-block" id="HttpSession"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.HttpSession">[docs]</a><span class="k">class</span> <span class="nc">HttpSession</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="c1"># noinspection PyPep8</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Wrapper around an HTTP session; the returned media type is compared against accepted media</span>
+<span class="sd">		types.</span>
+
+<span class="sd">		:param str url: the URL to be retrieved</span>
+<span class="sd">		:param boolean check_media_type: whether the media type should be checked against the media type of the resource to see if it is acceptable</span>
+<span class="sd">		:param boolean raise_exception: whether an exception should be raised if the document cannot be retrieved (either because the HTTP return is not 200, or not of an acceptable media type)</span>
+<span class="sd">		:param boolean is_respec: if True, the URL is a callout to the spec generator service; if so, and there is a problem, the corresponding error message is different</span>
+<span class="sd">		:raises R2EError: in case the file is not an of an acceptable media type, or the HTTP return is not 200</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+	<span class="c1"># noinspection PyPep8,PyPep8</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">check_media_type</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">is_respec</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+		<span class="k">def</span> <span class="nf">handle_exception</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+			<span class="n">Logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">raise_exception</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="n">R2EError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">_success</span>    <span class="o">=</span> <span class="bp">False</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_data</span>       <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_url</span>        <span class="o">=</span> <span class="n">url</span>
+
+		<span class="c1"># noinspection PyBroadException</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">is_respec</span><span class="p">:</span>
+				<span class="n">handle_exception</span><span class="p">(</span><span class="s2">&quot;There seems to be a problem with the spec generator service (&#39;</span><span class="si">%s</span><span class="s2">&#39; should be tested separately)&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">handle_exception</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> cannot be reached&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
+			<span class="k">return</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">getcode</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;200&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">getcode</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+			<span class="n">handle_exception</span><span class="p">(</span><span class="s2">&quot;Received a &#39;</span><span class="si">%s</span><span class="s2">&#39; status code instead of &#39;200&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">getcode</span><span class="p">())</span>
+			<span class="k">return</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">gettype</span><span class="p">()</span>
+		<span class="k">if</span> <span class="n">check_media_type</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">ACCEPTED_MEDIA_TYPES</span><span class="p">:</span>
+			<span class="n">handle_exception</span><span class="p">(</span><span class="s2">&quot;Received a file of type &#39;</span><span class="si">%s</span><span class="s2">&#39;, which is not defined as acceptable&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span><span class="p">)</span>
+			<span class="k">return</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">_success</span> <span class="o">=</span> <span class="bp">True</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		True if the HTTP retrieval was successful, False otherwise</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_success</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The returned resource, as a file-like object</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The request URL for this session</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_url</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Media type of the resource</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span>
+
+<span class="c1">#####################################################################################</span>
+
+
+<span class="c1"># noinspection PyPep8</span></div>
+<div class="viewcode-block" id="Book"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book">[docs]</a><span class="k">class</span> <span class="nc">Book</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Abstraction for a book; it encapsulates a zip file as well as saving the content into a</span>
+<span class="sd">	  directory.</span>
+
+<span class="sd">	  :param book_name: file name of the book</span>
+<span class="sd">	  :param folder_name: name of the directory</span>
+<span class="sd">  	  :param package: whether a real zip file should be created or not</span>
+<span class="sd">	  :param folder: whether the directory structure should be created separately or not</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">book_name</span><span class="p">,</span> <span class="n">folder_name</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_package</span>       <span class="o">=</span> <span class="n">package</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_folder</span>        <span class="o">=</span> <span class="n">folder</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_name</span>          <span class="o">=</span> <span class="n">folder_name</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_zip</span>           <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">already_stored</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">:</span>
+			<span class="c1"># To be sure the previous folder, if it exists, should be removed</span>
+			<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">folder_name</span><span class="p">):</span>
+				<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">folder_name</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+			<span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">folder_name</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_zip</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">book_name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s1">&#39;mimetype&#39;</span><span class="p">,</span> <span class="s1">&#39;application/epub+zip&#39;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_STORED</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s1">&#39;META-INF/container.xml&#39;</span><span class="p">,</span> <span class="n">meta_inf</span><span class="p">)</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">package</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Flag whether an EPUB package should be generated or not&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_package</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Flag whether a folder should be generated or not&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_folder</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Prefix that should be added to all names when storing a folder (set to the short name of the document)&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">zip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;The package (book) file itself&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zip</span>
+
+<div class="viewcode-block" id="Book.writestr"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.writestr">[docs]</a>	<span class="k">def</span> <span class="nf">writestr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Write the content of a string.</span>
+
+<span class="sd">		:param target: path for the target file</span>
+<span class="sd">		:param content: string/bytes to be written on the file</span>
+<span class="sd">		:param compress: either ``zipfile.ZIP_DEFLATED`` or ``zipfile.ZIP_STORED``, whether the content should be compressed, resp. not compressed</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># Care should be taken not to write the &quot;target&quot; twice; the zipfile would really</span>
+		<span class="c1"># duplicate the content in the archive (as opposed to file writing that would simply overwrite the previous</span>
+		<span class="c1"># incarnation of the same file). This method takes care of that through the `already_stored` array.</span>
+		<span class="k">if</span> <span class="n">target</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">already_stored</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">already_stored</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">:</span>
+				<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+					<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">zip</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">compress</span><span class="p">)</span>
+
+	<span class="c1"># noinspection PyUnresolvedReferences</span></div>
+<div class="viewcode-block" id="Book.write_element"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.write_element">[docs]</a>	<span class="k">def</span> <span class="nf">write_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		An ElementTree object is added to the book.</span>
+
+<span class="sd">		:param str target: path for the target file</span>
+<span class="sd">		:param element: the XML tree to be stored</span>
+<span class="sd">		:type element: :py:class:`xml.etree.ElementTree`</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">content</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+		<span class="n">element</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;xml&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">content</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+		<span class="n">content</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+	<span class="c1"># noinspection PyTypeChecker</span></div>
+<div class="viewcode-block" id="Book.write_session"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.write_session">[docs]</a>	<span class="k">def</span> <span class="nf">write_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">css_change_patterns</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The returned content of an :py:class:`.HttpSession` is added to the book. If the content is an HTML file,</span>
+<span class="sd">		it will be converted into XHTML on the fly.</span>
+
+<span class="sd">		:param str target: path for the target file</span>
+<span class="sd">		:param session: a :py:class:`.HttpSession` instance whose data must retrieved to be written into the book</span>
+<span class="sd">		:param css_change_patterns: a list of ``(from,to)`` replace patterns to be applied on CSS files before storage</span>
+<span class="sd">		:return boolean: the value of session.success</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="n">css_change_patterns</span> <span class="ow">is</span> <span class="bp">None</span> <span class="p">:</span>
+			<span class="n">css_change_patterns</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="c1"># Copy the content into the final book</span>
+		<span class="c1"># Special care should be taken with html files. Those are supposed to become XHTML:-(</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+			<span class="n">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Unsuccessful HTTP session; did not store </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">session</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="s1">&#39;text/html&#39;</span><span class="p">:</span>
+				<span class="c1"># We have to</span>
+				<span class="c1"># 1. parse the source with the html5 parser</span>
+				<span class="c1"># 2. add the xhtml namespace to the top and take care of the stupid script issue (no self-closing scripts!)</span>
+				<span class="c1"># 3. write the result as xhtml through the write_element method</span>
+				<span class="n">html</span> <span class="o">=</span> <span class="n">html5lib</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">namespaceHTMLElements</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+				<span class="n">Utils</span><span class="o">.</span><span class="n">html_to_xhtml</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.html&#39;</span><span class="p">,</span> <span class="s1">&#39;.xhtml&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ElementTree</span><span class="p">(</span><span class="n">html</span><span class="p">))</span>
+			<span class="k">elif</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="s1">&#39;text/css&#39;</span><span class="p">:</span>
+				<span class="c1"># We have to make a series of string replacements, as defined in the `css_change_patterns`</span>
+				<span class="c1"># parameter.</span>
+				<span class="n">content</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+				<span class="k">for</span> <span class="p">(</span><span class="n">c_from</span><span class="p">,</span> <span class="n">c_to</span><span class="p">)</span> <span class="ow">in</span> <span class="n">css_change_patterns</span><span class="p">:</span>
+					<span class="n">content</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">c_from</span><span class="p">,</span> <span class="n">c_to</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="c1"># Note that some of the media types are not to be compressed</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_STORED</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">media_type</span> <span class="ow">in</span> <span class="n">_NO_COMPRESS</span> <span class="k">else</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span>
+
+	<span class="c1"># noinspection PyPep8Naming</span></div>
+<div class="viewcode-block" id="Book.write_HTTP"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.write_HTTP">[docs]</a>	<span class="k">def</span> <span class="nf">write_HTTP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Retrieve the content of a URI and store it in the book. (This is a wrapper around the `write_session` method.)</span>
+
+<span class="sd">		:param str target: path for the target file, this is always a relative URI</span>
+<span class="sd">		:param url: URL that has to be retrieved to be written into the book</span>
+<span class="sd">		:boolean return: whether the HTTP session was successful or not</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># Copy the content into the final book.</span>
+		<span class="c1"># Note that some of the media types are not to be compressed</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_session</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">HttpSession</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Book._path"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book._path">[docs]</a>	<span class="k">def</span> <span class="nf">_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Expand the path with the name of the package, check whether the resulting path (filename) includes intermediate</span>
+<span class="sd">		directories and create those on the fly if necessary.</span>
+
+<span class="sd">		:param path: path to be checked</span>
+<span class="sd">		:return: expanded, full path</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+		<span class="p">(</span><span class="n">dirs</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">dirs</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dirs</span><span class="p">):</span>
+			<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirs</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">full_path</span>
+</div>
+<div class="viewcode-block" id="Book.close"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Book.close">[docs]</a>	<span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Close the book (i.e., the archive).</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">zip</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+	<span class="c1"># The methods below are necessary to use the class in a &quot;with ... as&quot; python structure</span></div>
+	<span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span>
+
+	<span class="c1"># noinspection PyUnusedLocal</span>
+	<span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1">#####################################################################################</span>
+
+
+<span class="c1"># noinspection PyPep8</span></div>
+<div class="viewcode-block" id="Logger"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Logger">[docs]</a><span class="k">class</span> <span class="nc">Logger</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Wrapper around the logger calls, simply checking whether the logger in the configuration file has been</span>
+<span class="sd">	set to a real value or whether it is None (in the latter case nothing happens). Saves a repeated</span>
+<span class="sd">	set of checks elsewhere in the code.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
