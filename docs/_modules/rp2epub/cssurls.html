@@ -42,7 +42,7 @@
         
         
   <h1>Source code for rp2epub.cssurls</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The :py:class:`CSSList` encapsulates a collection of external references that are extracted from CSS files, references</span>
 <span class="sd">that are supposed to be downloaded and added to the final book, as well as added to the package file. Typically, this</span>
 <span class="sd">means handling the CSS import statements (i.e., importing other CSS files) as well as various URL references, e.g., when</span>
@@ -78,8 +78,8 @@
 <span class="sd">	:param str url: Absolute URL of the resource</span>
 <span class="sd">	:param str name: Local name of the resource</span>
 <span class="sd">	&quot;&quot;&quot;</span>
-	<span class="c"># noinspection PyPep8</span>
-	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+	<span class="c1"># noinspection PyPep8</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_url</span>  <span class="o">=</span> <span class="n">url</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
 
@@ -93,11 +93,11 @@
 		<span class="sd">&quot;&quot;&quot;The local name of the resource&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 
-	<span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="k">return</span> <span class="s">&quot;(&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span>
+	<span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
 
 
-<span class="c"># noinspection PyPep8</span></div>
+<span class="c1"># noinspection PyPep8</span></div>
 <div class="viewcode-block" id="CSSReference"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSReference">[docs]</a><span class="k">class</span> <span class="nc">CSSReference</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	Wrapper around the information related to one CSS reference.</span>
@@ -107,8 +107,8 @@
 <span class="sd">	:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded in HTML</span>
 <span class="sd">	:param str content: in case the CSS was embedded, the full content of the CSS as retrieved from the DOM</span>
 <span class="sd">	&quot;&quot;&quot;</span>
-	<span class="c"># noinspection PyPep8</span>
-	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">is_file</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">content</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+	<span class="c1"># noinspection PyPep8</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">is_file</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">content</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_origin_url</span>      <span class="o">=</span> <span class="n">url</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_base</span>            <span class="o">=</span> <span class="n">base</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_change_patterns</span> <span class="o">=</span> <span class="p">[]</span>
@@ -117,7 +117,7 @@
 			<span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">_content</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 			<span class="k">else</span><span class="p">:</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">_content</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_content</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_content</span> <span class="o">=</span> <span class="n">content</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_collect_imports</span><span class="p">()</span>
@@ -147,75 +147,75 @@
 <span class="sd">		and :py:attr:`import_misc` sets are filled with content. This method is called at initialization time.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="k">def</span> <span class="nf">add_item_to_import</span><span class="p">(</span><span class="n">url_orig</span><span class="p">,</span> <span class="n">css</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-			<span class="c"># The urls-s are relative to the CSS file&#39;s</span>
+			<span class="c1"># The urls-s are relative to the CSS file&#39;s</span>
 			<span class="n">url</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_origin_url</span><span class="p">,</span> <span class="n">url_orig</span><span class="p">)</span>
-			<span class="c"># The final name, to be used when the content is added to the book, should be relative to the</span>
-			<span class="c"># base of the whole input; that will then be used to add the downloaded</span>
-			<span class="c"># content to the book</span>
+			<span class="c1"># The final name, to be used when the content is added to the book, should be relative to the</span>
+			<span class="c1"># base of the whole input; that will then be used to add the downloaded</span>
+			<span class="c1"># content to the book</span>
 
-			<span class="c"># The style sheets may be on the www.w3.org domain. Those should be separated for the generation of the</span>
-			<span class="c"># local name...</span>
-			<span class="k">if</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s">&quot;www.w3.org&quot;</span><span class="p">:</span>
+			<span class="c1"># The style sheets may be on the www.w3.org domain. Those should be separated for the generation of the</span>
+			<span class="c1"># local name...</span>
+			<span class="k">if</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span> <span class="o">==</span> <span class="s2">&quot;www.w3.org&quot;</span><span class="p">:</span>
 				<span class="n">path</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
-				<span class="n">name</span> <span class="o">=</span> <span class="n">path</span> <span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="n">path</span> <span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;/&#39;</span> <span class="k">else</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
 			<span class="k">else</span><span class="p">:</span>
-				<span class="n">name</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+				<span class="n">name</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-			<span class="c"># In some cases the url reference is not relative (alas!)</span>
-			<span class="k">if</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url_orig</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
-				<span class="c"># 1. This reference should be changed to get the local reference. This will be the &#39;from&#39; field to replace</span>
+			<span class="c1"># In some cases the url reference is not relative (alas!)</span>
+			<span class="k">if</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url_orig</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+				<span class="c1"># 1. This reference should be changed to get the local reference. This will be the &#39;from&#39; field to replace</span>
 				<span class="n">c_from</span> <span class="o">=</span> <span class="n">url_orig</span>
 
-				<span class="c"># 2. Calculate the &#39;base&#39; part of the CSS file&#39;s URL, ie, remove the last portion of the path if any</span>
+				<span class="c1"># 2. Calculate the &#39;base&#39; part of the CSS file&#39;s URL, ie, remove the last portion of the path if any</span>
 				<span class="n">path</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_origin_url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
-				<span class="n">css_base</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;/&#39;</span> <span class="k">else</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+				<span class="n">css_base</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;/&#39;</span> <span class="k">else</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-				<span class="c"># 3. Use the length of the base to remove the unnecessary part of the referenced URL, yielding the</span>
-				<span class="c"># relative URL</span>
+				<span class="c1"># 3. Use the length of the base to remove the unnecessary part of the referenced URL, yielding the</span>
+				<span class="c1"># relative URL</span>
 				<span class="n">c_to</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">css_base</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">_change_patterns</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c_from</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">),</span> <span class="n">c_to</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)))</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">_change_patterns</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c_from</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="n">c_to</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
 
 			<span class="bp">self</span><span class="o">.</span><span class="n">_import_misc</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">_URLPair</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
 			<span class="k">if</span> <span class="n">css</span><span class="p">:</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">_import_css</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
 		<span class="k">def</span> <span class="nf">handle_one_css_ruleset</span><span class="p">(</span><span class="n">one_ruleset</span><span class="p">):</span>
-			<span class="c"># This is a basic CSS set of declarations. Each declaration has, potentially, a set of values;</span>
-			<span class="c"># the values themselves may be numbers, strings, etc, and also URI-s</span>
-			<span class="c"># Only the URI-s are of interest at this point.</span>
+			<span class="c1"># This is a basic CSS set of declarations. Each declaration has, potentially, a set of values;</span>
+			<span class="c1"># the values themselves may be numbers, strings, etc, and also URI-s</span>
+			<span class="c1"># Only the URI-s are of interest at this point.</span>
 			<span class="k">if</span> <span class="n">one_ruleset</span><span class="o">.</span><span class="n">at_keyword</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
 				<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">one_ruleset</span><span class="o">.</span><span class="n">declarations</span><span class="p">:</span>
-					<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s">&quot;URI&quot;</span><span class="p">]:</span>
+					<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;URI&quot;</span><span class="p">]:</span>
 						<span class="n">add_item_to_import</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">_import_css</span>  <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_import_misc</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-		<span class="n">parser</span> <span class="o">=</span> <span class="n">tinycss</span><span class="o">.</span><span class="n">make_parser</span><span class="p">(</span><span class="s">&quot;page3&quot;</span><span class="p">)</span>
+		<span class="n">parser</span> <span class="o">=</span> <span class="n">tinycss</span><span class="o">.</span><span class="n">make_parser</span><span class="p">(</span><span class="s2">&quot;page3&quot;</span><span class="p">)</span>
 
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
 			<span class="n">stylesheet</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_stylesheet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_content</span><span class="p">)</span>
-			<span class="c"># Log if there is an error in the stylesheet</span>
+			<span class="c1"># Log if there is an error in the stylesheet</span>
 			<span class="k">if</span> <span class="n">stylesheet</span><span class="o">.</span><span class="n">errors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">stylesheet</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-				<span class="n">Logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;The tinycss parser found some CSS errors in </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_origin_url</span><span class="p">)</span>
+				<span class="n">Logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;The tinycss parser found some CSS errors in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_origin_url</span><span class="p">)</span>
 
-			<span class="c"># Go through all the individual rules of the style sheet</span>
+			<span class="c1"># Go through all the individual rules of the style sheet</span>
 			<span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">stylesheet</span><span class="o">.</span><span class="n">rules</span><span class="p">:</span>
-				<span class="c"># Only the @import and @media rules are of interest; most of the others, like @print, are ignored</span>
-				<span class="k">if</span> <span class="n">rule</span><span class="o">.</span><span class="n">at_keyword</span> <span class="o">==</span> <span class="s">&quot;@import&quot;</span><span class="p">:</span>
+				<span class="c1"># Only the @import and @media rules are of interest; most of the others, like @print, are ignored</span>
+				<span class="k">if</span> <span class="n">rule</span><span class="o">.</span><span class="n">at_keyword</span> <span class="o">==</span> <span class="s2">&quot;@import&quot;</span><span class="p">:</span>
 					<span class="n">add_item_to_import</span><span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">uri</span><span class="p">,</span> <span class="n">css</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-				<span class="k">elif</span> <span class="n">rule</span><span class="o">.</span><span class="n">at_keyword</span> <span class="o">==</span> <span class="s">&quot;@media&quot;</span><span class="p">:</span>
+				<span class="k">elif</span> <span class="n">rule</span><span class="o">.</span><span class="n">at_keyword</span> <span class="o">==</span> <span class="s2">&quot;@media&quot;</span><span class="p">:</span>
 					<span class="k">for</span> <span class="n">ruleset</span> <span class="ow">in</span> <span class="n">rule</span><span class="o">.</span><span class="n">rules</span><span class="p">:</span>
 						<span class="n">handle_one_css_ruleset</span><span class="p">(</span><span class="n">ruleset</span><span class="p">)</span>
 
 				<span class="k">elif</span> <span class="n">rule</span><span class="o">.</span><span class="n">at_keyword</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
 					<span class="n">handle_one_css_ruleset</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span>
 </div>
-	<span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_origin_url</span> <span class="o">+</span> <span class="s">&#39;: &#39;</span> <span class="o">+</span> <span class="sb">`self.import_css`</span> <span class="o">+</span> <span class="s">&quot;,&quot;</span> <span class="o">+</span> <span class="sb">`self.import_misc`</span>
+	<span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_origin_url</span> <span class="o">+</span> <span class="s1">&#39;: &#39;</span> <span class="o">+</span> <span class="sb">`self.import_css`</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="sb">`self.import_misc`</span>
 
 
-<span class="c"># noinspection PyPep8</span></div>
+<span class="c1"># noinspection PyPep8</span></div>
 <div class="viewcode-block" id="CSSList"><a class="viewcode-back" href="../../cssurls.html#rp2epub.cssurls.CSSList">[docs]</a><span class="k">class</span> <span class="nc">CSSList</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	List of :py:class:`CSSReference` instances. This is, initially, built up from the :py:class:`.document.Document` class; when</span>
@@ -224,7 +224,7 @@
 
 <span class="sd">	:param str base: the base URL for the whole book</span>
 <span class="sd">	&quot;&quot;&quot;</span>
-	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span>        <span class="o">=</span> <span class="p">[]</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_base</span>            <span class="o">=</span> <span class="n">base</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_change_patterns</span> <span class="o">=</span> <span class="p">[]</span>
@@ -279,10 +279,10 @@
 			<span class="k">return</span> <span class="n">next_level</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span> <span class="o">+=</span> <span class="n">one_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span><span class="p">)</span>
 
-	<span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="n">retval</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+	<span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">retval</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 		<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_css_list</span><span class="p">:</span>
-			<span class="n">retval</span> <span class="o">+=</span> <span class="n">c</span><span class="o">.</span><span class="n">__repr__</span><span class="p">()</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+			<span class="n">retval</span> <span class="o">+=</span> <span class="n">c</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
 		<span class="k">return</span> <span class="n">retval</span></div>
 </pre></div>
 

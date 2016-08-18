@@ -1,0 +1,322 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rp2epub.package &mdash; ReSpec to EPUB Utility</title>
+    
+    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="ReSpec to EPUB Utility" href="../../index.html" />
+    <link rel="up" title="rp2epub" href="../rp2epub.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="../../index.html">
+          <span>ReSpec to EPUB Utility</span></a></h1>
+        <h2 class="heading"><span>rp2epub.package</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="../../index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <h1>Source code for rp2epub.package</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Generate all the auxiliary files that are needed for EPUB: package file, table of content in different formats,</span>
+<span class="sd">cover page. Most of the files make use of various templates stored in the separate template file.</span>
+
+<span class="sd">.. :class::</span>
+
+<span class="sd">Module Content</span>
+<span class="sd">--------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># noinspection PyPep8Naming</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">as</span> <span class="nn">ET</span>
+<span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">ElementTree</span><span class="p">,</span> <span class="n">SubElement</span>
+<span class="kn">from</span> <span class="nn">.templates</span> <span class="kn">import</span> <span class="n">PACKAGE</span><span class="p">,</span> <span class="n">TOC</span><span class="p">,</span> <span class="n">NAV</span><span class="p">,</span> <span class="n">NAV_CSS_NUMBERING</span><span class="p">,</span> <span class="n">NAV_CSS_NO_NUMBERING</span><span class="p">,</span> <span class="n">COVER</span>
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">DEFAULT_FILES</span><span class="p">,</span> <span class="n">DATE_FORMAT_STRING</span>
+
+
+
+<span class="c1"># noinspection PyPep8</span>
+<div class="viewcode-block" id="Package"><a class="viewcode-back" href="../../package.html#rp2epub.package.Package">[docs]</a><span class="k">class</span> <span class="nc">Package</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Collection of methods to generate the manifest, TOC in different formats, and the cover pages</span>
+
+<span class="sd">	:param driver: the caller</span>
+<span class="sd">	:type driver: :py:class:`.DocWrapper`</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_book</span>     <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">book</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_document</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">document</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">book</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;The target book; a :py:class:`.utils.Book` instance&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_book</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">document</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Encapsulation of the real document; a :py:class:`.document.Document` instance&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_document</span>
+
+<div class="viewcode-block" id="Package.process"><a class="viewcode-back" href="../../package.html#rp2epub.package.Package.process">[docs]</a>	<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Top level entry to execute the various internal methods&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_create_opf</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_create_ncx</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_create_nav</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_create_cover</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Package._create_opf"><a class="viewcode-back" href="../../package.html#rp2epub.package.Package._create_opf">[docs]</a>	<span class="k">def</span> <span class="nf">_create_opf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Create the manifest file. Includes the list of resources, book metadata, and the spine. The manifest</span>
+<span class="sd">		file is added to the book as ``package.opf``</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># Last step: the manifest file must be created</span>
+		<span class="c1"># Parse the raw manifest file</span>
+		<span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s2">&quot;http://www.idpf.org/2007/opf&quot;</span><span class="p">)</span>
+		<span class="n">opf</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">PACKAGE</span><span class="p">))</span>
+
+		<span class="c1"># Add the &#39;main&#39; file</span>
+		<span class="n">manifest</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.idpf.org/2007/opf}manifest&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+		<span class="c1"># Get the default resources first</span>
+		<span class="k">for</span> <span class="p">(</span><span class="n">href</span><span class="p">,</span> <span class="n">media_type</span><span class="p">,</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span> <span class="ow">in</span> <span class="n">DEFAULT_FILES</span><span class="p">:</span>
+			<span class="n">item</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="s2">&quot;{http://www.idpf.org/2007/opf}item&quot;</span><span class="p">)</span>
+			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">item_id</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">,</span> <span class="n">href</span><span class="p">)</span>
+			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;media-type&quot;</span><span class="p">,</span> <span class="n">media_type</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">prop</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+				<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;properties&quot;</span><span class="p">,</span> <span class="n">prop</span><span class="p">)</span>
+			<span class="n">item</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">    &quot;</span>
+
+		<span class="n">item</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="s2">&quot;{http://www.idpf.org/2007/opf}item&quot;</span><span class="p">)</span>
+		<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">)</span>
+		<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">,</span> <span class="s2">&quot;Overview.xhtml&quot;</span><span class="p">)</span>
+		<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;media-type&quot;</span><span class="p">,</span> <span class="s2">&quot;application/xhtml+xml&quot;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">properties</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;properties&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+		<span class="n">item</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">    &quot;</span>
+
+		<span class="c1"># Add the additional resources</span>
+		<span class="k">for</span> <span class="n">resource_target</span><span class="p">,</span> <span class="n">media_type</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">additional_resources</span><span class="p">):</span>
+			<span class="n">item</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="s2">&quot;{http://www.idpf.org/2007/opf}item&quot;</span><span class="p">)</span>
+			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">,</span> <span class="n">resource_target</span><span class="p">)</span>
+			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;media-type&quot;</span><span class="p">,</span> <span class="n">media_type</span><span class="p">)</span>
+			<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">resource_target</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+			<span class="n">item</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">    &quot;</span>
+
+		<span class="c1"># Add the (only) spine element</span>
+		<span class="n">spine</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.idpf.org/2007/opf}spine&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">item</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">spine</span><span class="p">,</span> <span class="s2">&quot;{http://www.idpf.org/2007/opf}itemref&quot;</span><span class="p">)</span>
+		<span class="n">item</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;idref&quot;</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">)</span>
+
+		<span class="c1"># Manifest metadata</span>
+		<span class="n">title</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://purl.org/dc/elements/1.1/}title&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">title</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">title</span>
+		<span class="n">identifier</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://purl.org/dc/elements/1.1/}identifier&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">identifier</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">dated_uri</span>
+		<span class="n">date</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.idpf.org/2007/opf}meta[@property=&#39;dcterms:modified&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">date</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DATE_FORMAT_STRING</span><span class="p">)</span>
+		<span class="n">date</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.idpf.org/2007/opf}meta[@property=&#39;dcterms:date&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">date</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DATE_FORMAT_STRING</span><span class="p">)</span>
+		<span class="n">creator</span> <span class="o">=</span> <span class="n">opf</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://purl.org/dc/elements/1.1/}creator&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">creator</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">editors</span>
+
+		<span class="c1"># Push the manifest file into the book</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="s1">&#39;package.opf&#39;</span><span class="p">,</span> <span class="n">opf</span><span class="p">)</span>
+
+	<span class="c1">#===================================================</span>
+	<span class="c1"># Generate the old style table of content (ncx file)</span>
+	<span class="c1">#===================================================</span>
+	<span class="c1"># noinspection PyPep8,PyPep8Naming</span></div>
+<div class="viewcode-block" id="Package._create_ncx"><a class="viewcode-back" href="../../package.html#rp2epub.package.Package._create_ncx">[docs]</a>	<span class="k">def</span> <span class="nf">_create_ncx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Create and old style TOC file (&#39;ncx&#39; file): ``toc.ncx``. To be used for reading systems that cannot</span>
+<span class="sd">		handle EPUB3 specific TOC.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># noinspection PyPep8Naming,PyPep8</span>
+		<span class="k">def</span> <span class="nf">set_nav_point</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">href</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">the_index</span><span class="p">):</span>
+			<span class="n">the_navPoint</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;{http://www.daisy.org/z3986/2005/ncx/}navPoint&quot;</span><span class="p">)</span>
+			<span class="n">the_navPoint</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;nav</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">the_index</span><span class="p">)</span>
+			<span class="n">the_navPoint</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;playOrder&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">the_index</span><span class="p">)</span>
+			<span class="n">the_navPoint</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="s2">&quot;h1&quot;</span><span class="p">)</span>
+
+			<span class="n">the_navLabel</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">the_navPoint</span><span class="p">,</span> <span class="s2">&quot;{http://www.daisy.org/z3986/2005/ncx/}navLabel&quot;</span><span class="p">)</span>
+			<span class="n">the_txt</span>      <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">the_navLabel</span><span class="p">,</span> <span class="s2">&quot;{http://www.daisy.org/z3986/2005/ncx/}text&quot;</span><span class="p">)</span>
+			<span class="n">the_txt</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">label</span>
+
+			<span class="n">content</span>  <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">the_navPoint</span><span class="p">,</span> <span class="s2">&quot;{http://www.daisy.org/z3986/2005/ncx/}content&quot;</span><span class="p">)</span>
+			<span class="n">content</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="n">href</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">the_navPoint</span>
+
+		<span class="c1"># The doc title is also set in the TOC if exists</span>
+		<span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s2">&quot;http://www.daisy.org/z3986/2005/ncx/&quot;</span><span class="p">)</span>
+		<span class="n">ncx</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">TOC</span><span class="p">))</span>
+
+		<span class="c1"># Set the title</span>
+		<span class="n">title</span>    <span class="o">=</span> <span class="n">ncx</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.daisy.org/z3986/2005/ncx/}docTitle&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">txt</span>      <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="s2">&quot;{http://www.daisy.org/z3986/2005/ncx/}text&quot;</span><span class="p">)</span>
+		<span class="n">txt</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">title</span>
+
+		<span class="c1"># Set the authors</span>
+		<span class="n">authors</span>    <span class="o">=</span> <span class="n">ncx</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.daisy.org/z3986/2005/ncx/}docAuthor&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">txt</span>        <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">authors</span><span class="p">,</span> <span class="s2">&quot;{http://www.daisy.org/z3986/2005/ncx/}text&quot;</span><span class="p">)</span>
+		<span class="n">txt</span><span class="o">.</span><span class="n">text</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">editors</span>
+
+		<span class="c1"># Set the book ID</span>
+		<span class="n">meta_id</span> <span class="o">=</span> <span class="n">ncx</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.daisy.org/z3986/2005/ncx/}meta[@name=&#39;dtb:uid&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">meta_id</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;content&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">dated_uri</span><span class="p">)</span>
+
+		<span class="n">navMap</span> <span class="o">=</span> <span class="n">ncx</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.daisy.org/z3986/2005/ncx/}navMap&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+		<span class="n">index</span> <span class="o">=</span> <span class="mi">2</span>
+		<span class="k">for</span> <span class="n">toc_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">toc</span><span class="p">:</span>
+			<span class="n">set_nav_point</span><span class="p">(</span><span class="n">navMap</span><span class="p">,</span> <span class="n">toc_entry</span><span class="o">.</span><span class="n">href</span><span class="p">,</span> <span class="n">toc_entry</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+			<span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="s1">&#39;toc.ncx&#39;</span><span class="p">,</span> <span class="n">ncx</span><span class="p">)</span>
+	<span class="c1"># end _create_ncx</span>
+
+	<span class="c1">#===================================================</span>
+	<span class="c1"># Generate the new style table of content (nav file)</span>
+	<span class="c1">#===================================================</span>
+	<span class="c1"># noinspection PyPep8Naming</span></div>
+<div class="viewcode-block" id="Package._create_nav"><a class="viewcode-back" href="../../package.html#rp2epub.package.Package._create_nav">[docs]</a>	<span class="k">def</span> <span class="nf">_create_nav</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Create a new style TOC file (&#39;nav&#39; file): ``nav.xhtml``.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">full_nav</span>         <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">nav_toc</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="bp">False</span>
+		<span class="n">final_nav_header</span> <span class="o">=</span> <span class="n">NAV</span> <span class="o">%</span> <span class="p">(</span><span class="n">NAV_CSS_NO_NUMBERING</span> <span class="k">if</span> <span class="n">full_nav</span> <span class="k">else</span> <span class="n">NAV_CSS_NUMBERING</span><span class="p">)</span>
+
+		<span class="c1"># Setting the default namespace; this is important when the file is generated</span>
+		<span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s2">&quot;http://www.w3.org/1999/xhtml&quot;</span><span class="p">)</span>
+		<span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s1">&#39;epub&#39;</span><span class="p">,</span> <span class="s2">&quot;http://www.idpf.org/2007/ops&quot;</span><span class="p">)</span>
+		<span class="n">nav</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">final_nav_header</span><span class="p">))</span>
+
+		<span class="c1"># Set the title</span>
+		<span class="n">title</span> <span class="o">=</span> <span class="n">nav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/1999/xhtml}title&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">title</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">title</span> <span class="o">+</span> <span class="s2">&quot; - Table of Contents&quot;</span>
+
+		<span class="c1"># Set the date</span>
+		<span class="n">date</span> <span class="o">=</span> <span class="n">nav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/1999/xhtml}meta[@name=&#39;date&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">date</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DATE_FORMAT_STRING</span><span class="p">))</span>
+
+		<span class="c1"># # The landmark part of the nav file has to be changed; there is no explicit cover page</span>
+		<span class="c1"># li_landmark = nav.findall(&quot;.//{http://www.w3.org/1999/xhtml}a[@href=&#39;cover.xhtml&#39;]&quot;)[0]</span>
+		<span class="c1"># li_landmark.set(&quot;href&quot;, &quot;Overview.xhtml&quot;)</span>
+
+		<span class="n">navMap</span> <span class="o">=</span> <span class="n">nav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/1999/xhtml}nav[@id=&#39;toc&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+		<span class="n">h2</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">navMap</span><span class="p">,</span> <span class="s2">&quot;{http://www.w3.org/1999/xhtml}h2&quot;</span><span class="p">)</span>
+		<span class="n">h2</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Table of Contents&quot;</span>
+
+		<span class="n">ol</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">navMap</span><span class="p">,</span> <span class="s2">&quot;{http://www.w3.org/1999/xhtml}ol&quot;</span><span class="p">)</span>
+		<span class="n">li</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="s2">&quot;{http://www.w3.org/1999/xhtml}li&quot;</span><span class="p">)</span>
+		<span class="n">a</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">li</span><span class="p">,</span> <span class="s2">&quot;{http://www.w3.org/1999/xhtml}a&quot;</span><span class="p">)</span>
+		<span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">,</span> <span class="s2">&quot;cover.xhtml&quot;</span><span class="p">)</span>
+		<span class="n">a</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Cover&quot;</span>
+		<span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="s2">&quot;toc&quot;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">full_nav</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">toc_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">nav_toc</span><span class="p">:</span>
+				<span class="n">ol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">toc_entry</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">toc_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">toc</span><span class="p">:</span>
+				<span class="n">li</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">ol</span><span class="p">,</span> <span class="s2">&quot;{http://www.w3.org/1999/xhtml}li&quot;</span><span class="p">)</span>
+				<span class="n">a</span> <span class="o">=</span> <span class="n">SubElement</span><span class="p">(</span><span class="n">li</span><span class="p">,</span> <span class="s2">&quot;{http://www.w3.org/1999/xhtml}a&quot;</span><span class="p">)</span>
+				<span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">,</span> <span class="n">toc_entry</span><span class="o">.</span><span class="n">href</span><span class="p">)</span>
+				<span class="n">a</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">toc_entry</span><span class="o">.</span><span class="n">short_label</span>
+				<span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="s2">&quot;toc&quot;</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="s1">&#39;nav.xhtml&#39;</span><span class="p">,</span> <span class="n">nav</span><span class="p">)</span>
+	<span class="c1"># end _create_nav</span>
+
+	<span class="c1">#========================</span>
+	<span class="c1"># Generate the cover page</span>
+	<span class="c1">#========================</span>
+	<span class="c1"># noinspection PyPep8,PyPep8</span></div>
+<div class="viewcode-block" id="Package._create_cover"><a class="viewcode-back" href="../../package.html#rp2epub.package.Package._create_cover">[docs]</a>	<span class="k">def</span> <span class="nf">_create_cover</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Create a cover page: ``cover.xhtml``.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># Setting the default namespace; this is important when the file is generated</span>
+		<span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s2">&quot;http://www.w3.org/1999/xhtml&quot;</span><span class="p">)</span>
+		<span class="n">cover</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">COVER</span><span class="p">))</span>
+
+		<span class="c1"># Set the title</span>
+		<span class="n">title</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/1999/xhtml}title&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">title</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">title</span>
+
+		<span class="c1"># Set the authors in the meta</span>
+		<span class="n">editors</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/1999/xhtml}meta[@name=&#39;author&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">editors_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">editors</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">authors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">editors</span> <span class="o">+</span> <span class="s2">&quot;; &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">authors</span>
+		<span class="n">editors</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">,</span> <span class="n">editors_list</span><span class="p">)</span>
+
+		<span class="c1"># Set the title in the text</span>
+		<span class="n">title</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/1999/xhtml}h1[@id=&#39;btitle&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">title</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">title</span>
+
+		<span class="c1"># Set the editors</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">editors</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">editors</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/1999/xhtml}p[@id=&#39;editors&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+			<span class="n">editors</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">editors</span>
+
+		<span class="c1"># Set the authors</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">authors</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">authors</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/1999/xhtml}p[@id=&#39;authors&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+			<span class="n">authors</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">authors</span>
+
+		<span class="c1"># Set a pointer to the original</span>
+		<span class="n">orig</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/1999/xhtml}a[@id=&#39;ref_original&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">orig</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">dated_uri</span><span class="p">)</span>
+
+		<span class="c1"># Set the subtitle</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">subtitle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">subtitle</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/1999/xhtml}h2[@id=&#39;subtitle&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+			<span class="n">subtitle</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">subtitle</span>
+
+		<span class="c1"># Set the correct copyright date</span>
+		<span class="n">span</span>      <span class="o">=</span> <span class="n">cover</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{http://www.w3.org/1999/xhtml}span[@id=&#39;cpdate&#39;]&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">span</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y&quot;</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">book</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="s1">&#39;cover.xhtml&#39;</span><span class="p">,</span> <span class="n">cover</span><span class="p">)</span>
+</pre></div></div></div>
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="../../index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Ivan Herman.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
