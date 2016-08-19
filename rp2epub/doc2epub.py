@@ -43,15 +43,15 @@ CONVERTER = "https://labs.w3.org/spec-generator/?type=respec&url="
 # noinspection PyPep8
 class DocWrapper(object):
 	"""
-	Top level entry class; receives the URI to be retrieved and generates the folders and/or the EPUB Package in the current directory (by default).
+    Top level entry class; receives the URI to be retrieved and generates the folders and/or the EPUB Package in the current directory (by default).
 
-	:param str url: location of the document source
-	:param boolean is_respec: flag whether the source is a ReSpec source (ie, has to be transformed through spec generator) or not
-	:param boolean package: whether a real zip file (ie, the EPUB instance) should be created or not
-	:param boolean folder: whether the directory structure should be created separately or not
-	:param boolean temporary: whether the zipped EPUB file should be put into a temporary filesystem location (used when the service is used through the Web)
-	:param logger: a python logger (see the standard library module on logging) to be used all around;  `None` means no logging
-	"""
+    :param str url: location of the document source
+    :param boolean is_respec: flag whether the source is a ReSpec source (ie, has to be transformed through spec generator) or not
+    :param boolean package: whether a real zip file (ie, the EPUB instance) should be created or not
+    :param boolean folder: whether the directory structure should be created separately or not
+    :param boolean temporary: whether the zipped EPUB file should be put into a temporary filesystem location (used when the service is used through the Web)
+    :param logger: a python logger (see the standard library module on logging) to be used all around;  `None` means no logging
+    """
 
 	# noinspection PyPep8
 	def __init__(self, url, is_respec=False, package=True, folder=False, temporary=False, logger=None):
@@ -155,10 +155,10 @@ class DocWrapper(object):
 
 	def process(self):
 		"""
-		Process the book, ie, extract whatever has to be extracted and produce the epub file.
+        Process the book, ie, extract whatever has to be extracted and produce the epub file.
 
-		:returns: the instance of the class itself
-		"""
+        :returns: the instance of the class itself
+        """
 		# Create the wrapper around the parsed version. This will also
 		# retrieve the various 'meta' data from the document, like title, editors, document type, etc.
 		# It is important to get these metadata before the real processing because, for example, the

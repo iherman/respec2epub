@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>7. Common Utilities &mdash; ReSpec to EPUB Utility</title>
+    <title>6. Common Utilities &mdash; ReSpec to EPUB Utility</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,22 +24,22 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ReSpec to EPUB Utility" href="index.html" />
-    <link rel="next" title="8. Templates" href="templates.html" />
-    <link rel="prev" title="6. Package processing" href="package.html" /> 
+    <link rel="next" title="7. Templates" href="templates.html" />
+    <link rel="prev" title="5. Package processing" href="package.html" /> 
   </head>
   <body role="document">
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
           <span>ReSpec to EPUB Utility</span></a></h1>
-        <h2 class="heading"><span>7. Common Utilities</span></h2>
+        <h2 class="heading"><span>6. Common Utilities</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="package.html">6. Package processing</a>
+        «&#160;&#160;<a href="package.html">5. Package processing</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="templates.html">8. Templates</a>&#160;&#160;»
+        <a href="templates.html">7. Templates</a>&#160;&#160;»
         </p>
 
       </div>
@@ -47,10 +47,10 @@
         
         
   <div class="section" id="module-rp2epub.utils">
-<span id="common-utilities"></span><h1>7. Common Utilities<a class="headerlink" href="#module-rp2epub.utils" title="Permalink to this headline">¶</a></h1>
+<span id="common-utilities"></span><h1>6. Common Utilities<a class="headerlink" href="#module-rp2epub.utils" title="Permalink to this headline">¶</a></h1>
 <p>Various utility classes and methods.</p>
 <div class="section" id="module-content">
-<h2>7.1. Module Content<a class="headerlink" href="#module-content" title="Permalink to this headline">¶</a></h2>
+<h2>6.1. Module Content<a class="headerlink" href="#module-content" title="Permalink to this headline">¶</a></h2>
 <dl class="data">
 <dt id="rp2epub.utils.logger">
 <code class="descclassname">rp2epub.utils.</code><code class="descname">logger</code><a class="headerlink" href="#rp2epub.utils.logger" title="Permalink to this definition">¶</a></dt>
@@ -356,6 +356,28 @@ publication (<code class="docutils literal"><span class="pre">REC</span></code>,
 </dd></dl>
 
 <dl class="staticmethod">
+<dt id="rp2epub.utils.Utils.editors_to_string">
+<em class="property">static </em><code class="descname">editors_to_string</code><span class="sig-paren">(</span><em>names</em>, <em>editor=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.editors_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.editors_to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a string of names generated from a list of names, with correct punctuation, and a suffix denoting whether
+these are editors or authors</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>names</strong> &#8211; list of strings, each entry a name to be used in the final output</li>
+<li><strong>editor</strong> &#8211; if True, the string &#8216;(editor)&#8217; or &#8216;(editors)&#8217; is appended to the list (depending on cardinality), &#8216;(author)&#8217;, resp. &#8216;(authors)&#8217; otherwise</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a string that can be used as a final display for the names of editors/authors.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
 <dt id="rp2epub.utils.Utils.extract_editors">
 <em class="property">static </em><code class="descname">extract_editors</code><span class="sig-paren">(</span><em>html</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.extract_editors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.extract_editors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the editors&#8217; names from a document, following the respec conventions
@@ -366,7 +388,7 @@ publication (<code class="docutils literal"><span class="pre">REC</span></code>,
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>html</strong> (<code class="xref py py-class docutils literal"><span class="pre">xml.etree.ElementTree.ElementTree</span></code>) &#8211; the object for the whole document</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">set of editors</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of editors</td>
 </tr>
 </tbody>
 </table>
@@ -491,11 +513,11 @@ Such elements are modified by adding a space to the content of the element.</p>
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="package.html">6. Package processing</a>
+        «&#160;&#160;<a href="package.html">5. Package processing</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="templates.html">8. Templates</a>&#160;&#160;»
+        <a href="templates.html">7. Templates</a>&#160;&#160;»
         </p>
 
       </div>

@@ -9,7 +9,7 @@
     <dc:publisher>W3C</dc:publisher>
     <dc:rights>2016, Ivan Herman</dc:rights>
     <dc:identifier id="unknown" opf:scheme="unknown">https://github.com/iherman/respec2epub</dc:identifier>
-    <dc:date>2016-08-18</dc:date>
+    <dc:date>2016-08-19</dc:date>
   </metadata>
   <manifest>
     <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
@@ -134,7 +134,6 @@
   <spine toc="ncx">
     <itemref idref="epub-5" />
     <itemref idref="epub-6" />
-    <itemref idref="epub-9" />
     <itemref idref="epub-3" />
     <itemref idref="epub-2" />
     <itemref idref="epub-1" />
@@ -142,6 +141,7 @@
     <itemref idref="epub-12" />
     <itemref idref="epub-10" />
     <itemref idref="epub-0" />
+    <itemref idref="epub-9" />
     <itemref idref="epub-11" />
     <itemref idref="epub-8" />
     <itemref idref="epub-4" />

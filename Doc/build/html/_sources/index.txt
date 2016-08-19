@@ -78,7 +78,6 @@ Thanks also to José Kahan (W3C) who helped me getting the setup procedure smoot
    :maxdepth: 1
 
    manual
-   rp2epub
    driver
    document
    cssurls
@@ -86,6 +85,7 @@ Thanks also to José Kahan (W3C) who helped me getting the setup procedure smoot
    utils
    templates
    config
+   rp2epub
    todo
 
 Indices and tables

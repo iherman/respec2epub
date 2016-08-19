@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>5. Retrieval of extra resources from CSS &mdash; ReSpec to EPUB Utility</title>
+    <title>4. Retrieval of extra resources from CSS &mdash; ReSpec to EPUB Utility</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,22 +24,22 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ReSpec to EPUB Utility" href="index.html" />
-    <link rel="next" title="6. Package processing" href="package.html" />
-    <link rel="prev" title="4. The Document instance" href="document.html" /> 
+    <link rel="next" title="5. Package processing" href="package.html" />
+    <link rel="prev" title="3. The Document instance" href="document.html" /> 
   </head>
   <body role="document">
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
           <span>ReSpec to EPUB Utility</span></a></h1>
-        <h2 class="heading"><span>5. Retrieval of extra resources from CSS</span></h2>
+        <h2 class="heading"><span>4. Retrieval of extra resources from CSS</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="document.html">4. The Document instance</a>
+        «&#160;&#160;<a href="document.html">3. The Document instance</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="package.html">6. Package processing</a>&#160;&#160;»
+        <a href="package.html">5. Package processing</a>&#160;&#160;»
         </p>
 
       </div>
@@ -47,7 +47,7 @@
         
         
   <div class="section" id="module-rp2epub.cssurls">
-<span id="retrieval-of-extra-resources-from-css"></span><h1>5. Retrieval of extra resources from CSS<a class="headerlink" href="#module-rp2epub.cssurls" title="Permalink to this headline">¶</a></h1>
+<span id="retrieval-of-extra-resources-from-css"></span><h1>4. Retrieval of extra resources from CSS<a class="headerlink" href="#module-rp2epub.cssurls" title="Permalink to this headline">¶</a></h1>
 <p>The <a class="reference internal" href="#rp2epub.cssurls.CSSList" title="rp2epub.cssurls.CSSList"><code class="xref py py-class docutils literal"><span class="pre">CSSList</span></code></a> encapsulates a collection of external references that are extracted from CSS files, references
 that are supposed to be downloaded and added to the final book, as well as added to the package file. Typically, this
 means handling the CSS import statements (i.e., importing other CSS files) as well as various URL references, e.g., when
@@ -62,7 +62,7 @@ The URL reference must be changed, in this case, to a local,
 relative URL. These required cases are gathered by the process and the upper layers use it to make a simple string &#8220;replace&#8221;
 on the fly when the CSS files are copied to the book.</p>
 <div class="section" id="module-content">
-<h2>5.1. Module content<a class="headerlink" href="#module-content" title="Permalink to this headline">¶</a></h2>
+<h2>4.1. Module content<a class="headerlink" href="#module-content" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rp2epub.cssurls.CSSList">
 <em class="property">class </em><code class="descclassname">rp2epub.cssurls.</code><code class="descname">CSSList</code><span class="sig-paren">(</span><em>base</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/cssurls.html#CSSList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.cssurls.CSSList" title="Permalink to this definition">¶</a></dt>
@@ -209,11 +209,11 @@ values can then be accessed via property names (and not via array/dictionary syn
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="document.html">4. The Document instance</a>
+        «&#160;&#160;<a href="document.html">3. The Document instance</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="package.html">6. Package processing</a>&#160;&#160;»
+        <a href="package.html">5. Package processing</a>&#160;&#160;»
         </p>
 
       </div>

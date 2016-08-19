@@ -28,12 +28,12 @@ from .utils import HttpSession, Logger
 
 class _URLPair(object):
 	"""
-	A simple wrapper around a pair of (absolute) url, and a local name. The
-	values can then be accessed via property names (and not via array/dictionary syntax).
+    A simple wrapper around a pair of (absolute) url, and a local name. The
+    values can then be accessed via property names (and not via array/dictionary syntax).
 
-	:param str url: Absolute URL of the resource
-	:param str name: Local name of the resource
-	"""
+    :param str url: Absolute URL of the resource
+    :param str name: Local name of the resource
+    """
 	# noinspection PyPep8
 	def __init__(self, url, name):
 		self._url  = url
@@ -56,13 +56,13 @@ class _URLPair(object):
 # noinspection PyPep8
 class CSSReference(object):
 	"""
-	Wrapper around the information related to one CSS reference.
+    Wrapper around the information related to one CSS reference.
 
-	:param str base: Base URI of the overall book. Important to generate proper local name for a resource when retrieved.
-	:param str url: URL of the CSS file (if any, otherwise value is ignored). This is an absolute URL; in practice it is based on the book URL or `www.w3.org`
-	:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded in HTML
-	:param str content: in case the CSS was embedded, the full content of the CSS as retrieved from the DOM
-	"""
+    :param str base: Base URI of the overall book. Important to generate proper local name for a resource when retrieved.
+    :param str url: URL of the CSS file (if any, otherwise value is ignored). This is an absolute URL; in practice it is based on the book URL or `www.w3.org`
+    :param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded in HTML
+    :param str content: in case the CSS was embedded, the full content of the CSS as retrieved from the DOM
+    """
 	# noinspection PyPep8
 	def __init__(self, base, url, is_file = True, content = None):
 		self._origin_url      = url
@@ -100,8 +100,8 @@ class CSSReference(object):
 
 	def _collect_imports(self):
 		"""Collect the resources to be imported. The CSS content is parsed, and the :py:attr:`import_css`
-		and :py:attr:`import_misc` sets are filled with content. This method is called at initialization time.
-		"""
+        and :py:attr:`import_misc` sets are filled with content. This method is called at initialization time.
+        """
 		def add_item_to_import(url_orig, css=False):
 			# The urls-s are relative to the CSS file's
 			url = urljoin(self._origin_url, url_orig)
@@ -174,12 +174,12 @@ class CSSReference(object):
 # noinspection PyPep8
 class CSSList(object):
 	"""
-	List of :py:class:`CSSReference` instances. This is, initially, built up from the :py:class:`.document.Document` class; when
-	the final information is requested, a recursion is done on the collected CSS file references to collect all
-	outstanding resources.
+    List of :py:class:`CSSReference` instances. This is, initially, built up from the :py:class:`.document.Document` class; when
+    the final information is requested, a recursion is done on the collected CSS file references to collect all
+    outstanding resources.
 
-	:param str base: the base URL for the whole book
-	"""
+    :param str base: the base URL for the whole book
+    """
 	def __init__(self, base):
 		self._css_list        = []
 		self._base            = base
@@ -193,10 +193,10 @@ class CSSList(object):
 	def add_css(self, origin_url, is_file=True, content=None):
 		"""Add a new CSS, ie, add a new :py:class:`CSSReference` to the internal array of references
 
-		:param str origin_url: URL of the CSS file (if any, otherwise value is ignored)
-		:param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded
-		:param str content: in case the CSS was embedded, the full content of the CSS
-		"""
+        :param str origin_url: URL of the CSS file (if any, otherwise value is ignored)
+        :param boolean is_file: whether the CSS is to be retrieved via the URL or whether it was embedded
+        :param str content: in case the CSS was embedded, the full content of the CSS
+        """
 		css_ref = CSSReference(self._base, urljoin(self._base, origin_url), is_file, content)
 		if not css_ref.empty:
 			self._css_list.append(css_ref)
@@ -204,10 +204,10 @@ class CSSList(object):
 
 	def get_download_list(self):
 		"""Return all the list of resources that must be downloaded and added to the book. These include those
-		explicitly added via :py:meth:`add_css`, plus those retrieved recursively.
+        explicitly added via :py:meth:`add_css`, plus those retrieved recursively.
 
-		:return: List of ``(local_name, absolute_url)`` pairs.
-		"""
+        :return: List of ``(local_name, absolute_url)`` pairs.
+        """
 		self._gather_all_stylesheets()
 		final_download_list = set()
 		for c in self._css_list:
@@ -218,11 +218,11 @@ class CSSList(object):
 	def _gather_all_stylesheets(self):
 		def one_level(css_references):
 			"""
-			Recursive step to gather all resources to be downloaded: goes through the list of css references and
-			accesses the next level of css references for further inclusion.
+            Recursive step to gather all resources to be downloaded: goes through the list of css references and
+            accesses the next level of css references for further inclusion.
 
-			:param css_references: an array of :py:class:`CSSReference` instances.
-			"""
+            :param css_references: an array of :py:class:`CSSReference` instances.
+            """
 			next_level = []
 			for css in css_references:
 				for url in css.import_css:

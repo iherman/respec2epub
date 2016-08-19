@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>4. The Document instance &mdash; ReSpec to EPUB Utility</title>
+    <title>3. The Document instance &mdash; ReSpec to EPUB Utility</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,22 +24,22 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="ReSpec to EPUB Utility" href="index.html" />
-    <link rel="next" title="5. Retrieval of extra resources from CSS" href="cssurls.html" />
-    <link rel="prev" title="3. The “driver”" href="driver.html" /> 
+    <link rel="next" title="4. Retrieval of extra resources from CSS" href="cssurls.html" />
+    <link rel="prev" title="2. The “driver”" href="driver.html" /> 
   </head>
   <body role="document">
       <div class="header" role="banner"><h1 class="heading"><a href="index.html">
           <span>ReSpec to EPUB Utility</span></a></h1>
-        <h2 class="heading"><span>4. The Document instance</span></h2>
+        <h2 class="heading"><span>3. The Document instance</span></h2>
       </div>
       <div class="topnav" role="navigation" aria-label="top navigation">
       
         <p>
-        «&#160;&#160;<a href="driver.html">3. The &#8220;driver&#8221;</a>
+        «&#160;&#160;<a href="driver.html">2. The &#8220;driver&#8221;</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="cssurls.html">5. Retrieval of extra resources from CSS</a>&#160;&#160;»
+        <a href="cssurls.html">4. Retrieval of extra resources from CSS</a>&#160;&#160;»
         </p>
 
       </div>
@@ -47,7 +47,7 @@
         
         
   <div class="section" id="module-rp2epub.document">
-<span id="the-document-instance"></span><h1>4. The Document instance<a class="headerlink" href="#module-rp2epub.document" title="Permalink to this headline">¶</a></h1>
+<span id="the-document-instance"></span><h1>3. The Document instance<a class="headerlink" href="#module-rp2epub.document" title="Permalink to this headline">¶</a></h1>
 <p>The <a class="reference internal" href="#rp2epub.document.Document" title="rp2epub.document.Document"><code class="xref py py-class docutils literal"><span class="pre">Document</span></code></a> Class encapsulates the original source document, plus the various metadata that can and should be
 extracted: short name, dated URI, editors, document type, etc. These data are extracted from the file,
 usually trying to interpret the content of the file as well as the referenced CSS files. The metadata also includes information on whether there
@@ -58,7 +58,7 @@ is scripting, whether it contains svg or MathML: these should be added to the bo
 is changed a bit to fit the HTML5 requirements, the HTML is output in XHTML, etc.</p>
 <p>The class is invoked (and &#8220;controlled&#8221;) by a <cite>:py:class:</cite>.DocWrapper` instance.</p>
 <div class="section" id="module-content">
-<h2>4.1. Module content<a class="headerlink" href="#module-content" title="Permalink to this headline">¶</a></h2>
+<h2>3.1. Module content<a class="headerlink" href="#module-content" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rp2epub.document.Document">
 <em class="property">class </em><code class="descclassname">rp2epub.document.</code><code class="descname">Document</code><span class="sig-paren">(</span><em>driver</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/document.html#Document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.document.Document" title="Permalink to this definition">¶</a></dt>
@@ -151,7 +151,7 @@ file of the book.</p>
 <dl class="attribute">
 <dt id="rp2epub.document.Document.authors">
 <code class="descname">authors</code><a class="headerlink" href="#rp2epub.document.Document.authors" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of authors (as a string)</p>
+<dd><p>List of authors (name + affiliation per element)</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -184,8 +184,7 @@ in CSS.</p>
 <dl class="attribute">
 <dt id="rp2epub.document.Document.dated_uri">
 <code class="descname">dated_uri</code><a class="headerlink" href="#rp2epub.document.Document.dated_uri" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#8216;Dated URI&#8217;, in the W3C jargon. As a fallback, this may be set to the top URI of the document if the
-dated uri has not been set</p>
+<dd><p>&#8216;Dated URI&#8217;, in the W3C jargon. As a fallback, this may be set to the top URI of the document if the dated uri has not been set</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -197,8 +196,7 @@ dated uri has not been set</p>
 <dl class="attribute">
 <dt id="rp2epub.document.Document.doc_type_info">
 <code class="descname">doc_type_info</code><a class="headerlink" href="#rp2epub.document.Document.doc_type_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Structure reflecting the various aspects of documents by doc type. This is just a shorthand for
-<code class="docutils literal"><span class="pre">config.DOCTYPE_INFO[self.doc_type]</span></code></p>
+<dd><p>Structure reflecting the various aspects of documents by doc type. This is just a shorthand for <code class="docutils literal"><span class="pre">config.DOCTYPE_INFO[self.doc_type]</span></code></p>
 </dd></dl>
 
 <dl class="attribute">
@@ -216,7 +214,7 @@ dated uri has not been set</p>
 <dl class="attribute">
 <dt id="rp2epub.document.Document.editors">
 <code class="descname">editors</code><a class="headerlink" href="#rp2epub.document.Document.editors" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of editors (as a string)</p>
+<dd><p>List of editors (name + affiliation per element)</p>
 </dd></dl>
 
 <dl class="method">
@@ -297,11 +295,11 @@ original document does not have the appropriate structures in its TOC.</p>
       <div class="bottomnav" role="navigation" aria-label="bottom navigation">
       
         <p>
-        «&#160;&#160;<a href="driver.html">3. The &#8220;driver&#8221;</a>
+        «&#160;&#160;<a href="driver.html">2. The &#8220;driver&#8221;</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="cssurls.html">5. Retrieval of extra resources from CSS</a>&#160;&#160;»
+        <a href="cssurls.html">4. Retrieval of extra resources from CSS</a>&#160;&#160;»
         </p>
 
       </div>

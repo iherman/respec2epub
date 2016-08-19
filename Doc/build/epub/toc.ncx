@@ -24,111 +24,111 @@
     </navPoint>
     <navPoint id="navPoint3" playOrder="3">
       <navLabel>
-        <text>Package entry point</text>
-      </navLabel>
-      <content src="rp2epub.html" />
-    </navPoint>
-    <navPoint id="navPoint4" playOrder="4">
-      <navLabel>
         <text>The &#8220;driver&#8221;</text>
       </navLabel>
       <content src="driver.html" />
-      <navPoint id="navPoint5" playOrder="4">
+      <navPoint id="navPoint4" playOrder="3">
         <navLabel>
           <text>The &#8220;driver&#8221;</text>
         </navLabel>
         <content src="driver.html" />
       </navPoint>
-      <navPoint id="navPoint6" playOrder="5">
+      <navPoint id="navPoint5" playOrder="4">
         <navLabel>
           <text>Module content</text>
         </navLabel>
         <content src="driver.html#module-content" />
       </navPoint>
     </navPoint>
-    <navPoint id="navPoint7" playOrder="6">
+    <navPoint id="navPoint6" playOrder="5">
       <navLabel>
         <text>The Document instance</text>
       </navLabel>
       <content src="document.html" />
-      <navPoint id="navPoint8" playOrder="6">
+      <navPoint id="navPoint7" playOrder="5">
         <navLabel>
           <text>The Document instance</text>
         </navLabel>
         <content src="document.html" />
       </navPoint>
-      <navPoint id="navPoint9" playOrder="7">
+      <navPoint id="navPoint8" playOrder="6">
         <navLabel>
           <text>Module content</text>
         </navLabel>
         <content src="document.html#module-content" />
       </navPoint>
     </navPoint>
-    <navPoint id="navPoint10" playOrder="8">
+    <navPoint id="navPoint9" playOrder="7">
       <navLabel>
         <text>Retrieval of extra resources from CSS</text>
       </navLabel>
       <content src="cssurls.html" />
-      <navPoint id="navPoint11" playOrder="8">
+      <navPoint id="navPoint10" playOrder="7">
         <navLabel>
           <text>Retrieval of extra resources from CSS</text>
         </navLabel>
         <content src="cssurls.html" />
       </navPoint>
-      <navPoint id="navPoint12" playOrder="9">
+      <navPoint id="navPoint11" playOrder="8">
         <navLabel>
           <text>Module content</text>
         </navLabel>
         <content src="cssurls.html#module-content" />
       </navPoint>
     </navPoint>
-    <navPoint id="navPoint13" playOrder="10">
+    <navPoint id="navPoint12" playOrder="9">
       <navLabel>
         <text>Package processing</text>
       </navLabel>
       <content src="package.html" />
-      <navPoint id="navPoint14" playOrder="10">
+      <navPoint id="navPoint13" playOrder="9">
         <navLabel>
           <text>Package processing</text>
         </navLabel>
         <content src="package.html" />
       </navPoint>
-      <navPoint id="navPoint15" playOrder="11">
+      <navPoint id="navPoint14" playOrder="10">
         <navLabel>
           <text>Module Content</text>
         </navLabel>
         <content src="package.html#module-content" />
       </navPoint>
     </navPoint>
-    <navPoint id="navPoint16" playOrder="12">
+    <navPoint id="navPoint15" playOrder="11">
       <navLabel>
         <text>Common Utilities</text>
       </navLabel>
       <content src="utils.html" />
-      <navPoint id="navPoint17" playOrder="12">
+      <navPoint id="navPoint16" playOrder="11">
         <navLabel>
           <text>Common Utilities</text>
         </navLabel>
         <content src="utils.html" />
       </navPoint>
-      <navPoint id="navPoint18" playOrder="13">
+      <navPoint id="navPoint17" playOrder="12">
         <navLabel>
           <text>Module Content</text>
         </navLabel>
         <content src="utils.html#module-content" />
       </navPoint>
     </navPoint>
-    <navPoint id="navPoint19" playOrder="14">
+    <navPoint id="navPoint18" playOrder="13">
       <navLabel>
         <text>Templates</text>
       </navLabel>
       <content src="templates.html" />
     </navPoint>
-    <navPoint id="navPoint20" playOrder="15">
+    <navPoint id="navPoint19" playOrder="14">
       <navLabel>
         <text>Configuration data</text>
       </navLabel>
       <content src="config.html" />
+    </navPoint>
+    <navPoint id="navPoint20" playOrder="15">
+      <navLabel>
+        <text>Local Error Class</text>
+      </navLabel>
+      <content src="rp2epub.html" />
     </navPoint>
     <navPoint id="navPoint21" playOrder="16">
       <navLabel>

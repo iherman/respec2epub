@@ -232,21 +232,22 @@
 
 <span class="sd">		:param html: the object for the whole document</span>
 <span class="sd">		:type html: :py:class:`xml.etree.ElementTree.ElementTree`</span>
-<span class="sd">		:return: set of editors</span>
+<span class="sd">		:return: list of editors</span>
 <span class="sd">		&quot;&quot;&quot;</span>
-		<span class="n">retval</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+		<span class="n">retval</span> <span class="o">=</span> <span class="p">[]</span>
 
 		<span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//dd[@class]&quot;</span><span class="p">):</span>
 			<span class="k">if</span> <span class="n">dd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;p-author&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
 				<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">dd</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//a[@class]&quot;</span><span class="p">):</span>
 					<span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;p-name&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-						<span class="n">retval</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+						<span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">text</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">retval</span><span class="p">:</span>
+							<span class="n">retval</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
 						<span class="k">break</span>
 				<span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">dd</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//span[@class]&quot;</span><span class="p">):</span>
 					<span class="k">if</span> <span class="n">span</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;p-name&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-						<span class="n">retval</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">span</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+						<span class="k">if</span> <span class="n">span</span><span class="o">.</span><span class="n">text</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">retval</span><span class="p">:</span>
+							<span class="n">retval</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">span</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
 						<span class="k">break</span>
-
 		<span class="k">return</span> <span class="n">retval</span>
 
 	<span class="c1"># noinspection PyPep8,PyBroadException</span></div>
@@ -494,7 +495,25 @@
 			<span class="c1"># if we got here, something is wrong...</span>
 			<span class="n">Logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Could not extract a table of content from &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">short_name</span><span class="p">)</span>
 			<span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
-	<span class="c1"># end _extract_toc</span>
+</div>
+	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Utils.editors_to_string"><a class="viewcode-back" href="../../utils.html#rp2epub.utils.Utils.editors_to_string">[docs]</a>	<span class="k">def</span> <span class="nf">editors_to_string</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">editor</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Return a string of names generated from a list of names, with correct punctuation, and a suffix denoting whether</span>
+<span class="sd">		these are editors or authors</span>
+
+<span class="sd">		:param names: list of strings, each entry a name to be used in the final output</span>
+<span class="sd">		:keyword editor: if True, the string &#39;(editor)&#39; or &#39;(editors)&#39; is appended to the list (depending on cardinality), &#39;(author)&#39;, resp. &#39;(authors)&#39; otherwise</span>
+<span class="sd">		:return: a string that can be used as a final display for the names of editors/authors.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="k">return</span> <span class="s2">&quot;&quot;</span>
+		<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot; (Editor)&quot;</span> <span class="k">if</span> <span class="n">editor</span> <span class="k">else</span> <span class="s2">&quot; (Author)&quot;</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; and &quot;</span> <span class="o">+</span> <span class="n">names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot; (Editors)&quot;</span> <span class="k">if</span> <span class="n">editor</span> <span class="k">else</span> <span class="s2">&quot; (Authors)&quot;</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;; and &quot;</span> <span class="o">+</span> <span class="n">names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot; (Editors)&quot;</span> <span class="k">if</span> <span class="n">editor</span> <span class="k">else</span> <span class="s2">&quot; (Authors)&quot;</span><span class="p">)</span>
 
 
 <span class="c1">###################################################################################</span></div></div>

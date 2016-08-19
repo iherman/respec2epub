@@ -19,11 +19,11 @@ from .utils import Utils
 # noinspection PyPep8
 class Package(object):
 	"""
-	Collection of methods to generate the manifest, TOC in different formats, and the cover pages
+    Collection of methods to generate the manifest, TOC in different formats, and the cover pages
 
-	:param driver: the caller
-	:type driver: :py:class:`.DocWrapper`
-	"""
+    :param driver: the caller
+    :type driver: :py:class:`.DocWrapper`
+    """
 	def __init__(self, driver):
 		self._book     = driver.book
 		self._document = driver.document
@@ -47,9 +47,9 @@ class Package(object):
 
 	def _create_opf(self):
 		"""
-		Create the manifest file. Includes the list of resources, book metadata, and the spine. The manifest
-		file is added to the book as ``package.opf``
-		"""
+        Create the manifest file. Includes the list of resources, book metadata, and the spine. The manifest
+        file is added to the book as ``package.opf``
+        """
 		# Last step: the manifest file must be created
 		# Parse the raw manifest file
 		ET.register_namespace('', "http://www.idpf.org/2007/opf")
@@ -117,9 +117,9 @@ class Package(object):
 	# noinspection PyPep8,PyPep8Naming
 	def _create_ncx(self):
 		"""
-		Create and old style TOC file ('ncx' file): ``toc.ncx``. To be used for reading systems that cannot
-		handle EPUB3 specific TOC.
-		"""
+        Create and old style TOC file ('ncx' file): ``toc.ncx``. To be used for reading systems that cannot
+        handle EPUB3 specific TOC.
+        """
 		# noinspection PyPep8Naming,PyPep8
 		def set_nav_point(parent, href, label, the_index):
 			the_navPoint = SubElement(parent, "{http://www.daisy.org/z3986/2005/ncx/}navPoint")
@@ -169,8 +169,8 @@ class Package(object):
 	# noinspection PyPep8Naming
 	def _create_nav(self):
 		"""
-		Create a new style TOC file ('nav' file): ``nav.xhtml``.
-		"""
+        Create a new style TOC file ('nav' file): ``nav.xhtml``.
+        """
 		full_nav         = True if len(self.document.nav_toc) != 0 else False
 		final_nav_header = NAV % (NAV_CSS_NO_NUMBERING if full_nav else NAV_CSS_NUMBERING)
 
@@ -223,8 +223,8 @@ class Package(object):
 	# noinspection PyPep8,PyPep8
 	def _create_cover(self):
 		"""
-		Create a cover page: ``cover.xhtml``.
-		"""
+        Create a cover page: ``cover.xhtml``.
+        """
 		# Setting the default namespace; this is important when the file is generated
 		ET.register_namespace('', "http://www.w3.org/1999/xhtml")
 		cover = ElementTree(ET.fromstring(COVER))
@@ -235,8 +235,7 @@ class Package(object):
 
 		# Set the authors in the meta
 		editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}meta[@name='author']")[0]
-		editors_list = Utils.editors_to_string(self.document.editors)
-		editors.set("content", editors_list)
+		editors.set("content", Utils.editors_to_string(self.document.editors))
 
 		# Set the title in the text
 		title      = cover.findall(".//{http://www.w3.org/1999/xhtml}h1[@id='btitle']")[0]
@@ -250,8 +249,7 @@ class Package(object):
 		# Set the authors
 		if len(self.document.authors) != 0:
 			authors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='authors']")[0]
-			authors.text = self.document.authors
-			authors.text = Utils.editors_to_string(self.document.editors, editor = False)
+			authors.text = Utils.editors_to_string(self.document.authors, editor = False)
 
 		# Set a pointer to the original
 		orig      = cover.findall(".//{http://www.w3.org/1999/xhtml}a[@id='ref_original']")[0]
