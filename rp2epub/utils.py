@@ -479,7 +479,6 @@ class Utils(object):
 			return names[0] + " and " + names[1] + (" (Editors)" if editor else " (Authors)")
 		else:
 			return ", ".join(names[:-1]) + ", and " + names[-1] + (" (Editors)" if editor else " (Authors)")
-	# end _extract_toc
 
 
 ###################################################################################

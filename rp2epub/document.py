@@ -331,12 +331,12 @@ class Document(object):
 
 	@property
 	def editors(self):
-		"""List of editors (as a string)"""
+		"""List of editors (name + affiliation per element)"""
 		return self._editors
 
 	@property
 	def authors(self):
-		"""List of authors (as a string)"""
+		"""List of authors (name + affiliation per element)"""
 		return self._authors
 
 	@property
