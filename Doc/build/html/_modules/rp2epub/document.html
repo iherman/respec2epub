@@ -99,8 +99,9 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>       <span class="o">=</span> <span class="s2">&quot;base&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span>      <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_date</span>           <span class="o">=</span> <span class="bp">None</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>        <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_authors</span>        <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+		<span class="c1"># TODO: default should be arrays, not strings</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>        <span class="o">=</span> <span class="p">[]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_authors</span>        <span class="o">=</span> <span class="p">[]</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_respec_config</span>  <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_toc</span>		     <span class="o">=</span> <span class="p">[]</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_nav_toc</span>	     <span class="o">=</span> <span class="p">[]</span>
@@ -131,43 +132,43 @@
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">additional_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;List of additional resources that must be added to the book eventually. A list of tuples, containing the internal</span>
-<span class="sd">		reference to the resource and the media type. Built up during processing, it is used in when creating the manifest</span>
-<span class="sd">		file of the book.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
+<span class="sd">        reference to the resource and the media type. Built up during processing, it is used in when creating the manifest</span>
+<span class="sd">        file of the book.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span>
 
 <div class="viewcode-block" id="Document.add_additional_resource"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document.add_additional_resource">[docs]</a>	<span class="k">def</span> <span class="nf">add_additional_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_name</span><span class="p">,</span> <span class="n">media_type</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Add a pair of local name and media type to the list of additional resources. Appends to the :py:attr:`additional_resources` list.</span>
-<span class="sd">		:param local_name: name of the resource within the final book</span>
-<span class="sd">		:param media_type: media type (used when the resource is added to the package file)</span>
-<span class="sd">		&quot;&quot;&quot;</span>
+<span class="sd">        :param local_name: name of the resource within the final book</span>
+<span class="sd">        :param media_type: media type (used when the resource is added to the package file)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_additional_resources</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">local_name</span><span class="p">,</span> <span class="n">media_type</span><span class="p">))</span>
 </div>
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">css_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Set of `(local_name, absolute_url)` pairs for resources gathered recursively from CSS files. These</span>
-<span class="sd">		are CSS files themselves, or other media like logos, background images, etc, referred to via a `url` statement</span>
-<span class="sd">		in CSS.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
+<span class="sd">        are CSS files themselves, or other media like logos, background images, etc, referred to via a `url` statement</span>
+<span class="sd">        in CSS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_css_references</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">css_change_patterns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;List if `(from, to)` pairs that must be used to replace strings in the CSS files on the fly. Typically</span>
-<span class="sd">		used to adjust the values used in `url` statements.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
+<span class="sd">        used to adjust the values used in `url` statements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_css_change_patterns</span>
 
 	<span class="c1"># noinspection PyPep8</span>
 <div class="viewcode-block" id="Document.extract_external_references"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document.extract_external_references">[docs]</a>	<span class="k">def</span> <span class="nf">extract_external_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is</span>
 
-<span class="sd">		- has a URL is a relative one, begins with the same base, or refers to the `www.w3.org` domain (the latter is for official CSS files and logos)</span>
-<span class="sd">		- is one of the &#39;accepted&#39; media types for epub</span>
+<span class="sd">        - has a URL is a relative one, begins with the same base, or refers to the `www.w3.org` domain (the latter is for official CSS files and logos)</span>
+<span class="sd">        - is one of the &#39;accepted&#39; media types for epub</span>
 
-<span class="sd">		then the file is copied and stored in the book, the reference is changed in the document,</span>
-<span class="sd">		and the resource is marked to be added to the manifest file. HTML files are copied as XHTML files, with a ``.xhtml`` suffix.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
+<span class="sd">        then the file is copied and stored in the book, the reference is changed in the document,</span>
+<span class="sd">        and the resource is marked to be added to the manifest file. HTML files are copied as XHTML files, with a ``.xhtml`` suffix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
 		<span class="k">def</span> <span class="nf">final_target_media</span><span class="p">(</span><span class="n">f_session</span><span class="p">,</span> <span class="n">f_target</span><span class="p">):</span>
 			<span class="k">if</span> <span class="n">f_session</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="s1">&#39;text/html&#39;</span><span class="p">:</span>
@@ -255,12 +256,12 @@
 	<span class="c1"># noinspection PyPep8</span></div>
 <div class="viewcode-block" id="Document._collect_downloads"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._collect_downloads">[docs]</a>	<span class="k">def</span> <span class="nf">_collect_downloads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Process a document looking for (and possibly copying) external references and making some minor</span>
-<span class="sd">		modifications on the fly. ``(Element, attribute)`` pairs are added on the fly to the internal array of downloads</span>
-<span class="sd">		(see :py:attr:`download_targets`).</span>
+<span class="sd">        Process a document looking for (and possibly copying) external references and making some minor</span>
+<span class="sd">        modifications on the fly. ``(Element, attribute)`` pairs are added on the fly to the internal array of downloads</span>
+<span class="sd">        (see :py:attr:`download_targets`).</span>
 
-<span class="sd">		:returns: a :py:class:`.cssurls.CSSList` instance, with all the CSS references</span>
-<span class="sd">		&quot;&quot;&quot;</span>
+<span class="sd">        :returns: a :py:class:`.cssurls.CSSList` instance, with all the CSS references</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 		<span class="c1"># To collect the CSS references and data</span>
 		<span class="n">css_list</span> <span class="o">=</span> <span class="n">CSSList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">base</span><span class="p">)</span>
 
@@ -336,12 +337,12 @@
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">respec_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;The full respec configuration as a Python mapping type. This is available for newer releases</span>
-<span class="sd">		of ReSpec, but not in older. And, of course, not available for Bikeshed sources. The value is None</span>
-<span class="sd">		if was not made available.</span>
+<span class="sd">        of ReSpec, but not in older. And, of course, not available for Bikeshed sources. The value is None</span>
+<span class="sd">        if was not made available.</span>
 
-<span class="sd">		Note that the rest of the code retrieves some of the common properties (e.g., short_name), i.e.,</span>
-<span class="sd">		the rest of the code does not make use of this property. But it may be used in the future.</span>
-<span class="sd">		&quot;&quot;&quot;</span>
+<span class="sd">        Note that the rest of the code retrieves some of the common properties (e.g., short_name), i.e.,</span>
+<span class="sd">        the rest of the code does not make use of this property. But it may be used in the future.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_respec_config</span>
 
 	<span class="nd">@property</span>
@@ -351,8 +352,7 @@
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">dated_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;&#39;Dated URI&#39;, in the W3C jargon. As a fallback, this may be set to the top URI of the document if the</span>
-<span class="sd">		dated uri has not been set &quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;&#39;Dated URI&#39;, in the W3C jargon. As a fallback, this may be set to the top URI of the document if the dated uri has not been set &quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dated_uri</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">top_uri</span>
 
 	<span class="nd">@property</span>
@@ -362,9 +362,7 @@
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">doc_type_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;Structure reflecting the various aspects of documents by doc type. This is just a shorthand for</span>
-<span class="sd">		``config.DOCTYPE_INFO[self.doc_type]``</span>
-<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;Structure reflecting the various aspects of documents by doc type. This is just a shorthand for ``config.DOCTYPE_INFO[self.doc_type]``&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">DOCTYPE_INFO</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_type</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">None</span>
 
 	<span class="nd">@property</span>
@@ -374,26 +372,26 @@
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">editors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;List of editors (as a string)&quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;List of editors (name + affiliation per element)&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">authors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;List of authors (as a string)&quot;&quot;&quot;</span>
+		<span class="sd">&quot;&quot;&quot;List of authors (name + affiliation per element)&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_authors</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">toc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Table of content, an array of :py:class:`.utils.TOC_Item` instances. It is only the top level TOC structures;</span>
-<span class="sd">		used for the old-school TOC file as well as for the EPUB3 navigation document in case the</span>
-<span class="sd">		original document does not have the appropriate structures in its TOC.&quot;&quot;&quot;</span>
+<span class="sd">        used for the old-school TOC file as well as for the EPUB3 navigation document in case the</span>
+<span class="sd">        original document does not have the appropriate structures in its TOC.&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_toc</span>
 
 	<span class="nd">@property</span>
 	<span class="k">def</span> <span class="nf">nav_toc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;Table of content extracted from a ``&lt;nav&gt;`` element (if any), that is copied almost verbatim into the</span>
-<span class="sd">		EPUB3 navigation document. It may be empty, though, because the source does not contain the required TOC</span>
-<span class="sd">		structure, in which case the simple TOC structure is (see :py:attr:`toc`).&quot;&quot;&quot;</span>
+<span class="sd">        EPUB3 navigation document. It may be empty, though, because the source does not contain the required TOC</span>
+<span class="sd">        structure, in which case the simple TOC structure is (see :py:attr:`toc`).&quot;&quot;&quot;</span>
 		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nav_toc</span>
 
 	<span class="nd">@property</span>
@@ -414,18 +412,12 @@
 
 <span class="sd">		:returns: True or False, depending on whether the right keys are available or not</span>
 <span class="sd">		&quot;&quot;&quot;</span>
-		<span class="k">def</span> <span class="nf">_get_people</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">suffix_sing</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">suffix_plur</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+		<span class="k">def</span> <span class="nf">_get_people</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
 			<span class="k">def</span> <span class="nf">_get_person</span><span class="p">(</span><span class="n">person_struct</span><span class="p">):</span>
 				<span class="n">retval</span> <span class="o">=</span> <span class="n">person_struct</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
 				<span class="k">return</span> <span class="n">retval</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;, </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">person_struct</span><span class="p">[</span><span class="s2">&quot;company&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="s2">&quot;company&quot;</span> <span class="ow">in</span> <span class="n">person_struct</span> <span class="k">else</span> <span class="n">retval</span>
 
-			<span class="n">people</span> <span class="o">=</span> <span class="p">[</span><span class="n">_get_person</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">dict_config</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span>
-			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">people</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-				<span class="k">return</span> <span class="s2">&quot;&quot;</span>
-			<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">people</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-				<span class="k">return</span> <span class="n">people</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot; (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">suffix_sing</span><span class="p">)</span>
-			<span class="k">else</span><span class="p">:</span>
-				<span class="k">return</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">people</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot; (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">suffix_plur</span><span class="p">)</span>
+			<span class="k">return</span> <span class="p">[</span><span class="n">_get_person</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">dict_config</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span>
 
 		<span class="c1"># store the full configuration for possible later reuse</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">_respec_config</span> <span class="o">=</span> <span class="n">dict_config</span>
@@ -433,8 +425,8 @@
 		<span class="k">if</span> <span class="s2">&quot;specStatus&quot;</span> <span class="ow">in</span> <span class="n">dict_config</span> <span class="p">:</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_doc_type</span>   <span class="o">=</span> <span class="n">dict_config</span><span class="p">[</span><span class="s2">&quot;specStatus&quot;</span><span class="p">]</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">_short_name</span> <span class="o">=</span> <span class="n">dict_config</span><span class="p">[</span><span class="s2">&quot;shortName&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;shortName&quot;</span> <span class="ow">in</span> <span class="n">dict_config</span> <span class="k">else</span> <span class="bp">None</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>    <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="s2">&quot;editors&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dict_config</span> <span class="k">else</span> <span class="n">_get_people</span><span class="p">(</span><span class="s2">&quot;editors&quot;</span><span class="p">,</span> <span class="s2">&quot;editor&quot;</span><span class="p">,</span> <span class="s2">&quot;editors&quot;</span><span class="p">)</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">_authors</span>    <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="s2">&quot;authors&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dict_config</span> <span class="k">else</span> <span class="n">_get_people</span><span class="p">(</span><span class="s2">&quot;authors&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="p">,</span> <span class="s2">&quot;authors&quot;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span>    <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="s2">&quot;editors&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dict_config</span> <span class="k">else</span> <span class="n">_get_people</span><span class="p">(</span><span class="s2">&quot;editors&quot;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_authors</span>    <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="s2">&quot;authors&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dict_config</span> <span class="k">else</span> <span class="n">_get_people</span><span class="p">(</span><span class="s2">&quot;authors&quot;</span><span class="p">)</span>
 			<span class="k">if</span> <span class="s2">&quot;publishDate&quot;</span> <span class="ow">in</span> <span class="n">dict_config</span><span class="p">:</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dict_config</span><span class="p">[</span><span class="s2">&quot;publishDate&quot;</span><span class="p">],</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
 			<span class="k">else</span><span class="p">:</span>
@@ -451,11 +443,11 @@
 	<span class="c1"># noinspection PyBroadException</span></div>
 <div class="viewcode-block" id="Document._get_metadata_from_source"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._get_metadata_from_source">[docs]</a>	<span class="k">def</span> <span class="nf">_get_metadata_from_source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Extract metadata (date, title, editors, etc.) &#39;scraping&#39; the source, i.e., by</span>
-<span class="sd">		extracting the data based on class names, URI patterns, etc.</span>
+<span class="sd">        Extract metadata (date, title, editors, etc.) &#39;scraping&#39; the source, i.e., by</span>
+<span class="sd">        extracting the data based on class names, URI patterns, etc.</span>
 
-<span class="sd">		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)</span>
-<span class="sd">		&quot;&quot;&quot;</span>
+<span class="sd">        :raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 		<span class="c1"># Short name of the document</span>
 		<span class="c1"># Find the official short name of the document</span>
 		<span class="k">for</span> <span class="n">aref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//a[@class=&#39;u-url&#39;]&quot;</span><span class="p">):</span>
@@ -467,13 +459,7 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">_date</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">retrieve_date</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dated_uri</span><span class="p">)</span>
 
 		<span class="c1"># Extract the editors</span>
-		<span class="n">editor_set</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">extract_editors</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
-		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">editor_set</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-		<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">editor_set</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">editor_set</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;, (ed.)&quot;</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">editor_set</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;, (eds.)&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_editors</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">extract_editors</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="p">)</span>
 
 		<span class="c1"># Add the right subtitle to the cover page</span>
 		<span class="k">for</span> <span class="n">issued</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//h2[@property=&#39;dcterms:issued&#39;]&quot;</span><span class="p">):</span>
@@ -500,13 +486,13 @@
 </div>
 <div class="viewcode-block" id="Document._get_document_metadata"><a class="viewcode-back" href="../../document.html#rp2epub.document.Document._get_document_metadata">[docs]</a>	<span class="k">def</span> <span class="nf">_get_document_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Extract metadata (date, title, editors, etc.)</span>
-<span class="sd">		&quot;&quot;&quot;</span>
+<span class="sd">        Extract metadata (date, title, editors, etc.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 		<span class="c1"># noinspection PyBroadException</span>
 		<span class="k">def</span> <span class="nf">_retrieve_from_respec_config</span><span class="p">():</span>
 			<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">			:return: True or False, depending on whether the metadata could be extracted via the respec config or not</span>
-<span class="sd">			&quot;&quot;&quot;</span>
+<span class="sd">            :return: True or False, depending on whether the metadata could be extracted via the respec config or not</span>
+<span class="sd">            &quot;&quot;&quot;</span>
 			<span class="n">head</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.//head&quot;</span><span class="p">)</span>
 			<span class="n">respec_config_element</span> <span class="o">=</span> <span class="n">head</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.//script[@id=&#39;initialUserConfig&#39;]&quot;</span><span class="p">)</span>
 			<span class="k">if</span> <span class="n">respec_config_element</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>

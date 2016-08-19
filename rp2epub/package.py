@@ -13,17 +13,17 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ElementTree, SubElement
 from .templates import PACKAGE, TOC, NAV, NAV_CSS_NUMBERING, NAV_CSS_NO_NUMBERING, COVER
 from .config import DEFAULT_FILES, DATE_FORMAT_STRING
-
+from .utils import Utils
 
 
 # noinspection PyPep8
 class Package(object):
 	"""
-	Collection of methods to generate the manifest, TOC in different formats, and the cover pages
+    Collection of methods to generate the manifest, TOC in different formats, and the cover pages
 
-	:param driver: the caller
-	:type driver: :py:class:`.DocWrapper`
-	"""
+    :param driver: the caller
+    :type driver: :py:class:`.DocWrapper`
+    """
 	def __init__(self, driver):
 		self._book     = driver.book
 		self._document = driver.document
@@ -47,16 +47,15 @@ class Package(object):
 
 	def _create_opf(self):
 		"""
-		Create the manifest file. Includes the list of resources, book metadata, and the spine. The manifest
-		file is added to the book as ``package.opf``
-		"""
+        Create the manifest file. Includes the list of resources, book metadata, and the spine. The manifest
+        file is added to the book as ``package.opf``
+        """
 		# Last step: the manifest file must be created
 		# Parse the raw manifest file
 		ET.register_namespace('', "http://www.idpf.org/2007/opf")
 		opf = ElementTree(ET.fromstring(PACKAGE))
-
-		# Add the 'main' file
 		manifest = opf.findall(".//{http://www.idpf.org/2007/opf}manifest")[0]
+		metadata = opf.findall(".//{http://www.idpf.org/2007/opf}metadata")[0]
 
 		# Get the default resources first
 		for (href, media_type, item_id, prop) in DEFAULT_FILES:
@@ -98,8 +97,16 @@ class Package(object):
 		date.text = self.document.date.strftime(DATE_FORMAT_STRING)
 		date = opf.findall(".//{http://www.idpf.org/2007/opf}meta[@property='dcterms:date']")[0]
 		date.text = self.document.date.strftime(DATE_FORMAT_STRING)
-		creator = opf.findall(".//{http://purl.org/dc/elements/1.1/}creator")[0]
-		creator.text = self.document.editors
+		for editor in self.document.editors:
+			creator = SubElement(metadata, "{http://purl.org/dc/elements/1.1/}creator")
+			creator.set("role", "editor")
+			creator.text = editor
+			creator.tail = "\n    "
+		for author in self.document.authors:
+			creator = SubElement(metadata, "{http://purl.org/dc/elements/1.1/}creator")
+			creator.set("role", "author")
+			creator.text = author
+			creator.tail = "\n    "
 
 		# Push the manifest file into the book
 		self.book.write_element('package.opf', opf)
@@ -110,9 +117,9 @@ class Package(object):
 	# noinspection PyPep8,PyPep8Naming
 	def _create_ncx(self):
 		"""
-		Create and old style TOC file ('ncx' file): ``toc.ncx``. To be used for reading systems that cannot
-		handle EPUB3 specific TOC.
-		"""
+        Create and old style TOC file ('ncx' file): ``toc.ncx``. To be used for reading systems that cannot
+        handle EPUB3 specific TOC.
+        """
 		# noinspection PyPep8Naming,PyPep8
 		def set_nav_point(parent, href, label, the_index):
 			the_navPoint = SubElement(parent, "{http://www.daisy.org/z3986/2005/ncx/}navPoint")
@@ -140,7 +147,7 @@ class Package(object):
 		# Set the authors
 		authors    = ncx.findall(".//{http://www.daisy.org/z3986/2005/ncx/}docAuthor")[0]
 		txt        = SubElement(authors, "{http://www.daisy.org/z3986/2005/ncx/}text")
-		txt.text   = self.document.editors
+		txt.text = Utils.editors_to_string(self.document.editors)
 
 		# Set the book ID
 		meta_id = ncx.findall(".//{http://www.daisy.org/z3986/2005/ncx/}meta[@name='dtb:uid']")[0]
@@ -162,8 +169,8 @@ class Package(object):
 	# noinspection PyPep8Naming
 	def _create_nav(self):
 		"""
-		Create a new style TOC file ('nav' file): ``nav.xhtml``.
-		"""
+        Create a new style TOC file ('nav' file): ``nav.xhtml``.
+        """
 		full_nav         = True if len(self.document.nav_toc) != 0 else False
 		final_nav_header = NAV % (NAV_CSS_NO_NUMBERING if full_nav else NAV_CSS_NUMBERING)
 
@@ -216,8 +223,8 @@ class Package(object):
 	# noinspection PyPep8,PyPep8
 	def _create_cover(self):
 		"""
-		Create a cover page: ``cover.xhtml``.
-		"""
+        Create a cover page: ``cover.xhtml``.
+        """
 		# Setting the default namespace; this is important when the file is generated
 		ET.register_namespace('', "http://www.w3.org/1999/xhtml")
 		cover = ElementTree(ET.fromstring(COVER))
@@ -228,8 +235,7 @@ class Package(object):
 
 		# Set the authors in the meta
 		editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}meta[@name='author']")[0]
-		editors_list = self.document.editors if len(self.document.authors) == 0 else self.document.editors + "; " + self.document.authors
-		editors.set("content", editors_list)
+		editors.set("content", Utils.editors_to_string(self.document.editors))
 
 		# Set the title in the text
 		title      = cover.findall(".//{http://www.w3.org/1999/xhtml}h1[@id='btitle']")[0]
@@ -238,12 +244,12 @@ class Package(object):
 		# Set the editors
 		if len(self.document.editors) != 0:
 			editors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='editors']")[0]
-			editors.text = self.document.editors
+			editors.text = Utils.editors_to_string(self.document.editors)
 
 		# Set the authors
 		if len(self.document.authors) != 0:
 			authors      = cover.findall(".//{http://www.w3.org/1999/xhtml}p[@id='authors']")[0]
-			authors.text = self.document.authors
+			authors.text = Utils.editors_to_string(self.document.authors, editor = False)
 
 		# Set a pointer to the original
 		orig      = cover.findall(".//{http://www.w3.org/1999/xhtml}a[@id='ref_original']")[0]

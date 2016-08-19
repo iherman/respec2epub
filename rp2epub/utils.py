@@ -197,21 +197,22 @@ class Utils(object):
 
 		:param html: the object for the whole document
 		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
-		:return: set of editors
+		:return: list of editors
 		"""
-		retval = set()
+		retval = []
 
 		for dd in html.findall(".//dd[@class]"):
 			if dd.get('class').find('p-author') != -1:
 				for a in dd.findall(".//a[@class]"):
 					if a.get('class').find('p-name') != -1:
-						retval.add(a.text)
+						if a.text not in retval:
+							retval.append(a.text)
 						break
 				for span in dd.findall(".//span[@class]"):
 					if span.get('class').find('p-name') != -1:
-						retval.add(span.text)
+						if span.text not in retval:
+							retval.append(span.text)
 						break
-
 		return retval
 
 	# noinspection PyPep8,PyBroadException
@@ -459,7 +460,25 @@ class Utils(object):
 			# if we got here, something is wrong...
 			Logger.warning("Could not extract a table of content from '%s'" % short_name)
 			return [], []
-	# end _extract_toc
+
+	@staticmethod
+	def editors_to_string(names, editor = True):
+		"""
+		Return a string of names generated from a list of names, with correct punctuation, and a suffix denoting whether
+		these are editors or authors
+
+		:param names: list of strings, each entry a name to be used in the final output
+		:keyword editor: if True, the string '(editor)' or '(editors)' is appended to the list (depending on cardinality), '(author)', resp. '(authors)' otherwise
+		:return: a string that can be used as a final display for the names of editors/authors.
+		"""
+		if len(names) == 0:
+			return ""
+		elif len(names) == 1:
+			return names[0] + (" (Editor)" if editor else " (Author)")
+		elif len(names) == 2:
+			return names[0] + " and " + names[1] + (" (Editors)" if editor else " (Authors)")
+		else:
+			return "; ".join(names[:-1]) + "; and " + names[-1] + (" (Editors)" if editor else " (Authors)")
 
 
 ###################################################################################

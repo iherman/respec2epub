@@ -121,7 +121,6 @@ PACKAGE = """<?xml version="1.0" encoding="UTF-8"?>
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:title id="title" />
     <meta refines="#title" property="title-type">main</meta>
-    <dc:creator id="creator"></dc:creator>
     <dc:identifier id="pub-id" />
     <dc:language>en-US</dc:language>
     <meta property="dcterms:modified" />

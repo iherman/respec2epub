@@ -55,8 +55,9 @@ class Document(object):
 		self._doc_type       = "base"
 		self._dated_uri      = None
 		self._date           = None
-		self._editors        = ""
-		self._authors        = ""
+		# TODO: default should be arrays, not strings
+		self._editors        = []
+		self._authors        = []
 		self._respec_config  = None
 		self._toc		     = []
 		self._nav_toc	     = []
@@ -87,43 +88,43 @@ class Document(object):
 	@property
 	def additional_resources(self):
 		"""List of additional resources that must be added to the book eventually. A list of tuples, containing the internal
-		reference to the resource and the media type. Built up during processing, it is used in when creating the manifest
-		file of the book.
-		"""
+        reference to the resource and the media type. Built up during processing, it is used in when creating the manifest
+        file of the book.
+        """
 		return self._additional_resources
 
 	def add_additional_resource(self, local_name, media_type):
 		"""Add a pair of local name and media type to the list of additional resources. Appends to the :py:attr:`additional_resources` list.
-		:param local_name: name of the resource within the final book
-		:param media_type: media type (used when the resource is added to the package file)
-		"""
+        :param local_name: name of the resource within the final book
+        :param media_type: media type (used when the resource is added to the package file)
+        """
 		self._additional_resources.append((local_name, media_type))
 
 	@property
 	def css_references(self):
 		"""Set of `(local_name, absolute_url)` pairs for resources gathered recursively from CSS files. These
-		are CSS files themselves, or other media like logos, background images, etc, referred to via a `url` statement
-		in CSS.
-		"""
+        are CSS files themselves, or other media like logos, background images, etc, referred to via a `url` statement
+        in CSS.
+        """
 		return self._css_references
 
 	@property
 	def css_change_patterns(self):
 		"""List if `(from, to)` pairs that must be used to replace strings in the CSS files on the fly. Typically
-		used to adjust the values used in `url` statements.
-		"""
+        used to adjust the values used in `url` statements.
+        """
 		return self._css_change_patterns
 
 	# noinspection PyPep8
 	def extract_external_references(self):
 		"""Handle the external references (images, etc) in the core file, and copy them to the book. If the content referred to is
 
-		- has a URL is a relative one, begins with the same base, or refers to the `www.w3.org` domain (the latter is for official CSS files and logos)
-		- is one of the 'accepted' media types for epub
+        - has a URL is a relative one, begins with the same base, or refers to the `www.w3.org` domain (the latter is for official CSS files and logos)
+        - is one of the 'accepted' media types for epub
 
-		then the file is copied and stored in the book, the reference is changed in the document,
-		and the resource is marked to be added to the manifest file. HTML files are copied as XHTML files, with a ``.xhtml`` suffix.
-		"""
+        then the file is copied and stored in the book, the reference is changed in the document,
+        and the resource is marked to be added to the manifest file. HTML files are copied as XHTML files, with a ``.xhtml`` suffix.
+        """
 
 		def final_target_media(f_session, f_target):
 			if f_session.media_type == 'text/html':
@@ -211,12 +212,12 @@ class Document(object):
 	# noinspection PyPep8
 	def _collect_downloads(self):
 		"""
-		Process a document looking for (and possibly copying) external references and making some minor
-		modifications on the fly. ``(Element, attribute)`` pairs are added on the fly to the internal array of downloads
-		(see :py:attr:`download_targets`).
+        Process a document looking for (and possibly copying) external references and making some minor
+        modifications on the fly. ``(Element, attribute)`` pairs are added on the fly to the internal array of downloads
+        (see :py:attr:`download_targets`).
 
-		:returns: a :py:class:`.cssurls.CSSList` instance, with all the CSS references
-		"""
+        :returns: a :py:class:`.cssurls.CSSList` instance, with all the CSS references
+        """
 		# To collect the CSS references and data
 		css_list = CSSList(self.driver.base)
 
@@ -292,12 +293,12 @@ class Document(object):
 	@property
 	def respec_config(self):
 		"""The full respec configuration as a Python mapping type. This is available for newer releases
-		of ReSpec, but not in older. And, of course, not available for Bikeshed sources. The value is None
-		if was not made available.
+        of ReSpec, but not in older. And, of course, not available for Bikeshed sources. The value is None
+        if was not made available.
 
-		Note that the rest of the code retrieves some of the common properties (e.g., short_name), i.e.,
-		the rest of the code does not make use of this property. But it may be used in the future.
-		"""
+        Note that the rest of the code retrieves some of the common properties (e.g., short_name), i.e.,
+        the rest of the code does not make use of this property. But it may be used in the future.
+        """
 		return self._respec_config
 
 	@property
@@ -307,8 +308,7 @@ class Document(object):
 
 	@property
 	def dated_uri(self):
-		"""'Dated URI', in the W3C jargon. As a fallback, this may be set to the top URI of the document if the
-		dated uri has not been set """
+		"""'Dated URI', in the W3C jargon. As a fallback, this may be set to the top URI of the document if the dated uri has not been set """
 		return self._dated_uri if self._dated_uri is not None else self.driver.top_uri
 
 	@property
@@ -318,9 +318,7 @@ class Document(object):
 
 	@property
 	def doc_type_info(self):
-		"""Structure reflecting the various aspects of documents by doc type. This is just a shorthand for
-		``config.DOCTYPE_INFO[self.doc_type]``
-		"""
+		"""Structure reflecting the various aspects of documents by doc type. This is just a shorthand for ``config.DOCTYPE_INFO[self.doc_type]``"""
 		return config.DOCTYPE_INFO[self.doc_type] if self.doc_type is not None else None
 
 	@property
@@ -330,26 +328,26 @@ class Document(object):
 
 	@property
 	def editors(self):
-		"""List of editors (as a string)"""
+		"""List of editors (name + affiliation per element)"""
 		return self._editors
 
 	@property
 	def authors(self):
-		"""List of authors (as a string)"""
+		"""List of authors (name + affiliation per element)"""
 		return self._authors
 
 	@property
 	def toc(self):
 		"""Table of content, an array of :py:class:`.utils.TOC_Item` instances. It is only the top level TOC structures;
-		used for the old-school TOC file as well as for the EPUB3 navigation document in case the
-		original document does not have the appropriate structures in its TOC."""
+        used for the old-school TOC file as well as for the EPUB3 navigation document in case the
+        original document does not have the appropriate structures in its TOC."""
 		return self._toc
 
 	@property
 	def nav_toc(self):
 		"""Table of content extracted from a ``<nav>`` element (if any), that is copied almost verbatim into the
-		EPUB3 navigation document. It may be empty, though, because the source does not contain the required TOC
-		structure, in which case the simple TOC structure is (see :py:attr:`toc`)."""
+        EPUB3 navigation document. It may be empty, though, because the source does not contain the required TOC
+        structure, in which case the simple TOC structure is (see :py:attr:`toc`)."""
 		return self._nav_toc
 
 	@property
@@ -370,18 +368,12 @@ class Document(object):
 
 		:returns: True or False, depending on whether the right keys are available or not
 		"""
-		def _get_people(key, suffix_sing="", suffix_plur=""):
+		def _get_people(key):
 			def _get_person(person_struct):
 				retval = person_struct["name"]
 				return retval + (", %s" % person_struct["company"]) if "company" in person_struct else retval
 
-			people = [_get_person(p) for p in dict_config[key]]
-			if len(people) == 0:
-				return ""
-			elif len(people) == 1:
-				return people[0] + (" (%s)" % suffix_sing)
-			else:
-				return "; ".join(people) + (" (%s)" % suffix_plur)
+			return [_get_person(p) for p in dict_config[key]]
 
 		# store the full configuration for possible later reuse
 		self._respec_config = dict_config
@@ -389,8 +381,8 @@ class Document(object):
 		if "specStatus" in dict_config :
 			self._doc_type   = dict_config["specStatus"]
 			self._short_name = dict_config["shortName"] if "shortName" in dict_config else None
-			self._editors    = "" if "editors" not in dict_config else _get_people("editors", "editor", "editors")
-			self._authors    = "" if "authors" not in dict_config else _get_people("authors", "author", "authors")
+			self._editors    = [] if "editors" not in dict_config else _get_people("editors")
+			self._authors    = [] if "authors" not in dict_config else _get_people("authors")
 			if "publishDate" in dict_config:
 				self._date = datetime.strptime(dict_config["publishDate"], "%Y-%m-%d").date()
 			else:
@@ -407,11 +399,11 @@ class Document(object):
 	# noinspection PyBroadException
 	def _get_metadata_from_source(self):
 		"""
-		Extract metadata (date, title, editors, etc.) 'scraping' the source, i.e., by
-		extracting the data based on class names, URI patterns, etc.
+        Extract metadata (date, title, editors, etc.) 'scraping' the source, i.e., by
+        extracting the data based on class names, URI patterns, etc.
 
-		:raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)
-		"""
+        :raises R2EError: if the content is not recognized as one of the W3C document types (WD, ED, CR, PR, PER, REC, Note, or ED)
+        """
 		# Short name of the document
 		# Find the official short name of the document
 		for aref in self.html.findall(".//a[@class='u-url']"):
@@ -423,13 +415,7 @@ class Document(object):
 		self._date = Utils.retrieve_date(self.dated_uri)
 
 		# Extract the editors
-		editor_set = Utils.extract_editors(self.html)
-		if len(editor_set) == 0:
-			self._editors = ""
-		elif len(editor_set) == 1:
-			self._editors = list(editor_set)[0] + ", (ed.)"
-		else:
-			self._editors = ", ".join(list(editor_set)) + ", (eds.)"
+		self._editors = Utils.extract_editors(self.html)
 
 		# Add the right subtitle to the cover page
 		for issued in self.html.findall(".//h2[@property='dcterms:issued']"):
@@ -456,13 +442,13 @@ class Document(object):
 
 	def _get_document_metadata(self):
 		"""
-		Extract metadata (date, title, editors, etc.)
-		"""
+        Extract metadata (date, title, editors, etc.)
+        """
 		# noinspection PyBroadException
 		def _retrieve_from_respec_config():
 			"""
-			:return: True or False, depending on whether the metadata could be extracted via the respec config or not
-			"""
+            :return: True or False, depending on whether the metadata could be extracted via the respec config or not
+            """
 			head = self.html.find(".//head")
 			respec_config_element = head.find(".//script[@id='initialUserConfig']")
 			if respec_config_element is not None:
