@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.3',
+        VERSION:     '1.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -69,8 +69,7 @@ used to narrow the filter.</p>
 <dl class="class">
 <dt id="rp2epub.utils.Book">
 <em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">Book</code><span class="sig-paren">(</span><em>book_name</em>, <em>folder_name</em>, <em>package=True</em>, <em>folder=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Book"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Book" title="Permalink to this definition">¶</a></dt>
-<dd><p>Abstraction for a book; it encapsulates a zip file as well as saving the content into a
-directory.</p>
+<dd><p>Abstraction for a book; it encapsulates a zip file as well as saving the content into a directory.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -168,8 +167,7 @@ directories and create those on the fly if necessary.</p>
 <dl class="method">
 <dt id="rp2epub.utils.Book.write_session">
 <code class="descname">write_session</code><span class="sig-paren">(</span><em>target</em>, <em>session</em>, <em>css_change_patterns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Book.write_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Book.write_session" title="Permalink to this definition">¶</a></dt>
-<dd><p>The returned content of an <a class="reference internal" href="#rp2epub.utils.HttpSession" title="rp2epub.utils.HttpSession"><code class="xref py py-class docutils literal"><span class="pre">HttpSession</span></code></a> is added to the book. If the content is an HTML file,
-it will be converted into XHTML on the fly.</p>
+<dd><p>The returned content of an <a class="reference internal" href="#rp2epub.utils.HttpSession" title="rp2epub.utils.HttpSession"><code class="xref py py-class docutils literal"><span class="pre">HttpSession</span></code></a> is added to the book. If the content is an HTML file, it will be converted into XHTML on the fly.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -218,8 +216,7 @@ it will be converted into XHTML on the fly.</p>
 <dl class="class">
 <dt id="rp2epub.utils.HttpSession">
 <em class="property">class </em><code class="descclassname">rp2epub.utils.</code><code class="descname">HttpSession</code><span class="sig-paren">(</span><em>url</em>, <em>check_media_type=False</em>, <em>raise_exception=False</em>, <em>is_respec=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#HttpSession"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.HttpSession" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wrapper around an HTTP session; the returned media type is compared against accepted media
-types.</p>
+<dd><p>Wrapper around an HTTP session; the returned media type is compared against accepted media types.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -298,8 +295,7 @@ set of checks elsewhere in the code.</p>
 <dl class="staticmethod">
 <dt id="rp2epub.utils.Utils.change_DOM">
 <em class="property">static </em><code class="descname">change_DOM</code><span class="sig-paren">(</span><em>html</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.change_DOM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.change_DOM" title="Permalink to this definition">¶</a></dt>
-<dd><p>Changes on the DOM to ensure a proper interoperability of the display among EPUB readers. At the moment, the
-following actions are done:</p>
+<dd><p>Changes on the DOM to ensure a proper interoperability of the display among EPUB readers. At the moment, the following actions are done:</p>
 <p>1. Due to the rigidity of the iBook reader, the DOM tree has to change: all children of the <code class="docutils literal"><span class="pre">&lt;body&gt;</span></code> should be
 encapsulated into a top level block element (we use <code class="docutils literal"><span class="pre">&lt;div</span> <span class="pre">role=&quot;main&quot;&gt;</span></code>). This is because iBook imposes
 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level
@@ -358,8 +354,7 @@ publication (<code class="docutils literal"><span class="pre">REC</span></code>,
 <dl class="staticmethod">
 <dt id="rp2epub.utils.Utils.editors_to_string">
 <em class="property">static </em><code class="descname">editors_to_string</code><span class="sig-paren">(</span><em>names</em>, <em>editor=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.editors_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.editors_to_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a string of names generated from a list of names, with correct punctuation, and a suffix denoting whether
-these are editors or authors</p>
+<dd><p>Return a string of names generated from a list of names, with correct punctuation, and a suffix denoting whether these are editors or authors</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -382,6 +377,8 @@ these are editors or authors</p>
 <em class="property">static </em><code class="descname">extract_editors</code><span class="sig-paren">(</span><em>html</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.extract_editors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.extract_editors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the editors&#8217; names from a document, following the respec conventions
 (<code class="docutils literal"><span class="pre">&#64;class=p-author</span></code> for <code class="docutils literal"><span class="pre">&lt;dd&gt;</span></code> including <code class="docutils literal"><span class="pre">&lt;a&gt;</span></code> or <code class="docutils literal"><span class="pre">&lt;span&gt;</span></code> with <code class="docutils literal"><span class="pre">&#64;class=p-name</span></code>)</p>
+<p>Note that this is used only for older documents. Current respec reproduces the configuration in the target HTML file that can
+be used to extract the data directly.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -442,8 +439,7 @@ document as a whole (used in possible warnings).</p>
 <dd><p>Make the minimum changes necessary in the DOM tree so that the XHTML5 output is valid and accepted
 by epub readers. These are:</p>
 <p>1. The <code class="docutils literal"><span class="pre">http://www.w3.org/1999/xhtml</span></code> namespace is <em>required</em> in EPUB, but not generated by the
-XML serialization of Python&#8217;s ElementTree (or the <code class="docutils literal"><span class="pre">HTML5Lib</span></code> implementation thereof?). It is
-therefore added explicitly.</p>
+XML serialization of Python&#8217;s ElementTree (or the <code class="docutils literal"><span class="pre">HTML5Lib</span></code> implementation thereof?). It is therefore added explicitly.</p>
 <p>2. XHTML5 does not work with <code class="docutils literal"><span class="pre">&lt;script</span> <span class="pre">src=&quot;...&quot;/&gt;</span></code>, ie, with a self-closing element.
 Such elements are modified by adding a space to the content of the element.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -482,9 +478,9 @@ Such elements are modified by adding a space to the content of the element.</p>
 <dl class="staticmethod">
 <dt id="rp2epub.utils.Utils.set_html_meta">
 <em class="property">static </em><code class="descname">set_html_meta</code><span class="sig-paren">(</span><em>html</em>, <em>head</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rp2epub/utils.html#Utils.set_html_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rp2epub.utils.Utils.set_html_meta" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Change the meta elements so that:</p>
-<ul class="simple">
+<dd><p>Change the meta elements so that:</p>
+<blockquote>
+<div><ul class="simple">
 <li>any <code class="docutils literal"><span class="pre">&#64;http-equiv=content-type</span></code> is removed</li>
 <li>there should be an extra meta setting the character set</li>
 </ul>
