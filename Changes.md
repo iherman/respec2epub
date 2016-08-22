@@ -1,3 +1,8 @@
+# Version 1.4.
+* The authors' and editors' list has been changed. Prior to this version the package file contained one dc:creator entry with the concatenated list of editors or authors stored as a single string. This has been changed to a proper listing of dc:creator entries in the metadata (using a @role attribute value). The listing on the various other pages (like the cover page) has been adapted to use this setup.
+* The documentation is also generated in epub...
+
+
 # Version 1.3
 * A basic CSS processing has been added. This means that ``import`` and ``url`` statements in CSS files are recognized, imports are treated recursively, and all resources are downloaded as required. This also means that the built-in knowledge on the structure of CSS files is gone. This change was necessary to be able to adapt the script to the newer versions of TR style sheets
 * Some entries have been added to manage the stylesheets introduced in 2016. In particular, the TOC is kept artificially embedded (the approach chosen to push the TOC on the left if the screen is wide enough is not suitable for ePub, where readers have usually their own management of TOC-s.
