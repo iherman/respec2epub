@@ -74,12 +74,12 @@ TOC_PAIRS = [
 # noinspection PyPep8Naming
 class TOC_Item(object):
 	"""
-	A single Table of Content (TOC) item.
+    A single Table of Content (TOC) item.
 
-	:param str href: reference in the TOC
-	:param str label: long label, ie, including the chapter numbering
-	:param str short_label: shotr label, ie, *without* the chapter numbering
-	"""
+    :param str href: reference in the TOC
+    :param str label: long label, ie, including the chapter numbering
+    :param str short_label: shotr label, ie, *without* the chapter numbering
+    """
 	# noinspection PyPep8
 	def __init__(self, href, label, short_label):
 		self._href        = href
@@ -103,22 +103,21 @@ class TOC_Item(object):
 
 class Utils(object):
 	"""
-	Generic utility functions to extract information from a W3C TR document.
-	"""
+    Generic utility functions to extract information from a W3C TR document.
+    """
 	# noinspection PyUnusedLocal,PyPep8
 	@staticmethod
 	def get_document_properties(html):
 		"""
-			Find the extra manifest properties that must be added to the HTML resource in the opf file.
+        Find the extra manifest properties that must be added to the HTML resource in the opf file.
 
-			See the `IDPF documentation <http://www.idpf.org/epub/30/spec/epub30-publications.html#sec-item-property-values>`_ for details
+        See the `IDPF documentation <http://www.idpf.org/epub/30/spec/epub30-publications.html#sec-item-property-values>`_ for details
 
-			:param html: the object for the whole document
-			:type html: :py:class:`xml.etree.ElementTree.ElementTree`
-			:return: set collecting all possible property values
-			:rtype: set
-
-		"""
+        :param html: the object for the whole document
+        :type html: :py:class:`xml.etree.ElementTree.ElementTree`
+        :return: set collecting all possible property values
+        :rtype: set
+        """
 		retval = set()
 		# If <script> is used for Javascript, the 'scripted' property should be set
 		for scr in html.findall(".//script"):
@@ -145,13 +144,13 @@ class Utils(object):
 	@staticmethod
 	def create_shortname(name):
 		"""
-		Create the short name, in W3C jargon, based on the dated name. Returns a tuple with the category of the
-		publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, ``ED``, "RSCND", or ``PER``), and the short name itself.
+        Create the short name, in W3C jargon, based on the dated name. Returns a tuple with the category of the
+        publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, ``ED``, "RSCND", or ``PER``), and the short name itself.
 
-		:param str name: dated name
-		:return: tuple of with the category of the publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, ``ED``, "RSCND", or ``PER``), and the short name itself.
-		:rtype: tuple
-		"""
+        :param str name: dated name
+        :return: tuple of with the category of the publication (``REC``, ``NOTE``, ``PR``, ``WD``, ``CR``, ``ED``, "RSCND", or ``PER``), and the short name itself.
+        :rtype: tuple
+        """
 		# This is very W3C specific...
 		for doc_type in config.DOCTYPE_INFO:
 			doc_info = config.DOCTYPE_INFO[doc_type]
@@ -169,13 +168,13 @@ class Utils(object):
 	@staticmethod
 	def retrieve_date(duri):
 		"""
-		Retrieve the (publication) date from the dated URI.
+        Retrieve the (publication) date from the dated URI.
 
-		:param str duri: dated URI
-		:return: date
-		:rtype: :py:class:`datetype.date`
-		:raises R2EError: the dated URI is not of an expected format
-		"""
+        :param str duri: dated URI
+        :return: date
+        :rtype: :py:class:`datetype.date`
+        :raises R2EError: the dated URI is not of an expected format
+        """
 		# remove the last '/' if any
 
 		try:
@@ -193,12 +192,15 @@ class Utils(object):
 	# noinspection PyBroadException
 	def extract_editors(html):
 		"""Extract the editors' names from a document, following the respec conventions
-		(``@class=p-author`` for ``<dd>`` including ``<a>`` or ``<span>`` with ``@class=p-name``)
+        (``@class=p-author`` for ``<dd>`` including ``<a>`` or ``<span>`` with ``@class=p-name``)
 
-		:param html: the object for the whole document
-		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
-		:return: list of editors
-		"""
+        Note that this is used only for older documents. Current respec reproduces the configuration in the target HTML file that can
+        be used to extract the data directly.
+
+        :param html: the object for the whole document
+        :type html: :py:class:`xml.etree.ElementTree.ElementTree`
+        :return: list of editors
+        """
 		retval = []
 
 		for dd in html.findall(".//dd[@class]"):
@@ -219,16 +221,16 @@ class Utils(object):
 	@staticmethod
 	def set_html_meta(html, head):
 		"""
-		 Change the meta elements so that:
+        Change the meta elements so that:
 
-		 - any ``@http-equiv=content-type`` is removed
-		 - there should be an extra meta setting the character set
+         - any ``@http-equiv=content-type`` is removed
+         - there should be an extra meta setting the character set
 
-		:param html: the object for the whole document
-		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
-		:param head: the object for the <head> element
-		:type head: :py:class:`xml.etree.ElementTree.Element`
-		"""
+        :param html: the object for the whole document
+        :type html: :py:class:`xml.etree.ElementTree.ElementTree`
+        :param head: the object for the <head> element
+        :type head: :py:class:`xml.etree.ElementTree.Element`
+        """
 		for meta in html.findall(".//meta[@http-equiv='content-type']") + html.findall(".//meta[@http-equiv='Content-Type']"):
 			try:
 				head.remove(meta)
@@ -239,20 +241,19 @@ class Utils(object):
 	@staticmethod
 	def html_to_xhtml(html):
 		"""
-		Make the minimum changes necessary in the DOM tree so that the XHTML5 output is valid and accepted
-		by epub readers. These are:
+        Make the minimum changes necessary in the DOM tree so that the XHTML5 output is valid and accepted
+        by epub readers. These are:
 
-		1. The ``http://www.w3.org/1999/xhtml`` namespace is *required* in EPUB, but not generated by the
-		XML serialization of Python's ElementTree (or the ``HTML5Lib`` implementation thereof?). It is
-		therefore added explicitly.
+        1. The ``http://www.w3.org/1999/xhtml`` namespace is *required* in EPUB, but not generated by the
+        XML serialization of Python's ElementTree (or the ``HTML5Lib`` implementation thereof?). It is therefore added explicitly.
 
-		2. XHTML5 does not work with ``<script src="..."/>``, ie, with a self-closing element.
-		Such elements are modified by adding a space to the content of the element.
+        2. XHTML5 does not work with ``<script src="..."/>``, ie, with a self-closing element.
+        Such elements are modified by adding a space to the content of the element.
 
-		:param html: the object for the whole document
-		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
-		:return: the input object
-		"""
+        :param html: the object for the whole document
+        :type html: :py:class:`xml.etree.ElementTree.ElementTree`
+        :return: the input object
+        """
 		# Set the xhtml namespace on the top, this is required by epub readers
 		# noinspection PyUnresolvedReferences
 		html.set("xmlns", "http://www.w3.org/1999/xhtml")
@@ -268,46 +269,45 @@ class Utils(object):
 	@staticmethod
 	def change_DOM(html):
 		"""
-		 Changes on the DOM to ensure a proper interoperability of the display among EPUB readers. At the moment, the
-		 following actions are done:
+         Changes on the DOM to ensure a proper interoperability of the display among EPUB readers. At the moment, the following actions are done:
 
-		 1. Due to the rigidity of the iBook reader, the DOM tree has to change: all children of the ``<body>`` should be
-		 encapsulated into a top level block element (we use ``<div role="main">``). This is because iBook imposes
-		 a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level
-		 block element allows for suitable CSS adjustments.
+         1. Due to the rigidity of the iBook reader, the DOM tree has to change: all children of the ``<body>`` should be
+         encapsulated into a top level block element (we use ``<div role="main">``). This is because iBook imposes
+         a zero padding on the body element, and that cannot be controlled by the user; the introduction of the top level
+         block element allows for suitable CSS adjustments.
 
-		 The CSS adjustment is done as follows: the :py:data:`.templates.BOOK_CSS` is completed with the exact
-		 padding values; these are retrieved (depending on the TR version and the document) from the
-		 See the :py:data:`.config.PADDING_NEW_STYLE` and, if applicable, the :py:data:`.config.PADDING_OLD_STYLE`
-		 dictionaries. The expansion of :py:data:`.templates.BOOK_CSS` itself happens in the
-		 :py:meth:`.doc2epub.DocWrapper.process` method.
+         The CSS adjustment is done as follows: the :py:data:`.templates.BOOK_CSS` is completed with the exact
+         padding values; these are retrieved (depending on the TR version and the document) from the
+         See the :py:data:`.config.PADDING_NEW_STYLE` and, if applicable, the :py:data:`.config.PADDING_OLD_STYLE`
+         dictionaries. The expansion of :py:data:`.templates.BOOK_CSS` itself happens in the
+         :py:meth:`.doc2epub.DocWrapper.process` method.
 
-		 Note that using simply a "main" element as a top level encapsulation is not a good approach, because some files
-		 (e.g., generated by Bikeshed) already use that element, and there can be only one of those…
+         Note that using simply a "main" element as a top level encapsulation is not a good approach, because some files
+         (e.g., generated by Bikeshed) already use that element, and there can be only one of those…
 
-		 2. If a ``<pre>`` element has the class name ``highlight``, the Readium extension to
-		 Chrome goes wild. However, that class name is used only for an internal processing of ReSpec though it is
-		 unused in the various, default CSS content. As a an emergency measure this class name is simply removed from the code, although,
-		 clearly, this is not the optimal way:-( But hopefully this bug will disappear from Readium and this hack can be
-		 removed, eventually.
+         2. If a ``<pre>`` element has the class name ``highlight``, the Readium extension to
+         Chrome goes wild. However, that class name is used only for an internal processing of ReSpec though it is
+         unused in the various, default CSS content. As a an emergency measure this class name is simply removed from the code, although,
+         clearly, this is not the optimal way:-( But hopefully this bug will disappear from Readium and this hack can be
+         removed, eventually.
 
-		 **Note**: this is an `acknowledged bug in Readium <https://github.com/readium/readium-shared-js/issues/203>`__.
-		 When a newer release of Readium is deployed, this hack should be removed from the code.
+         **Note**: this is an `acknowledged bug in Readium <https://github.com/readium/readium-shared-js/issues/203>`__.
+         When a newer release of Readium is deployed, this hack should be removed from the code.
 
-		 3. Some readers *require* to have a ``type="text/css"`` on the the link element for a CSS; otherwise the CSS
-		 is ignored. It is added (though not needed in HTML5, it doesn't do any harm either…)
+         3. Some readers *require* to have a ``type="text/css"`` on the the link element for a CSS; otherwise the CSS
+         is ignored. It is added (though not needed in HTML5, it doesn't do any harm either…)
 
-		 4. Add to the class of the ``body`` element the ``toc-inline`` value, to ensure that the TOC stays inline and
-		 is not floated on the left hand side. In reality, this is needed only for the post-2016 versions
-		 of the TR documents, but it does not harm for earlier versions. I.e., this step is not made more
-		 complicated by a check of the document’s TR version.
+         4. Add to the class of the ``body`` element the ``toc-inline`` value, to ensure that the TOC stays inline and
+         is not floated on the left hand side. In reality, this is needed only for the post-2016 versions
+         of the TR documents, but it does not harm for earlier versions. I.e., this step is not made more
+         complicated by a check of the document’s TR version.
 
-		 5. Also like 4., remove the reference to the fixup.js script (which sets some initial values to the sidebar
-		 handling which is to be removed altogether anyway...)
+         5. Also like 4., remove the reference to the fixup.js script (which sets some initial values to the sidebar
+         handling which is to be removed altogether anyway...)
 
-		 :param html: the object for the whole document
-		 :type html: :py:class:`xml.etree.ElementTree.ElementTree`
-		"""
+         :param html: the object for the whole document
+         :type html: :py:class:`xml.etree.ElementTree.ElementTree`
+        """
 
 		# Hack #1
 		body = html.find(".//body")
@@ -365,27 +365,27 @@ class Utils(object):
 	@staticmethod
 	def extract_toc(html, short_name):
 		"""
-		Extract the table of content from the document. ``html`` is the Element object for the full document. ``toc_tuples``
-		is an array of ``TOC_Item`` objects where the items should be put, ``short_name`` is the short name for the
-		document as a whole (used in possible warnings).
+        Extract the table of content from the document. ``html`` is the Element object for the full document. ``toc_tuples``
+        is an array of ``TOC_Item`` objects where the items should be put, ``short_name`` is the short name for the
+        document as a whole (used in possible warnings).
 
-		:param html: the object for the whole document
-		:type html: :py:class:`xml.etree.ElementTree.ElementTree`
-		:param str short_name: short name of the document as a whole (used in possible warning)
-		:return: array of :py:class:`.TOC_Item` instances
-		"""
+        :param html: the object for the whole document
+        :type html: :py:class:`xml.etree.ElementTree.ElementTree`
+        :param str short_name: short name of the document as a whole (used in possible warning)
+        :return: array of :py:class:`.TOC_Item` instances
+        """
 		retval = []
 
 		def extract_toc_entry(parent, explicit_num=None):
 			"""
-			Extract the TOC entry and create a URI with the 'Overview' file. This does not work well if the
-			document is cut into several documents, like the HTML5 spec...
+            Extract the TOC entry and create a URI with the 'Overview' file. This does not work well if the
+            document is cut into several documents, like the HTML5 spec...
 
-			:param parent: the parent element for the TOC entry
-			:type parent: :py:class:`xml.etree.ElementTree.Element`
-			:param explicit_num: whether the first element of the TOC line is a numbering that should be removed
-			The result is added to the tuples as a TOC_Item entry.
-			"""
+            :param parent: the parent element for the TOC entry
+            :type parent: :py:class:`xml.etree.ElementTree.Element`
+            :param explicit_num: whether the first element of the TOC line is a numbering that should be removed
+            The result is added to the tuples as a TOC_Item entry.
+            """
 			a = parent.find("a")
 
 			ref = a.get("href")
@@ -409,9 +409,9 @@ class Utils(object):
 
 		def toc_respec_or_bikeshed():
 			"""
-			Extract the TOC items following ReSpec or Bikeshed conventions. There are possible pairs (see the ``TOC_PAIRS``
-			alternatives), yielding <li> elements with the toc entry.
-			"""
+            Extract the TOC items following ReSpec or Bikeshed conventions. There are possible pairs (see the ``TOC_PAIRS``
+            alternatives), yielding <li> elements with the toc entry.
+            """
 			# respec version
 			# We have to try two different versions, because, in some cases, respec uses 'div' and in other cases 'section'
 			# probably depends on the output format requested (or the version of respec? or both?)
@@ -429,11 +429,10 @@ class Utils(object):
 
 		def toc_extract_nav():
 			"""
-			Extract a full hierarchy of navigation element, to be reused for the new style, ie, EPUB3, navigation,
-			if possible. That relies on a restricted set of toc pairs that the original document may contain
-			:return: array of elements, cloned version of the top level ``<li>`` elements in the original source.
-			The array is empty if the TOC structure is inadequate
-			"""
+            Extract a full hierarchy of navigation element, to be reused for the new style, ie, EPUB3, navigation,
+            if possible. That relies on a restricted set of toc pairs that the original document may contain
+            :return: array of elements, cloned version of the top level ``<li>`` elements in the original source. The array is empty if the TOC structure is inadequate
+            """
 			top_levels = []
 
 			# See if the new style nav/ul access works
@@ -464,13 +463,12 @@ class Utils(object):
 	@staticmethod
 	def editors_to_string(names, editor = True):
 		"""
-		Return a string of names generated from a list of names, with correct punctuation, and a suffix denoting whether
-		these are editors or authors
+        Return a string of names generated from a list of names, with correct punctuation, and a suffix denoting whether these are editors or authors
 
-		:param names: list of strings, each entry a name to be used in the final output
-		:keyword editor: if True, the string '(editor)' or '(editors)' is appended to the list (depending on cardinality), '(author)', resp. '(authors)' otherwise
-		:return: a string that can be used as a final display for the names of editors/authors.
-		"""
+        :param names: list of strings, each entry a name to be used in the final output
+        :keyword editor: if True, the string '(editor)' or '(editors)' is appended to the list (depending on cardinality), '(author)', resp. '(authors)' otherwise
+        :return: a string that can be used as a final display for the names of editors/authors.
+        """
 		if len(names) == 0:
 			return ""
 		elif len(names) == 1:
@@ -485,15 +483,14 @@ class Utils(object):
 class HttpSession(object):
 	# noinspection PyPep8
 	"""
-		Wrapper around an HTTP session; the returned media type is compared against accepted media
-		types.
+    Wrapper around an HTTP session; the returned media type is compared against accepted media types.
 
-		:param str url: the URL to be retrieved
-		:param boolean check_media_type: whether the media type should be checked against the media type of the resource to see if it is acceptable
-		:param boolean raise_exception: whether an exception should be raised if the document cannot be retrieved (either because the HTTP return is not 200, or not of an acceptable media type)
-		:param boolean is_respec: if True, the URL is a callout to the spec generator service; if so, and there is a problem, the corresponding error message is different
-		:raises R2EError: in case the file is not an of an acceptable media type, or the HTTP return is not 200
-		"""
+    :param str url: the URL to be retrieved
+    :param boolean check_media_type: whether the media type should be checked against the media type of the resource to see if it is acceptable
+    :param boolean raise_exception: whether an exception should be raised if the document cannot be retrieved (either because the HTTP return is not 200, or not of an acceptable media type)
+    :param boolean is_respec: if True, the URL is a callout to the spec generator service; if so, and there is a problem, the corresponding error message is different
+    :raises R2EError: in case the file is not an of an acceptable media type, or the HTTP return is not 200
+    """
 	# noinspection PyPep8,PyPep8
 	def __init__(self, url, check_media_type=False, raise_exception=False, is_respec=False):
 		def handle_exception(message):
@@ -530,29 +527,29 @@ class HttpSession(object):
 	@property
 	def success(self):
 		"""
-		True if the HTTP retrieval was successful, False otherwise
-		"""
+        True if the HTTP retrieval was successful, False otherwise
+        """
 		return self._success
 
 	@property
 	def data(self):
 		"""
-		The returned resource, as a file-like object
-		"""
+        The returned resource, as a file-like object
+        """
 		return self._data
 
 	@property
 	def url(self):
 		"""
-		The request URL for this session
-		"""
+        The request URL for this session
+        """
 		return self._url
 
 	@property
 	def media_type(self):
 		"""
-		Media type of the resource
-		"""
+        Media type of the resource
+        """
 		return self._media_type
 
 #####################################################################################
@@ -560,14 +557,13 @@ class HttpSession(object):
 
 # noinspection PyPep8
 class Book(object):
-	"""Abstraction for a book; it encapsulates a zip file as well as saving the content into a
-	  directory.
+	"""Abstraction for a book; it encapsulates a zip file as well as saving the content into a directory.
 
-	  :param book_name: file name of the book
-	  :param folder_name: name of the directory
-  	  :param package: whether a real zip file should be created or not
-	  :param folder: whether the directory structure should be created separately or not
-	"""
+    :param book_name: file name of the book
+    :param folder_name: name of the directory
+    :param package: whether a real zip file should be created or not
+    :param folder: whether the directory structure should be created separately or not
+    """
 	def __init__(self, book_name, folder_name, package=True, folder=False):
 		self._package       = package
 		self._folder        = folder
@@ -608,12 +604,12 @@ class Book(object):
 
 	def writestr(self, target, content, compress=zipfile.ZIP_DEFLATED):
 		"""
-		Write the content of a string.
+        Write the content of a string.
 
-		:param target: path for the target file
-		:param content: string/bytes to be written on the file
-		:param compress: either ``zipfile.ZIP_DEFLATED`` or ``zipfile.ZIP_STORED``, whether the content should be compressed, resp. not compressed
-		"""
+        :param target: path for the target file
+        :param content: string/bytes to be written on the file
+        :param compress: either ``zipfile.ZIP_DEFLATED`` or ``zipfile.ZIP_STORED``, whether the content should be compressed, resp. not compressed
+         """
 		# Care should be taken not to write the "target" twice; the zipfile would really
 		# duplicate the content in the archive (as opposed to file writing that would simply overwrite the previous
 		# incarnation of the same file). This method takes care of that through the `already_stored` array.
@@ -628,12 +624,12 @@ class Book(object):
 	# noinspection PyUnresolvedReferences
 	def write_element(self, target, element):
 		"""
-		An ElementTree object is added to the book.
+        An ElementTree object is added to the book.
 
-		:param str target: path for the target file
-		:param element: the XML tree to be stored
-		:type element: :py:class:`xml.etree.ElementTree`
-		"""
+        :param str target: path for the target file
+        :param element: the XML tree to be stored
+        :type element: :py:class:`xml.etree.ElementTree`
+        """
 		content = StringIO()
 		element.write(content, encoding="utf-8", xml_declaration=True, method="xml")
 		self.writestr(target, content.getvalue())
@@ -642,14 +638,13 @@ class Book(object):
 	# noinspection PyTypeChecker
 	def write_session(self, target, session, css_change_patterns = None):
 		"""
-		The returned content of an :py:class:`.HttpSession` is added to the book. If the content is an HTML file,
-		it will be converted into XHTML on the fly.
+        The returned content of an :py:class:`.HttpSession` is added to the book. If the content is an HTML file, it will be converted into XHTML on the fly.
 
-		:param str target: path for the target file
-		:param session: a :py:class:`.HttpSession` instance whose data must retrieved to be written into the book
-		:param css_change_patterns: a list of ``(from,to)`` replace patterns to be applied on CSS files before storage
-		:return boolean: the value of session.success
-		"""
+        :param str target: path for the target file
+        :param session: a :py:class:`.HttpSession` instance whose data must retrieved to be written into the book
+        :param css_change_patterns: a list of ``(from,to)`` replace patterns to be applied on CSS files before storage
+        :return boolean: the value of session.success
+        """
 		if css_change_patterns is None :
 			css_change_patterns = []
 
@@ -681,24 +676,24 @@ class Book(object):
 	# noinspection PyPep8Naming
 	def write_HTTP(self, target, url):
 		"""
-		Retrieve the content of a URI and store it in the book. (This is a wrapper around the `write_session` method.)
+        Retrieve the content of a URI and store it in the book. (This is a wrapper around the `write_session` method.)
 
-		:param str target: path for the target file, this is always a relative URI
-		:param url: URL that has to be retrieved to be written into the book
-		:boolean return: whether the HTTP session was successful or not
-		"""
+        :param str target: path for the target file, this is always a relative URI
+        :param url: URL that has to be retrieved to be written into the book
+        :boolean return: whether the HTTP session was successful or not
+        """
 		# Copy the content into the final book.
 		# Note that some of the media types are not to be compressed
 		return self.write_session(target, HttpSession(url))
 
 	def _path(self, path):
 		"""
-		Expand the path with the name of the package, check whether the resulting path (filename) includes intermediate
-		directories and create those on the fly if necessary.
+        Expand the path with the name of the package, check whether the resulting path (filename) includes intermediate
+        directories and create those on the fly if necessary.
 
-		:param path: path to be checked
-		:return: expanded, full path
-		"""
+        :param path: path to be checked
+        :return: expanded, full path
+        """
 		full_path = os.path.join(self.name, path)
 		(dirs, name) = os.path.split(full_path)
 		if dirs != '' and not os.path.exists(dirs):
@@ -707,8 +702,8 @@ class Book(object):
 
 	def close(self):
 		"""
-		Close the book (i.e., the archive).
-		"""
+        Close the book (i.e., the archive).
+        """
 		if self.package:
 			self.zip.close()
 
@@ -726,10 +721,10 @@ class Book(object):
 # noinspection PyPep8
 class Logger(object):
 	"""
-	Wrapper around the logger calls, simply checking whether the logger in the configuration file has been
-	set to a real value or whether it is None (in the latter case nothing happens). Saves a repeated
-	set of checks elsewhere in the code.
-	"""
+    Wrapper around the logger calls, simply checking whether the logger in the configuration file has been
+    set to a real value or whether it is None (in the latter case nothing happens). Saves a repeated
+    set of checks elsewhere in the code.
+    """
 
 	@staticmethod
 	def warning(message):
