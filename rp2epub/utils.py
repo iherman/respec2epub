@@ -62,6 +62,7 @@ TOC_PAIRS = [
 	("div[@id='toc']", "ul[@class='toc']", None),
 	("div[@id='toc']", "ol[@class='toc']", None),
 	("nav[@id='toc']", "ul[@class='toc']", None),
+	("nav[@id='toc']", "ol[@class='toc']", None),
 	("section[@id='toc']", "ul[@class='toc']", None),
 	("section[@id='toc']", "ol[@class='toc']", None),
 	("div[@class='toc']", "ul[@class='toc']", "tocline1"),
@@ -409,11 +410,13 @@ class Utils(object):
 
 		def toc_respec_or_bikeshed():
 			"""
-            Extract the TOC items following ReSpec or Bikeshed conventions. There are possible pairs (see the ``TOC_PAIRS``
+            Extract the TOC items following ReSpec or Bikeshed conventions. There are
+            possible pairs (see the ``TOC_PAIRS``
             alternatives), yielding <li> elements with the toc entry.
             """
 			# respec version
-			# We have to try two different versions, because, in some cases, respec uses 'div' and in other cases 'section'
+			# We have to try two different versions, because, in some cases, respec
+			# uses 'div' and in other cases 'section'
 			# probably depends on the output format requested (or the version of respec? or both?)
 			# In all cases, the <a> element contains a section number and the chapter title
 			for pairs in TOC_PAIRS:
