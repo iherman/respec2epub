@@ -62,8 +62,8 @@ DEFAULT_FILES = [
 	("nav.xhtml", "application/xhtml+xml", "nav", "nav"),
 	("toc.ncx", "application/x-dtbncx+xml", "ncx", ""),
 	("Icons/w3c_main.png", "image/png", "w3c_main", ""),
-	("StyleSheet/TR/base.css", "text/css", "StyleSheets-base", ""),
-	("StyleSheet/TR/book.css", "text/css", "StyleSheets-book", ""),
+	("StyleSheets/TR/base.css", "text/css", "StyleSheets-base", ""),
+	("StyleSheets/TR/book.css", "text/css", "StyleSheets-book", ""),
 	("cover.xhtml", "application/xhtml+xml", "start", "")
 ]
 
