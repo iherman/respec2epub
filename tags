@@ -1,0 +1,367 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ACCEPTED_MEDIA_TYPES	rp2epub/config.py	/^ACCEPTED_MEDIA_TYPES = {$/;"	kind:variable	line:72
+BOOK_CSS	rp2epub/doc2epub.py	/^from .templates import BOOK_CSS, BOOK_CSS_EXTRAS$/;"	kind:namespace	line:28
+BOOK_CSS_EXTRAS	rp2epub/doc2epub.py	/^from .templates import BOOK_CSS, BOOK_CSS_EXTRAS$/;"	kind:namespace	line:28
+BOOK_CSS_EXTRAS	rp2epub/templates.py	/^BOOK_CSS_EXTRAS = {$/;"	kind:variable	line:255
+Book	rp2epub/doc2epub.py	/^from .utils import HttpSession, Book, Logger$/;"	kind:namespace	line:33
+Book	rp2epub/utils.py	/^class Book(object):$/;"	kind:class	line:562
+COVER	rp2epub/package.py	/^from .templates import PACKAGE, TOC, NAV, NAV_CSS_NUMBERING, NAV_CSS_NO_NUMBERING, COVER$/;"	kind:namespace	line:14
+CSSList	rp2epub/cssurls.py	/^class CSSList(object):$/;"	kind:class	line:175
+CSSList	rp2epub/document.py	/^from .cssurls import CSSList$/;"	kind:namespace	line:31
+CSSReference	rp2epub/cssurls.py	/^class CSSReference(object):$/;"	kind:class	line:57
+DATE_FORMAT_STRING	rp2epub/config.py	/^DATE_FORMAT_STRING = "%Y-%m-%dT%M:%S:00Z"$/;"	kind:variable	line:57
+DATE_FORMAT_STRING	rp2epub/package.py	/^from .config import DEFAULT_FILES, DATE_FORMAT_STRING$/;"	kind:namespace	line:15
+DEFAULT_FILES	rp2epub/config.py	/^DEFAULT_FILES = [$/;"	kind:variable	line:61
+DEFAULT_FILES	rp2epub/package.py	/^from .config import DEFAULT_FILES, DATE_FORMAT_STRING$/;"	kind:namespace	line:15
+DOCTYPE_INFO	rp2epub/config.py	/^DOCTYPE_INFO = {$/;"	kind:variable	line:141
+DocWrapper	epub-generator-link.py	/^		from rp2epub.doc2epub import DocWrapper$/;"	kind:namespace	line:147
+DocWrapper	epub-generator/epub-generator.py	/^		from rp2epub.doc2epub import DocWrapper$/;"	kind:namespace	line:156
+DocWrapper	rp2epub/doc2epub.py	/^class DocWrapper(object):$/;"	kind:class	line:44
+DocWrapper	script/rp2epub	/^	from rp2epub.doc2epub import DocWrapper$/;"	kind:namespace	line:41
+Document	rp2epub/doc2epub.py	/^from .document import Document$/;"	kind:namespace	line:29
+Document	rp2epub/document.py	/^class Document(object):$/;"	kind:class	line:37
+ET	rp2epub/package.py	/^import xml.etree.ElementTree as ET$/;"	kind:namespace	line:12
+EXTERNAL_REFERENCES	rp2epub/config.py	/^EXTERNAL_REFERENCES = [$/;"	kind:variable	line:98
+ElementTree	rp2epub/doc2epub.py	/^from xml.etree.ElementTree import ElementTree$/;"	kind:namespace	line:24
+ElementTree	rp2epub/package.py	/^from xml.etree.ElementTree import ElementTree, SubElement$/;"	kind:namespace	line:13
+ElementTree	rp2epub/utils.py	/^from xml.etree.ElementTree import SubElement, ElementTree, tostring, fromstring$/;"	kind:namespace	line:29
+Generator	epub-generator-link.py	/^class Generator:$/;"	kind:class	line:107
+Generator	epub-generator/epub-generator.py	/^class Generator:$/;"	kind:class	line:111
+HttpSession	rp2epub/cssurls.py	/^from .utils import HttpSession, Logger$/;"	kind:namespace	line:26
+HttpSession	rp2epub/doc2epub.py	/^from .utils import HttpSession, Book, Logger$/;"	kind:namespace	line:33
+HttpSession	rp2epub/document.py	/^from .utils import HttpSession, Utils, Logger$/;"	kind:namespace	line:30
+HttpSession	rp2epub/utils.py	/^class HttpSession(object):$/;"	kind:class	line:486
+Logger	rp2epub/cssurls.py	/^from .utils import HttpSession, Logger$/;"	kind:namespace	line:26
+Logger	rp2epub/doc2epub.py	/^from .utils import HttpSession, Book, Logger$/;"	kind:namespace	line:33
+Logger	rp2epub/document.py	/^from .utils import HttpSession, Utils, Logger$/;"	kind:namespace	line:30
+Logger	rp2epub/utils.py	/^class Logger(object):$/;"	kind:class	line:725
+NAV	rp2epub/package.py	/^from .templates import PACKAGE, TOC, NAV, NAV_CSS_NUMBERING, NAV_CSS_NO_NUMBERING, COVER$/;"	kind:namespace	line:14
+NAV_CSS_NO_NUMBERING	rp2epub/package.py	/^from .templates import PACKAGE, TOC, NAV, NAV_CSS_NUMBERING, NAV_CSS_NO_NUMBERING, COVER$/;"	kind:namespace	line:14
+NAV_CSS_NUMBERING	rp2epub/package.py	/^from .templates import PACKAGE, TOC, NAV, NAV_CSS_NUMBERING, NAV_CSS_NO_NUMBERING, COVER$/;"	kind:namespace	line:14
+PACKAGE	rp2epub/package.py	/^from .templates import PACKAGE, TOC, NAV, NAV_CSS_NUMBERING, NAV_CSS_NO_NUMBERING, COVER$/;"	kind:namespace	line:14
+PADDING_NEW_STYLE	rp2epub/config.py	/^PADDING_NEW_STYLE = {$/;"	kind:variable	line:122
+PADDING_NEW_STYLE	rp2epub/doc2epub.py	/^from .config import PADDING_NEW_STYLE, PADDING_OLD_STYLE$/;"	kind:namespace	line:32
+PADDING_OLD_STYLE	rp2epub/config.py	/^PADDING_OLD_STYLE = {$/;"	kind:variable	line:128
+PADDING_OLD_STYLE	rp2epub/doc2epub.py	/^from .config import PADDING_NEW_STYLE, PADDING_OLD_STYLE$/;"	kind:namespace	line:32
+Package	rp2epub/doc2epub.py	/^from .package import Package$/;"	kind:namespace	line:30
+Package	rp2epub/package.py	/^class Package(object):$/;"	kind:class	line:20
+R2EError	rp2epub/__init__.py	/^class R2EError(Exception):$/;"	kind:class	line:11
+R2EError	rp2epub/utils.py	/^from . import R2EError$/;"	kind:namespace	line:34
+StringIO	epub-generator-link.py	/^			from StringIO import StringIO$/;"	kind:namespace	line:185
+StringIO	epub-generator/epub-generator.py	/^			from StringIO import StringIO$/;"	kind:namespace	line:195
+StringIO	rp2epub/document.py	/^from StringIO import StringIO$/;"	kind:namespace	line:27
+StringIO	rp2epub/utils.py	/^from StringIO import StringIO$/;"	kind:namespace	line:23
+SubElement	rp2epub/document.py	/^from xml.etree.ElementTree import SubElement$/;"	kind:namespace	line:26
+SubElement	rp2epub/package.py	/^from xml.etree.ElementTree import ElementTree, SubElement$/;"	kind:namespace	line:13
+SubElement	rp2epub/utils.py	/^from xml.etree.ElementTree import SubElement, ElementTree, tostring, fromstring$/;"	kind:namespace	line:29
+TOC	rp2epub/package.py	/^from .templates import PACKAGE, TOC, NAV, NAV_CSS_NUMBERING, NAV_CSS_NO_NUMBERING, COVER$/;"	kind:namespace	line:14
+TOC_Item	rp2epub/utils.py	/^class TOC_Item(object):$/;"	kind:class	line:76
+TOC_PAIRS	rp2epub/utils.py	/^TOC_PAIRS = [$/;"	kind:variable	line:61
+TO_TRANSFER	rp2epub/config.py	/^TO_TRANSFER = [$/;"	kind:variable	line:116
+TO_TRANSFER	rp2epub/doc2epub.py	/^from .config import TO_TRANSFER$/;"	kind:namespace	line:31
+TO_TRANSFER	rp2epub/document.py	/^from .config import TO_TRANSFER$/;"	kind:namespace	line:32
+Utils	rp2epub/document.py	/^from .utils import HttpSession, Utils, Logger$/;"	kind:namespace	line:30
+Utils	rp2epub/package.py	/^from .utils import Utils$/;"	kind:namespace	line:16
+Utils	rp2epub/utils.py	/^class Utils(object):$/;"	kind:class	line:105
+_NO_COMPRESS	rp2epub/utils.py	/^_NO_COMPRESS = [$/;"	kind:variable	line:42
+_URLPair	rp2epub/cssurls.py	/^class _URLPair(object):$/;"	kind:class	line:29
+__author__	rp2epub/__init__.py	/^__author__  = 'Ivan Herman, W3C'$/;"	kind:variable	line:6
+__contact__	rp2epub/__init__.py	/^__contact__ = 'Ivan Herman, ivan@w3.org'$/;"	kind:variable	line:7
+__enter__	rp2epub/utils.py	/^	def __enter__(self):$/;"	kind:member	line:714
+__exit__	rp2epub/utils.py	/^	def __exit__(self, exc_type, exc_value, traceback):$/;"	kind:member	line:718
+__init__	epub-generator-link.py	/^	def __init__(self):$/;"	kind:member	line:109
+__init__	epub-generator/epub-generator.py	/^	def __init__(self):$/;"	kind:member	line:116
+__init__	rp2epub/__init__.py	/^	def __init__(self, value):$/;"	kind:member	line:15
+__init__	rp2epub/cssurls.py	/^	def __init__(self, base):$/;"	kind:member	line:183
+__init__	rp2epub/cssurls.py	/^	def __init__(self, base, url, is_file = True, content = None):$/;"	kind:member	line:67
+__init__	rp2epub/cssurls.py	/^	def __init__(self, url, name):$/;"	kind:member	line:38
+__init__	rp2epub/doc2epub.py	/^	def __init__(self, url, is_respec=False, package=True, folder=False, temporary=False, logger=None):$/;"	kind:member	line:57
+__init__	rp2epub/document.py	/^	def __init__(self, driver):$/;"	kind:member	line:46
+__init__	rp2epub/package.py	/^	def __init__(self, driver):$/;"	kind:member	line:27
+__init__	rp2epub/utils.py	/^	def __init__(self, book_name, folder_name, package=True, folder=False):$/;"	kind:member	line:570
+__init__	rp2epub/utils.py	/^	def __init__(self, href, label, short_label):$/;"	kind:member	line:85
+__init__	rp2epub/utils.py	/^	def __init__(self, url, check_media_type=False, raise_exception=False, is_respec=False):$/;"	kind:member	line:498
+__init__.py	rp2epub/__init__.py	1;"	kind:file	line:1
+__license__	rp2epub/__init__.py	/^__license__ = 'W3C SOFTWARE NOTICE AND LICENSE <http:\/\/www.w3.org\/Consortium\/Legal\/copyright-software>'$/;"	kind:variable	line:8
+__repr__	rp2epub/cssurls.py	/^	def __repr__(self):$/;"	kind:member	line:170
+__repr__	rp2epub/cssurls.py	/^	def __repr__(self):$/;"	kind:member	line:238
+__repr__	rp2epub/cssurls.py	/^	def __repr__(self):$/;"	kind:member	line:52
+__str__	rp2epub/__init__.py	/^	def __str__(self):$/;"	kind:member	line:18
+__version__	rp2epub/__init__.py	/^__version__ = "1.4"$/;"	kind:variable	line:4
+_change_name	rp2epub/utils.py	/^		def _change_name(x):$/;"	kind:function	line:331
+_collect_downloads	rp2epub/document.py	/^	def _collect_downloads(self):$/;"	kind:member	line:213
+_collect_imports	rp2epub/cssurls.py	/^	def _collect_imports(self):$/;"	kind:member	line:101
+_create_cover	rp2epub/package.py	/^	def _create_cover(self):$/;"	kind:member	line:224
+_create_logger	script/rp2epub	/^def _create_logger(fname, level=logging.DEBUG):$/;"	kind:function	line:9
+_create_nav	rp2epub/package.py	/^	def _create_nav(self):$/;"	kind:member	line:170
+_create_ncx	rp2epub/package.py	/^	def _create_ncx(self):$/;"	kind:member	line:118
+_create_opf	rp2epub/package.py	/^	def _create_opf(self):$/;"	kind:member	line:48
+_gather_all_stylesheets	rp2epub/cssurls.py	/^	def _gather_all_stylesheets(self):$/;"	kind:member	line:218
+_get_CSS_TR_version	rp2epub/document.py	/^	def _get_CSS_TR_version(self):$/;"	kind:member	line:427
+_get_document_metadata	rp2epub/document.py	/^	def _get_document_metadata(self):$/;"	kind:member	line:443
+_get_metadata_from_respec	rp2epub/document.py	/^	def _get_metadata_from_respec(self, dict_config):$/;"	kind:member	line:364
+_get_metadata_from_source	rp2epub/document.py	/^	def _get_metadata_from_source(self):$/;"	kind:member	line:400
+_get_people	rp2epub/document.py	/^		def _get_people(key):$/;"	kind:function	line:371
+_get_person	rp2epub/document.py	/^			def _get_person(person_struct):$/;"	kind:function	line:372
+_path	rp2epub/utils.py	/^	def _path(self, path):$/;"	kind:member	line:692
+_retrieve_from_respec_config	rp2epub/document.py	/^		def _retrieve_from_respec_config():$/;"	kind:function	line:448
+add_additional_resource	rp2epub/document.py	/^	def add_additional_resource(self, local_name, media_type):$/;"	kind:member	line:96
+add_css	rp2epub/cssurls.py	/^	def add_css(self, origin_url, is_file=True, content=None):$/;"	kind:member	line:193
+add_item_to_import	rp2epub/cssurls.py	/^		def add_item_to_import(url_orig, css=False):$/;"	kind:function	line:105
+additional_resources	rp2epub/document.py	/^	def additional_resources(self):$/;"	kind:member	line:89
+argparse	script/rp2epub	/^import argparse$/;"	kind:namespace	line:2
+author	setup.py	/^	author='Ivan Herman',$/;"	kind:variable	line:15
+author_email	setup.py	/^	author_email='ivan@ivan-herman.net',$/;"	kind:variable	line:16
+authors	rp2epub/document.py	/^	def authors(self):$/;"	kind:member	line:335
+backupCount	epub-generator-link.py	/^	backupCount = 2 if local else 10$/;"	kind:variable	line:55
+backupCount	epub-generator/epub-generator.py	/^	backupCount = 2 if local else 10$/;"	kind:variable	line:59
+base	rp2epub/doc2epub.py	/^	def base(self):$/;"	kind:member	line:122
+book	rp2epub/doc2epub.py	/^	def book(self):$/;"	kind:member	line:152
+book	rp2epub/package.py	/^	def book(self):$/;"	kind:member	line:32
+book_file_name	rp2epub/doc2epub.py	/^	def book_file_name(self):$/;"	kind:member	line:117
+cgi	epub-generator-link.py	/^cgi = 'HTTP_USER_AGENT' in os.environ$/;"	kind:variable	line:17
+cgi	epub-generator/epub-generator.py	/^cgi = 'HTTP_USER_AGENT' in os.environ$/;"	kind:variable	line:21
+change_DOM	rp2epub/utils.py	/^	def change_DOM(html):$/;"	kind:member	line:271
+change_patterns	rp2epub/cssurls.py	/^	def change_patterns(self):$/;"	kind:member	line:189
+change_patterns	rp2epub/cssurls.py	/^	def change_patterns(self):$/;"	kind:member	line:97
+classifiers	setup.py	/^	classifiers=[$/;"	kind:variable	line:22
+close	rp2epub/utils.py	/^	def close(self):$/;"	kind:member	line:706
+conf.py	Doc/source/conf.py	1;"	kind:file	line:1
+conf.py	conf.py	1;"	kind:file	line:1
+config	rp2epub/document.py	/^import config$/;"	kind:namespace	line:33
+config	rp2epub/utils.py	/^import config$/;"	kind:namespace	line:35
+config.py	rp2epub/config.py	1;"	kind:file	line:1
+copyright	Doc/source/conf.py	/^copyright = u'2016, Ivan Herman'$/;"	kind:variable	line:53
+copyright	conf.py	/^copyright = u'2015, Ivan Herman'$/;"	kind:variable	line:53
+create_shortname	rp2epub/utils.py	/^	def create_shortname(name):$/;"	kind:member	line:146
+css_change_patterns	rp2epub/document.py	/^	def css_change_patterns(self):$/;"	kind:member	line:112
+css_references	rp2epub/document.py	/^	def css_references(self):$/;"	kind:member	line:104
+css_tr_version	rp2epub/document.py	/^	def css_tr_version(self):$/;"	kind:member	line:354
+cssurls.py	rp2epub/cssurls.py	1;"	kind:file	line:1
+data	rp2epub/utils.py	/^	def data(self):$/;"	kind:member	line:538
+date	rp2epub/document.py	/^	def date(self):$/;"	kind:member	line:325
+date	rp2epub/document.py	/^from datetime import date, datetime$/;"	kind:namespace	line:28
+date	rp2epub/utils.py	/^from datetime import date$/;"	kind:namespace	line:24
+dated_uri	rp2epub/document.py	/^	def dated_uri(self):$/;"	kind:member	line:310
+datetime	epub-generator-link.py	/^import datetime$/;"	kind:namespace	line:7
+datetime	epub-generator/epub-generator.py	/^import datetime$/;"	kind:namespace	line:11
+datetime	rp2epub/document.py	/^from datetime import date, datetime$/;"	kind:namespace	line:28
+description	script/rp2epub	/^description = "Generate EPUB3 for a single W3C TR document, either in respec format (default) or an HTML file generated from respec or bikeshed."$/;"	kind:variable	line:6
+description	setup.py	/^	description='Generate EPUB3 files from respec based W3C Technical Reports, possibly generating from respec on the fly',$/;"	kind:variable	line:17
+doc2epub.py	rp2epub/doc2epub.py	1;"	kind:file	line:1
+doc_type	rp2epub/document.py	/^	def doc_type(self):$/;"	kind:member	line:315
+doc_type_info	rp2epub/document.py	/^	def doc_type_info(self):$/;"	kind:member	line:320
+document	rp2epub/doc2epub.py	/^	def document(self):$/;"	kind:member	line:137
+document	rp2epub/package.py	/^	def document(self):$/;"	kind:member	line:37
+document.py	rp2epub/document.py	1;"	kind:file	line:1
+domain	rp2epub/doc2epub.py	/^	def domain(self):$/;"	kind:member	line:127
+download_targets	rp2epub/document.py	/^	def download_targets(self):$/;"	kind:member	line:74
+download_url	setup.py	/^	download_url='https:\/\/github.com\/iherman\/tr2epub\/archive\/master.zip',$/;"	kind:variable	line:11
+driver	rp2epub/document.py	/^	def driver(self):$/;"	kind:member	line:79
+editors	rp2epub/document.py	/^	def editors(self):$/;"	kind:member	line:330
+editors_to_string	rp2epub/utils.py	/^	def editors_to_string(names, editor = True):$/;"	kind:member	line:467
+empty	rp2epub/cssurls.py	/^	def empty(self):$/;"	kind:member	line:82
+epub-generator-link.py	epub-generator-link.py	1;"	kind:file	line:1
+epub-generator.py	epub-generator/epub-generator.py	1;"	kind:file	line:1
+epub_author	Doc/source/conf.py	/^epub_author = u'Ivan Herman'$/;"	kind:variable	line:279
+epub_author	conf.py	/^epub_author = u'Ivan Herman'$/;"	kind:variable	line:271
+epub_basename	Doc/source/conf.py	/^epub_basename = u'respec2epub'$/;"	kind:variable	line:284
+epub_copyright	Doc/source/conf.py	/^epub_copyright = u'2016, Ivan Herman'$/;"	kind:variable	line:281
+epub_copyright	conf.py	/^epub_copyright = u'2015, Ivan Herman'$/;"	kind:variable	line:273
+epub_exclude_files	Doc/source/conf.py	/^epub_exclude_files = ['search.html']$/;"	kind:variable	line:321
+epub_identifier	Doc/source/conf.py	/^epub_identifier = 'https:\/\/github.com\/iherman\/respec2epub'$/;"	kind:variable	line:301
+epub_publisher	Doc/source/conf.py	/^epub_publisher = u'W3C'$/;"	kind:variable	line:280
+epub_publisher	conf.py	/^epub_publisher = u'Ivan Herman'$/;"	kind:variable	line:272
+epub_theme	Doc/source/conf.py	/^epub_theme = 'epub'$/;"	kind:variable	line:290
+epub_title	Doc/source/conf.py	/^epub_title = u'ReSpec to EPUB'$/;"	kind:variable	line:278
+epub_title	conf.py	/^epub_title = u'respec2epub'$/;"	kind:variable	line:270
+error	rp2epub/utils.py	/^	def error(message):$/;"	kind:member	line:738
+etree	rp2epub/package.py	/^import xml.etree.ElementTree as ET$/;"	kind:namespace	line:12
+exclude_patterns	Doc/source/conf.py	/^exclude_patterns = []$/;"	kind:variable	line:76
+exclude_patterns	conf.py	/^exclude_patterns = ['_build']$/;"	kind:variable	line:76
+extensions	Doc/source/conf.py	/^extensions = [$/;"	kind:variable	line:31
+extensions	conf.py	/^extensions = [$/;"	kind:variable	line:31
+extract_editors	rp2epub/utils.py	/^	def extract_editors(html):$/;"	kind:member	line:194
+extract_external_references	rp2epub/document.py	/^	def extract_external_references(self):$/;"	kind:member	line:119
+extract_toc	rp2epub/utils.py	/^	def extract_toc(html, short_name):$/;"	kind:member	line:367
+extract_toc_entry	rp2epub/utils.py	/^		def extract_toc_entry(parent, explicit_num=None):$/;"	kind:function	line:380
+final_target_media	rp2epub/document.py	/^		def final_target_media(f_session, f_target):$/;"	kind:function	line:129
+folder	rp2epub/doc2epub.py	/^	def folder(self):$/;"	kind:member	line:107
+folder	rp2epub/utils.py	/^	def folder(self):$/;"	kind:member	line:594
+fromstring	rp2epub/utils.py	/^from xml.etree.ElementTree import SubElement, ElementTree, tostring, fromstring$/;"	kind:namespace	line:29
+generate_ebook	epub-generator-link.py	/^	def generate_ebook(self):$/;"	kind:member	line:138
+generate_ebook	epub-generator/epub-generator.py	/^	def generate_ebook(self):$/;"	kind:member	line:146
+get_document_properties	rp2epub/utils.py	/^	def get_document_properties(html):$/;"	kind:member	line:111
+get_download_list	rp2epub/cssurls.py	/^	def get_download_list(self):$/;"	kind:member	line:205
+handle_exception	rp2epub/utils.py	/^		def handle_exception(message):$/;"	kind:function	line:499
+handle_one_css_ruleset	rp2epub/cssurls.py	/^		def handle_one_css_ruleset(one_ruleset):$/;"	kind:function	line:138
+handler	epub-generator-link.py	/^	handler = logging.handlers.RotatingFileHandler(filename="\/tmp\/epub_generator_logs\/log", maxBytes=maxBytes, backupCount=backupCount)$/;"	kind:variable	line:57
+handler	epub-generator/epub-generator.py	/^	handler = logging.handlers.RotatingFileHandler(filename="\/tmp\/epub_generator_logs\/log", maxBytes=maxBytes, backupCount=backupCount)$/;"	kind:variable	line:61
+handlers	epub-generator-link.py	/^	import logging.handlers$/;"	kind:namespace	line:45
+handlers	epub-generator/epub-generator.py	/^	import logging.handlers$/;"	kind:namespace	line:49
+handlers	script/rp2epub	/^import logging.handlers$/;"	kind:namespace	line:4
+href	rp2epub/utils.py	/^	def href(self):$/;"	kind:member	line:91
+html	rp2epub/doc2epub.py	/^	def html(self):$/;"	kind:member	line:142
+html	rp2epub/document.py	/^	def html(self):$/;"	kind:member	line:84
+html5lib	rp2epub/doc2epub.py	/^import html5lib$/;"	kind:namespace	line:23
+html5lib	rp2epub/utils.py	/^import html5lib$/;"	kind:namespace	line:31
+html_document	rp2epub/doc2epub.py	/^	def html_document(self):$/;"	kind:member	line:132
+html_search_language	Doc/source/conf.py	/^html_search_language = 'en'$/;"	kind:variable	line:187
+html_show_sourcelink	Doc/source/conf.py	/^html_show_sourcelink = False$/;"	kind:variable	line:170
+html_static_path	Doc/source/conf.py	/^html_static_path = ['_static']$/;"	kind:variable	line:138
+html_static_path	conf.py	/^html_static_path = ['_static']$/;"	kind:variable	line:136
+html_theme	Doc/source/conf.py	/^html_theme = 'haiku'$/;"	kind:variable	line:109
+html_theme	conf.py	/^html_theme = 'default'$/;"	kind:variable	line:107
+html_title	Doc/source/conf.py	/^html_title = "ReSpec to EPUB Utility"$/;"	kind:variable	line:121
+html_to_xhtml	rp2epub/utils.py	/^	def html_to_xhtml(html):$/;"	kind:member	line:243
+htmlhelp_basename	Doc/source/conf.py	/^htmlhelp_basename = 'RespectoEPUBdoc'$/;"	kind:variable	line:193
+htmlhelp_basename	conf.py	/^htmlhelp_basename = 'respec2epubdoc'$/;"	kind:variable	line:185
+import_css	rp2epub/cssurls.py	/^	def import_css(self):$/;"	kind:member	line:87
+import_misc	rp2epub/cssurls.py	/^	def import_misc(self):$/;"	kind:member	line:92
+info	rp2epub/utils.py	/^	def info(message):$/;"	kind:member	line:743
+install_requires	setup.py	/^	install_requires=['html5lib', 'tinycss'],$/;"	kind:variable	line:20
+json	rp2epub/document.py	/^import json$/;"	kind:namespace	line:23
+keywords	setup.py	/^	keywords='W3C EPUB3',$/;"	kind:variable	line:18
+label	rp2epub/utils.py	/^	def label(self):$/;"	kind:member	line:95
+language	Doc/source/conf.py	/^language = None$/;"	kind:variable	line:66
+latex_documents	Doc/source/conf.py	/^latex_documents = [$/;"	kind:variable	line:212
+latex_documents	conf.py	/^latex_documents = [$/;"	kind:variable	line:204
+latex_elements	Doc/source/conf.py	/^latex_elements = {$/;"	kind:variable	line:198
+latex_elements	conf.py	/^latex_elements = {$/;"	kind:variable	line:190
+license	setup.py	/^	license='W3C © SOFTWARE NOTICE AND LICENSE <http:\/\/www.w3.org\/Consortium\/Legal\/2002\/copyright-software-20021231>',$/;"	kind:variable	line:12
+locale	epub-generator-link.py	/^import locale$/;"	kind:namespace	line:11
+locale	epub-generator/epub-generator.py	/^import locale$/;"	kind:namespace	line:15
+locale	rp2epub/__init__.py	/^import locale$/;"	kind:namespace	line:2
+logger	epub-generator-link.py	/^	logger = None$/;"	kind:variable	line:67
+logger	epub-generator-link.py	/^	logger = logging.getLogger(" - ")$/;"	kind:variable	line:47
+logger	epub-generator/epub-generator.py	/^	logger = None$/;"	kind:variable	line:71
+logger	epub-generator/epub-generator.py	/^	logger = logging.getLogger(" - ")$/;"	kind:variable	line:51
+logger	rp2epub/utils.py	/^logger = None$/;"	kind:variable	line:38
+logging	epub-generator-link.py	/^	import logging$/;"	kind:namespace	line:44
+logging	epub-generator-link.py	/^	import logging.handlers$/;"	kind:namespace	line:45
+logging	epub-generator/epub-generator.py	/^	import logging$/;"	kind:namespace	line:48
+logging	epub-generator/epub-generator.py	/^	import logging.handlers$/;"	kind:namespace	line:49
+logging	script/rp2epub	/^import logging$/;"	kind:namespace	line:3
+logging	script/rp2epub	/^import logging.handlers$/;"	kind:namespace	line:4
+maintainer	setup.py	/^	maintainer='Ivan Herman',$/;"	kind:variable	line:13
+maintainer_email	setup.py	/^	maintainer_email='ivan@ivan-herman.net',$/;"	kind:variable	line:14
+man_pages	Doc/source/conf.py	/^man_pages = [$/;"	kind:variable	line:242
+man_pages	conf.py	/^man_pages = [$/;"	kind:variable	line:234
+master_doc	Doc/source/conf.py	/^master_doc = 'index'$/;"	kind:variable	line:49
+master_doc	conf.py	/^master_doc = 'index'$/;"	kind:variable	line:49
+maxBytes	epub-generator-link.py	/^	maxBytes = 3000 if local else 100000$/;"	kind:variable	line:54
+maxBytes	epub-generator/epub-generator.py	/^	maxBytes = 3000 if local else 100000$/;"	kind:variable	line:58
+media_type	rp2epub/utils.py	/^	def media_type(self):$/;"	kind:member	line:552
+meta_inf	rp2epub/utils.py	/^from .templates import meta_inf$/;"	kind:namespace	line:33
+name	rp2epub/cssurls.py	/^	def name(self):$/;"	kind:member	line:48
+name	rp2epub/utils.py	/^	def name(self):$/;"	kind:member	line:599
+name	setup.py	/^	name='rp2epub',$/;"	kind:variable	line:6
+nav_toc	rp2epub/document.py	/^	def nav_toc(self):$/;"	kind:member	line:347
+now	epub-generator-link.py	/^def now():$/;"	kind:function	line:73
+now	epub-generator/epub-generator.py	/^def now():$/;"	kind:function	line:77
+one_level	rp2epub/cssurls.py	/^		def one_level(css_references):$/;"	kind:function	line:219
+os	Doc/source/conf.py	/^import os$/;"	kind:namespace	line:16
+os	conf.py	/^import os$/;"	kind:namespace	line:16
+os	epub-generator-link.py	/^import os$/;"	kind:namespace	line:3
+os	epub-generator-link.py	/^import os.path$/;"	kind:namespace	line:4
+os	epub-generator/epub-generator.py	/^import os$/;"	kind:namespace	line:7
+os	epub-generator/epub-generator.py	/^import os.path$/;"	kind:namespace	line:8
+os	rp2epub/utils.py	/^import os$/;"	kind:namespace	line:26
+os	rp2epub/utils.py	/^import os.path$/;"	kind:namespace	line:27
+package	rp2epub/doc2epub.py	/^	def package(self):$/;"	kind:member	line:102
+package	rp2epub/utils.py	/^	def package(self):$/;"	kind:member	line:589
+package.py	rp2epub/package.py	1;"	kind:file	line:1
+packages	setup.py	/^	packages=['rp2epub'],$/;"	kind:variable	line:8
+path	epub-generator-link.py	/^import os.path$/;"	kind:namespace	line:4
+path	epub-generator/epub-generator.py	/^import os.path$/;"	kind:namespace	line:8
+path	rp2epub/utils.py	/^import os.path$/;"	kind:namespace	line:27
+platforms	setup.py	/^	platforms='any',$/;"	kind:variable	line:19
+process	epub-generator-link.py	/^	def process(self):$/;"	kind:member	line:156
+process	epub-generator/epub-generator.py	/^	def process(self):$/;"	kind:member	line:166
+process	rp2epub/doc2epub.py	/^	def process(self):$/;"	kind:member	line:156
+process	rp2epub/package.py	/^	def process(self):$/;"	kind:member	line:41
+process	script/rp2epub	/^def process():$/;"	kind:function	line:28
+project	Doc/source/conf.py	/^project = u'Respec to EPUB Utility'$/;"	kind:variable	line:52
+project	conf.py	/^project = u'respec2epub'$/;"	kind:variable	line:52
+properties	rp2epub/document.py	/^	def properties(self):$/;"	kind:member	line:289
+pygments_style	Doc/source/conf.py	/^pygments_style = 'sphinx'$/;"	kind:variable	line:94
+pygments_style	conf.py	/^pygments_style = 'sphinx'$/;"	kind:variable	line:94
+re	rp2epub/utils.py	/^import re$/;"	kind:namespace	line:25
+release	Doc/source/conf.py	/^release = '1.4'$/;"	kind:variable	line:62
+release	conf.py	/^release = '3'$/;"	kind:variable	line:62
+requires	setup.py	/^	requires=['html5lib', 'tinycss'],$/;"	kind:variable	line:21
+respec_config	rp2epub/document.py	/^	def respec_config(self):$/;"	kind:member	line:294
+respond	epub-generator-link.py	/^def respond(wrapper, modified):$/;"	kind:function	line:81
+respond	epub-generator/epub-generator.py	/^def respond(wrapper, modified):$/;"	kind:function	line:85
+retrieve_date	rp2epub/utils.py	/^	def retrieve_date(duri):$/;"	kind:member	line:170
+rp2epub	epub-generator-link.py	/^		import rp2epub$/;"	kind:namespace	line:146
+rp2epub	epub-generator/epub-generator.py	/^		import rp2epub$/;"	kind:namespace	line:155
+rp2epub	script/rp2epub	1;"	kind:file	line:1
+rp2epub	setup.py	/^import rp2epub$/;"	kind:namespace	line:3
+scripts	setup.py	/^	scripts=['script\/rp2epub'],$/;"	kind:variable	line:9
+set_html_meta	rp2epub/utils.py	/^	def set_html_meta(html, head):$/;"	kind:member	line:223
+set_nav_point	rp2epub/package.py	/^		def set_nav_point(parent, href, label, the_index):$/;"	kind:function	line:124
+setup	setup.py	/^from distutils.core import setup$/;"	kind:namespace	line:2
+setup.py	setup.py	1;"	kind:file	line:1
+short_label	rp2epub/utils.py	/^	def short_label(self):$/;"	kind:member	line:99
+short_label_pattern	rp2epub/utils.py	/^short_label_pattern = re.compile("^[1-9][0-9]*\\. .*$")$/;"	kind:variable	line:55
+short_name	rp2epub/document.py	/^	def short_name(self):$/;"	kind:member	line:305
+shutil	rp2epub/utils.py	/^import shutil$/;"	kind:namespace	line:28
+source_suffix	Doc/source/conf.py	/^source_suffix = '.rst'$/;"	kind:variable	line:43
+source_suffix	conf.py	/^source_suffix = '.rst'$/;"	kind:variable	line:43
+subtitle	rp2epub/document.py	/^	def subtitle(self):$/;"	kind:member	line:359
+success	rp2epub/utils.py	/^	def success(self):$/;"	kind:member	line:531
+sys	Doc/source/conf.py	/^import sys$/;"	kind:namespace	line:15
+sys	conf.py	/^import sys$/;"	kind:namespace	line:15
+sys	epub-generator-link.py	/^import sys$/;"	kind:namespace	line:5
+sys	epub-generator/epub-generator.py	/^import sys$/;"	kind:namespace	line:9
+sys	rp2epub/document.py	/^import sys$/;"	kind:namespace	line:24
+tempfile	rp2epub/doc2epub.py	/^import tempfile$/;"	kind:namespace	line:26
+templates.py	rp2epub/templates.py	1;"	kind:file	line:1
+templates_path	Doc/source/conf.py	/^templates_path = ['_templates']$/;"	kind:variable	line:40
+templates_path	conf.py	/^templates_path = ['_templates']$/;"	kind:variable	line:40
+texinfo_documents	Doc/source/conf.py	/^texinfo_documents = [$/;"	kind:variable	line:256
+texinfo_documents	conf.py	/^texinfo_documents = [$/;"	kind:variable	line:248
+tinycss	rp2epub/cssurls.py	/^import tinycss$/;"	kind:namespace	line:25
+title	rp2epub/document.py	/^	def title(self):$/;"	kind:member	line:284
+toc	rp2epub/document.py	/^	def toc(self):$/;"	kind:member	line:340
+toc_extract_nav	rp2epub/utils.py	/^		def toc_extract_nav():$/;"	kind:function	line:433
+toc_respec_or_bikeshed	rp2epub/utils.py	/^		def toc_respec_or_bikeshed():$/;"	kind:function	line:411
+today_fmt	Doc/source/conf.py	/^today_fmt = '%B %d, %Y'$/;"	kind:variable	line:72
+todo_include_todos	Doc/source/conf.py	/^todo_include_todos = False$/;"	kind:variable	line:103
+top_uri	rp2epub/doc2epub.py	/^	def top_uri(self):$/;"	kind:member	line:147
+tostring	rp2epub/utils.py	/^from xml.etree.ElementTree import SubElement, ElementTree, tostring, fromstring$/;"	kind:namespace	line:29
+traceback	epub-generator-link.py	/^import traceback$/;"	kind:namespace	line:8
+traceback	epub-generator/epub-generator.py	/^import traceback$/;"	kind:namespace	line:12
+traceback	rp2epub/document.py	/^import traceback$/;"	kind:namespace	line:25
+url	rp2epub/cssurls.py	/^	def url(self):$/;"	kind:member	line:43
+url	rp2epub/utils.py	/^	def url(self):$/;"	kind:member	line:545
+url	setup.py	/^	url='https:\/\/github.com\/iherman\/respec2epub',$/;"	kind:variable	line:10
+url_respec_setting	rp2epub/doc2epub.py	/^	def url_respec_setting(self):$/;"	kind:member	line:112
+urljoin	rp2epub/cssurls.py	/^from urlparse import urljoin, urlparse$/;"	kind:namespace	line:24
+urljoin	rp2epub/document.py	/^from urlparse import urlparse, urljoin$/;"	kind:namespace	line:22
+urllib	epub-generator-link.py	/^import urllib$/;"	kind:namespace	line:6
+urllib	epub-generator/epub-generator.py	/^import urllib$/;"	kind:namespace	line:10
+urlopen	rp2epub/utils.py	/^from urllib2 import urlopen$/;"	kind:namespace	line:22
+urlparse	rp2epub/cssurls.py	/^from urlparse import urljoin, urlparse$/;"	kind:namespace	line:24
+urlparse	rp2epub/doc2epub.py	/^from urlparse import urlparse, urlunparse$/;"	kind:namespace	line:25
+urlparse	rp2epub/document.py	/^from urlparse import urlparse, urljoin$/;"	kind:namespace	line:22
+urlunparse	rp2epub/doc2epub.py	/^from urlparse import urlparse, urlunparse$/;"	kind:namespace	line:25
+utils	rp2epub/doc2epub.py	/^import utils$/;"	kind:namespace	line:34
+utils.py	rp2epub/utils.py	1;"	kind:file	line:1
+version	Doc/source/conf.py	/^version = '1.4'$/;"	kind:variable	line:60
+version	conf.py	/^version = '1'$/;"	kind:variable	line:60
+version	setup.py	/^	version=rp2epub.__version__,$/;"	kind:variable	line:7
+warning	rp2epub/utils.py	/^	def warning(message):$/;"	kind:member	line:733
+write_HTTP	rp2epub/utils.py	/^	def write_HTTP(self, target, url):$/;"	kind:member	line:680
+write_element	rp2epub/utils.py	/^	def write_element(self, target, element):$/;"	kind:member	line:628
+write_session	rp2epub/utils.py	/^	def write_session(self, target, session, css_change_patterns = None):$/;"	kind:member	line:642
+writestr	rp2epub/utils.py	/^	def writestr(self, target, content, compress=zipfile.ZIP_DEFLATED):$/;"	kind:member	line:608
+xml	rp2epub/package.py	/^import xml.etree.ElementTree as ET$/;"	kind:namespace	line:12
+zip	rp2epub/utils.py	/^	def zip(self):$/;"	kind:member	line:604
+zipfile	rp2epub/utils.py	/^import zipfile$/;"	kind:namespace	line:30
