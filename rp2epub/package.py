@@ -80,6 +80,9 @@ class Package(object):
 			item = SubElement(manifest, "{http://www.idpf.org/2007/opf}item")
 			item.set("href", resource_target)
 			item.set("media-type", media_type)
+			# The "diff.xhtml" file usually inherits the properties of the Overview file...
+			if resource_target == "diff.xhtml":
+				item.set("properties", self.document.properties)
 			item.set("id", resource_target.replace('/', '-').replace('.','-'))
 			item.tail = "\n    "
 
@@ -265,6 +268,3 @@ class Package(object):
 		span.text = self.document.date.strftime("%Y")
 
 		self.book.write_element('cover.xhtml', cover)
-
-
-
