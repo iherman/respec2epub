@@ -144,7 +144,7 @@ class Document(object):
 			if attr_value is not None and all(map(lambda x: x[1] != attr_value, TO_TRANSFER)):
 				# Remove the possible fragment ID. This may happen if the document refers to a fragment of another
 				# file locally, for example; that should not be relevant for what follows
-				attr_value = attr_value.split('#')[0]
+				attr_value = attr_value.split('#')[0].strip()
 
 				# The following artifact is necessary to treat the WWW level, official URIs and local ones
 				ref = urljoin(self.driver.base, attr_value)
@@ -514,5 +514,3 @@ class Document(object):
 
 		# Extract the table of content
 		(self._toc, self._nav_toc) = Utils.extract_toc(self.html, self.short_name)
-
-
