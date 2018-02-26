@@ -117,7 +117,7 @@ TOC = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
 
 # noinspection PyPep8
 PACKAGE = """<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" version="3.01" xml:lang="en" unique-identifier="pub-id" prefix="cc: http://creativecommons.org/ns#">
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="en" unique-identifier="pub-id" prefix="cc: http://creativecommons.org/ns#">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:title id="title" />
     <meta refines="#title" property="title-type">main</meta>
