@@ -1,6 +1,10 @@
+<span style="font-size: 120%">_**This project is now archived and will not maintained any more. In particular, I do not plan to change the project to make it Python 3 compatible. A replacement for the ReSpec->EPUB has been developed in TypeScript called [`r2epub`](https://github.com/iherman/r2epub). On the other hand, there was no real interest in the corresponding Bikeshed->EPUB transformation, i.e., there is no replacement for that.**_</span>
+
+
 # ReSpec (and Bikeshed output) to EPUB
 
 Python script to assist in turning W3C ReSpec documents into EPUB; it can also convert HTML documents that were originally produced by ReSpec or Bikeshed into EPUB. The script does **not** aim at being a generic HTML->EPUB solution, it is indeed tailored at W3C TR documents based on ReSpec and Bikeshed.
+
 
 Note that the project includes:
 
